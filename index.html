@@ -18,7 +18,7 @@
             --hover-bg: rgba(0, 0, 0, 0.06);
             
             /* 液态玻璃 (浅色) */
-            --liquid-bg: rgba(255, 255, 255, 0.55);
+            --liquid-bg: rgba(255, 255, 255, 0.65);
             --liquid-border: rgba(255, 255, 255, 0.9);
             --liquid-shadow: 0 16px 40px rgba(0, 0, 0, 0.08), 
                              inset 0 1px 1px rgba(255, 255, 255, 0.8),
@@ -40,7 +40,7 @@
             --hover-bg: rgba(255, 255, 255, 0.12);
             
             /* 液态玻璃 (深色) */
-            --liquid-bg: rgba(30, 30, 32, 0.65);
+            --liquid-bg: rgba(30, 30, 32, 0.75);
             --liquid-border: rgba(255, 255, 255, 0.15);
             --liquid-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), 
                              inset 0 1px 1px rgba(255, 255, 255, 0.15),
@@ -64,47 +64,94 @@
             justify-content: center;
         }
 
-        /* 🍎 欢迎屏 */
-        .welcome-screen {
+        /* =========================================
+           🍎 首页：视频库与本地上传 (Home Screen)
+           ========================================= */
+        .home-screen {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            display: flex; flex-direction: column;
             z-index: 100; background: var(--bg);
             transition: opacity 0.5s ease, visibility 0.5s ease, transform 0.5s ease;
-            padding: 24px; text-align: center;
+            padding: 60px 40px; overflow-y: auto;
         }
-        .welcome-screen.hidden { opacity: 0; visibility: hidden; transform: scale(0.98); }
-        .welcome-title { font-size: 42px; font-weight: 700; letter-spacing: -1.2px; margin-bottom: 12px; }
-        .welcome-sub { font-size: 17px; color: var(--text-sub); margin-bottom: 40px; font-weight: 500; }
+        .home-screen.hidden { opacity: 0; visibility: hidden; transform: scale(0.98); }
         
-        .upload-actions { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
-        .btn-large {
-            background: var(--surface); border: 1px solid var(--border); padding: 14px 28px;
-            border-radius: 99px; font-size: 15px; font-weight: 600; color: var(--text-main);
-            cursor: pointer; box-shadow: var(--shadow); transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
-            display: flex; align-items: center; gap: 8px;
-        }
-        .btn-large:active { transform: scale(0.96); }
-        .btn-large.active { border-color: var(--blue); color: var(--blue); }
-        .btn-large svg { width: 18px; height: 18px; fill: currentColor; }
+        .home-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; max-width: 1200px; margin-left: auto; margin-right: auto; width: 100%; }
+        .home-title { font-size: 36px; font-weight: 700; letter-spacing: -1px; }
+        
+        .section-container { max-width: 1200px; margin: 0 auto 40px auto; width: 100%; }
+        .section-title { font-size: 20px; font-weight: 600; color: var(--text-main); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+        .section-title svg { width: 22px; height: 22px; fill: var(--blue); }
 
-        /* 🍎 主工作区 */
+        /* 视频网格 */
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+        .video-card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+            overflow: hidden; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+            box-shadow: var(--shadow); position: relative;
+        }
+        .video-card:hover { transform: translateY(-6px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); border-color: var(--blue); }
+        .video-card:active { transform: translateY(-2px) scale(0.98); }
+        .card-cover { 
+            height: 160px; background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); 
+            background-size: cover; background-position: center; position: relative;
+        }
+        .card-duration {
+            position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,0.65);
+            color: #fff; font-size: 12px; font-weight: 600; padding: 4px 8px; border-radius: 6px;
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        }
+        .card-info { padding: 16px; }
+        .card-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; line-height: 1.4; }
+        .card-desc { font-size: 13px; color: var(--text-sub); }
+        .card-loading-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.8); backdrop-filter: blur(4px);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: 0.3s; z-index: 10;
+        }
+        .dark-theme .card-loading-overlay { background: rgba(0,0,0,0.7); }
+        .video-card.loading .card-loading-overlay { opacity: 1; pointer-events: all; }
+        .spinner {
+            width: 24px; height: 24px; border: 3px solid var(--border); border-top-color: var(--blue);
+            border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* 本地上传区域 */
+        .upload-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+        .btn-large {
+            background: var(--surface); border: 1px solid var(--border); padding: 16px 24px;
+            border-radius: 16px; font-size: 15px; font-weight: 600; color: var(--text-main);
+            cursor: pointer; box-shadow: var(--shadow); transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+            display: flex; align-items: center; gap: 10px; flex: 1; min-width: 200px;
+        }
+        .btn-large:hover { border-color: var(--text-main); }
+        .btn-large:active { transform: scale(0.97); }
+        .btn-large.ready { border-color: var(--green); color: var(--green); background: rgba(52, 199, 89, 0.05); }
+        .btn-large svg { width: 20px; height: 20px; fill: currentColor; }
+        
+        .launch-btn {
+            background: var(--blue); color: #fff; border: none; padding: 16px 32px;
+            border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer;
+            box-shadow: 0 8px 24px rgba(0, 122, 255, 0.3); transition: 0.3s;
+            opacity: 0.5; pointer-events: none;
+        }
+        .launch-btn.active { opacity: 1; pointer-events: auto; }
+        .launch-btn.active:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0, 122, 255, 0.4); }
+        .launch-btn.active:active { transform: scale(0.96); }
+
+        /* =========================================
+           🍎 主工作区 (Workspace)
+           ========================================= */
         .workspace {
             display: flex; width: 100%; max-width: 1600px; height: 100dvh;
-            padding: 24px; gap: 24px; opacity: 0; visibility: hidden;
+            padding: 24px; gap: 24px; opacity: 0; visibility: hidden; position: absolute;
             transform: translateY(20px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .workspace.active { opacity: 1; visibility: visible; transform: translateY(0); }
+        .workspace.active { opacity: 1; visibility: visible; transform: translateY(0); position: relative; }
 
-        /* 修改了侧边栏的宽度逻辑，使其在电脑端自适应并放大视频 */
-        .sidebar { 
-            width: 45%; 
-            min-width: 400px; 
-            max-width: 720px; 
-            flex-shrink: 0; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 20px; 
-        }
+        .sidebar { width: 45%; min-width: 400px; max-width: 720px; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px; }
         .video-container { border-radius: 20px; overflow: hidden; background: #000; box-shadow: var(--shadow); transform: translateZ(0); }
         video { width: 100%; display: block; outline: none; }
 
@@ -227,8 +274,9 @@
         .vocab-close-mobile { display: none; font-size: 24px; cursor: pointer; color: var(--text-sub); font-weight: 300; }
 
         @media (max-width: 1024px) {
+            .home-screen { padding: 40px 20px; }
+            .home-title { font-size: 28px; }
             body { align-items: flex-start; }
-            .welcome-title { font-size: 32px; }
             
             .workspace { flex-direction: column; padding: 0; gap: 0; }
             .sidebar { width: 100%; max-width: none; min-width: 0; gap: 0; }
@@ -254,6 +302,7 @@
             #mobileVocabToggle { display: flex; }
             .vocab-close-mobile { display: block; }
             .word-del { opacity: 1; } 
+            .upload-actions { flex-direction: column; }
             
             .vocab-container {
                 position: fixed; bottom: 0; left: 0; width: 100%; height: 75dvh;
@@ -278,23 +327,49 @@
 </head>
 <body>
 
-<div class="welcome-screen" id="welcomeScreen">
-    <div class="welcome-title">Studio Pro</div>
-    <div class="welcome-sub">Drop video and subtitles to begin</div>
-    <div class="upload-actions">
-        <label class="btn-large" id="btnVideo">
-            <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-            <span id="txtVideo">Video (MP4)</span>
-            <input type="file" id="videoInput" accept="video/mp4,video/webm" hidden>
-        </label>
-        <label class="btn-large" id="btnSub">
-            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-            <span id="txtSub">Subtitle (SRT / JSON)</span>
-            <input type="file" id="subtitleInput" accept=".srt,.json" hidden>
-        </label>
+<!-- 🍎 视频库 / 首页 -->
+<div class="home-screen" id="homeScreen">
+    <div class="home-header">
+        <div class="home-title">Studio Library</div>
+        <button class="icon-btn" id="homeThemeBtn" title="Toggle Theme" style="background:var(--surface); border:1px solid var(--border)">
+            <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+        </button>
+    </div>
+
+    <!-- 精选视频专区 -->
+    <div class="section-container">
+        <div class="section-title">
+            <svg viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11z"/><circle cx="17.5" cy="17.5" r="4.5"/><path d="M3 13.5h8v8H3z"/></svg>
+            精选课程 (Featured)
+        </div>
+        <div class="video-grid" id="featuredGrid">
+            <!-- 卡片由 JS 动态生成 -->
+        </div>
+    </div>
+
+    <!-- 本地上传专区 -->
+    <div class="section-container" style="margin-top: 60px;">
+        <div class="section-title">
+            <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.36 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+            本地工作区 (Local Files)
+        </div>
+        <div class="upload-actions">
+            <label class="btn-large" id="btnLocalVideo">
+                <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                <span id="txtLocalVideo">选择本地视频 (MP4)</span>
+                <input type="file" id="localVideoInput" accept="video/mp4,video/webm" hidden>
+            </label>
+            <label class="btn-large" id="btnLocalSub">
+                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                <span id="txtLocalSub">选择本地字幕 (SRT/JSON)</span>
+                <input type="file" id="localSubInput" accept=".srt,.json" hidden>
+            </label>
+            <button class="launch-btn" id="btnLaunchLocal">进入学习舱 →</button>
+        </div>
     </div>
 </div>
 
+<!-- 🍎 主工作区 -->
 <div class="workspace" id="workspace">
     <div class="sidebar">
         <div class="video-container">
@@ -311,7 +386,7 @@
 
     <div class="main-content">
         <div class="toolbar-floating" id="toolbar">
-            <button class="icon-btn" id="reuploadBtn" title="Back to Home">
+            <button class="icon-btn" id="backToHomeBtn" title="Back to Library">
                 <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
             </button>
             <button class="icon-btn" id="themeBtn" title="Toggle Theme">
@@ -351,6 +426,20 @@
 </div>
 
 <script>
+// 🍎 数据驱动的精选视频配置
+const featuredVideos = [
+    {
+        id: 'seed_video_001',
+        title: 'Study Motivation',
+        desc: 'Academic Listening • B2 Level',
+        coverUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=80', 
+        duration: '03:45',
+        videoUrl: 'https://revbsrjaeoldhhifibdx.supabase.co/storage/v1/object/public/videos/study.mp4',
+        subUrl: 'http://localhost:8000/api/subtitles/seed_video_001?track_type=annotated&language=en-zh'
+    }
+    // 未来可以轻松在此处追加更多视频...
+];
+
 const state = { 
     subtitles: [], 
     currentLoopIndex: null, 
@@ -358,7 +447,8 @@ const state = {
     dictationMode: false, 
     translationVisible: true, 
     currentWord: null,
-    videoObjectURL: null 
+    videoObjectURL: null,
+    localReady: { v: false, s: false }
 };
 
 const dom = { 
@@ -366,59 +456,160 @@ const dom = {
     transcript: document.getElementById('transcript'), 
     tooltip: document.getElementById('tooltip'), 
     themeBtn: document.getElementById('themeBtn'), 
+    homeThemeBtn: document.getElementById('homeThemeBtn'),
     translateBtn: document.getElementById('translateBtn'), 
     dictationBtn: document.getElementById('dictationBtn'), 
     saveWordBtn: document.getElementById('saveWordBtn'), 
     vocabList: document.getElementById('vocabList'), 
-    welcomeScreen: document.getElementById('welcomeScreen'), 
+    homeScreen: document.getElementById('homeScreen'), 
     workspace: document.getElementById('workspace'), 
     vocabContainer: document.getElementById('vocabContainer'), 
     mobileVocabToggle: document.getElementById('mobileVocabToggle'), 
     closeVocabBtn: document.getElementById('closeVocabBtn'), 
     speedToggleBtn: document.getElementById('speedToggleBtn'), 
     speedMenu: document.getElementById('speedMenu'), 
-    reuploadBtn: document.getElementById('reuploadBtn'), 
-    btnVideo: document.getElementById('btnVideo'), 
-    btnSub: document.getElementById('btnSub'),
-    toolbar: document.getElementById('toolbar')
+    backToHomeBtn: document.getElementById('backToHomeBtn'), 
+    
+    // 本地上传元素
+    btnLocalVideo: document.getElementById('btnLocalVideo'), 
+    btnLocalSub: document.getElementById('btnLocalSub'),
+    txtLocalVideo: document.getElementById('txtLocalVideo'),
+    txtLocalSub: document.getElementById('txtLocalSub'),
+    btnLaunchLocal: document.getElementById('btnLaunchLocal'),
+    localVideoInput: document.getElementById('localVideoInput'),
+    localSubInput: document.getElementById('localSubInput'),
+    
+    featuredGrid: document.getElementById('featuredGrid')
 };
+
+// 🍎 渲染视频库卡片
+function renderLibrary() {
+    dom.featuredGrid.innerHTML = featuredVideos.map(v => `
+        <div class="video-card" id="card-${v.id}" onclick="loadFeaturedVideo('${v.id}')">
+            <div class="card-loading-overlay"><div class="spinner"></div><span style="font-size:13px; font-weight:500;">加载字幕中...</span></div>
+            <div class="card-cover" style="background-image: url('${v.coverUrl}')">
+                <div class="card-duration">${v.duration}</div>
+            </div>
+            <div class="card-info">
+                <div class="card-title">${v.title}</div>
+                <div class="card-desc">${v.desc}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// 🍎 加载指定的精选视频
+async function loadFeaturedVideo(id) {
+    const videoData = featuredVideos.find(v => v.id === id);
+    if (!videoData) return;
+
+    const card = document.getElementById(`card-${id}`);
+    card.classList.add('loading'); // 显示卡片上的加载动画
+
+    try {
+        // 1. 设置视频源
+        if(state.videoObjectURL) { URL.revokeObjectURL(state.videoObjectURL); state.videoObjectURL = null; }
+        dom.player.src = videoData.videoUrl;
+        
+        // 2. 请求后端字幕
+        const res = await fetch(videoData.subUrl);
+        if (!res.ok) throw new Error("Backend response not ok");
+        const text = await res.text();
+        
+        // 3. 解析字幕
+        try {
+            let parsedData = JSON.parse(text);
+            
+            // 兼容处理：如果后端返回的是对象结构 (如 { data: [...] } 或 { subtitles: [...] })
+            if (!Array.isArray(parsedData)) {
+                if (parsedData.data && Array.isArray(parsedData.data)) {
+                    state.subtitles = parsedData.data;
+                } else if (parsedData.subtitles && Array.isArray(parsedData.subtitles)) {
+                    state.subtitles = parsedData.subtitles;
+                } else if (parsedData.items && Array.isArray(parsedData.items)) {
+                    state.subtitles = parsedData.items;
+                } else {
+                    console.warn("⚠️ 警告：无法在 JSON 中找到字幕数组，原始数据为:", parsedData);
+                    state.subtitles = []; // 找不到则置为空数组防止崩溃
+                }
+            } else {
+                state.subtitles = parsedData; // 如果直接就是数组
+            }
+        } catch (e) {
+            // JSON 解析失败则回退为 SRT 格式
+            state.subtitles = parseSRT(text);
+        }
+
+        // 终极容错：确保 state.subtitles 绝对是一个数组
+        if (!Array.isArray(state.subtitles)) {
+            state.subtitles = [];
+        }
+
+        // 4. 进入工作区
+        renderTranscript();
+        enterWorkspace();
+        
+    } catch (err) {
+        console.error("加载字幕失败:", err);
+        alert(`无法从 ${videoData.subUrl} 获取字幕，请检查后端服务是否启动。`);
+    } finally {
+        card.classList.remove('loading');
+    }
+}
+
+// 🍎 切换到工作区动画
+function enterWorkspace() {
+    dom.homeScreen.classList.add('hidden');
+    setTimeout(() => dom.workspace.classList.add('active'), 300);
+}
+
+// 🍎 退出工作区返回首页
+dom.backToHomeBtn.onclick = () => {
+    dom.workspace.classList.remove('active');
+    dom.player.pause();
+    setTimeout(() => { dom.homeScreen.classList.remove('hidden'); }, 300);
+};
+
+// 🍎 主题切换 (同步首页和工作区)
+const toggleTheme = () => {
+    document.body.classList.toggle('dark-theme'); 
+    const isDark = document.body.classList.contains('dark-theme');
+    if(isDark) {
+        dom.themeBtn.classList.add('active');
+        dom.homeThemeBtn.classList.add('active');
+    } else {
+        dom.themeBtn.classList.remove('active');
+        dom.homeThemeBtn.classList.remove('active');
+    }
+};
+dom.themeBtn.onclick = toggleTheme;
+dom.homeThemeBtn.onclick = toggleTheme;
+
+// ... [保留原有的解析器、高亮引擎、播放器控制逻辑] ...
 
 // 🍎 基于 JSON 结构化数据的高亮引擎
 function applyLocalHighlights(text, highlights) {
     if (!highlights || !Array.isArray(highlights) || highlights.length === 0) return text;
-    
     let res = text;
     let placeholders = [];
-    
     const sortedHighlights = [...highlights].sort((a, b) => b.text.length - a.text.length);
     
     sortedHighlights.forEach(hl => {
         const escapeRegExp = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const regex = new RegExp(`\\b${escapeRegExp(hl.text)}\\b`, 'gi');
-        
         res = res.replace(regex, match => {
             const className = hl.type === 'phrase' ? 'hl-phrase' : 'hl-word';
             placeholders.push(`<span class="${className}">${match}</span>`);
             return `__PH__${placeholders.length - 1}__`;
         });
     });
-    
-    placeholders.forEach((html, i) => {
-        res = res.replace(`__PH__${i}__`, html);
-    });
-    
+    placeholders.forEach((html, i) => { res = res.replace(`__PH__${i}__`, html); });
     return res;
 }
 
 const getVocab = () => JSON.parse(localStorage.getItem('vocabPro2')) || [];
 const saveVocab = words => { try { localStorage.setItem('vocabPro2', JSON.stringify(words)); } catch(e){} };
 
-dom.reuploadBtn.onclick = () => {
-    dom.workspace.classList.remove('active');
-    setTimeout(() => { dom.welcomeScreen.classList.remove('hidden'); }, 300);
-    dom.player.pause();
-};
-dom.themeBtn.onclick = () => { document.body.classList.toggle('dark-theme'); dom.themeBtn.classList.toggle('active'); };
 dom.translateBtn.onclick = () => { 
     state.translationVisible = !state.translationVisible; dom.translateBtn.classList.toggle('active'); 
     document.querySelectorAll('.lyric-zh').forEach(el => el.classList.toggle('hidden', !state.translationVisible)); 
@@ -466,12 +657,10 @@ function parseSRT(data) {
     const subtitleRegex = /(\d{2}:\d{2}:\d{2}[,.]\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}[,.]\d{3})(?:\s+[^\n]*)?\n([\s\S]*?)(?=\n{2,}|\n\d+\n\d{2}:|$)/g;
     const subtitles = [];
     let match;
-    
     const timeToSec = (t) => {
         const [hrs, mins, secs] = t.replace(',', '.').split(':');
         return (+hrs * 3600) + (+mins * 60) + parseFloat(secs);
     };
-
     while ((match = subtitleRegex.exec(data.replace(/\r\n/g, '\n'))) !== null) {
         const start = timeToSec(match[1]);
         const end = timeToSec(match[2]);
@@ -482,7 +671,7 @@ function parseSRT(data) {
     return subtitles;
 }
 
-let lyricNodes = []; // 节点缓存
+let lyricNodes = [];
 
 function renderTranscript() {
     dom.transcript.innerHTML = state.subtitles.map((item, i) => `
@@ -512,7 +701,6 @@ function toggleLoop(index, node) {
     }
 }
 
-// 🍎 高频事件节流与性能优化
 let isThrottled = false;
 dom.player.addEventListener('timeupdate', () => {
     if (isThrottled || !state.subtitles.length || !lyricNodes.length) return;
@@ -536,10 +724,7 @@ dom.player.addEventListener('timeupdate', () => {
             if (activeIdx !== -1 && lyricNodes[activeIdx]) {
                 lyricNodes[activeIdx].classList.add('active');
                 const offset = window.innerWidth <= 1024 ? 140 : dom.transcript.clientHeight / 2;
-                dom.transcript.scrollTo({ 
-                    top: lyricNodes[activeIdx].offsetTop - offset, 
-                    behavior: 'smooth' 
-                });
+                dom.transcript.scrollTo({ top: lyricNodes[activeIdx].offsetTop - offset, behavior: 'smooth' });
             }
             state.currentActiveIndex = activeIdx;
         }
@@ -549,14 +734,12 @@ dom.player.addEventListener('timeupdate', () => {
             const sub = state.subtitles[state.currentLoopIndex];
             if (now >= sub.end - 0.05 || now < sub.start) dom.player.currentTime = sub.start;
         }
-        
         isThrottled = false;
     });
 });
 
 document.addEventListener('selectionchange', () => setTimeout(handleSelection, 300));
 
-// 🍎 支持意群捕获
 async function handleSelection() {
     const text = window.getSelection().toString().trim();
     if (text && /^[a-zA-Z\s'-]{2,60}$/.test(text)) {
@@ -633,56 +816,57 @@ function renderVocab() {
 }
 window.deleteWord = i => { let words = getVocab(); words.splice(i, 1); saveVocab(words); renderVocab(); };
 
-let filesReady = { v: false, s: false };
-function checkReady() {
-    if (filesReady.v && filesReady.s) {
-        dom.welcomeScreen.classList.add('hidden');
-        setTimeout(() => dom.workspace.classList.add('active'), 300);
-        filesReady = { v: false, s: false }; 
+// 🍎 本地文件逻辑处理
+function checkLocalReady() {
+    if (state.localReady.v && state.localReady.s) {
+        dom.btnLaunchLocal.classList.add('active');
     }
 }
 
-function handleFiles(files) {
+function handleLocalFiles(files) {
     Array.from(files).forEach(f => {
         if (f.type.includes('video') || f.name.endsWith('.mp4') || f.name.endsWith('.webm')) {
             if(state.videoObjectURL) URL.revokeObjectURL(state.videoObjectURL);
             state.videoObjectURL = URL.createObjectURL(f);
             dom.player.src = state.videoObjectURL;
             
-            dom.player.setAttribute('playsinline', 'true'); 
-            dom.player.setAttribute('webkit-playsinline', 'true');
-            dom.player.setAttribute('x5-playsinline', 'true');
-            dom.player.setAttribute('x5-video-player-type', 'h5');
-            dom.player.setAttribute('x5-video-player-fullscreen', 'false');
-            dom.player.load();
-            
-            dom.btnVideo.classList.add('active'); 
-            document.getElementById('txtVideo').innerText = 'Ready';
-            filesReady.v = true;
+            dom.btnLocalVideo.classList.add('ready'); 
+            dom.txtLocalVideo.innerText = f.name;
+            state.localReady.v = true;
         } else if (f.name.endsWith('.srt') || f.name.endsWith('.json')) {
             const r = new FileReader();
             r.onload = () => {
                 state.subtitles = f.name.endsWith('.json') ? JSON.parse(r.result) : parseSRT(r.result);
-                renderTranscript();
-                dom.btnSub.classList.add('active'); 
-                document.getElementById('txtSub').innerText = 'Ready';
-                filesReady.s = true;
-                checkReady();
+                dom.btnLocalSub.classList.add('ready'); 
+                dom.txtLocalSub.innerText = f.name;
+                state.localReady.s = true;
+                checkLocalReady();
             };
             r.readAsText(f);
         }
     });
-    checkReady();
+    checkLocalReady();
 }
 
-document.getElementById('videoInput').addEventListener('change', e => handleFiles(e.target.files));
-document.getElementById('subtitleInput').addEventListener('change', e => handleFiles(e.target.files));
-document.body.addEventListener('dragover', e => e.preventDefault());
-document.body.addEventListener('drop', e => { e.preventDefault(); handleFiles(e.dataTransfer.files); });
+dom.localVideoInput.addEventListener('change', e => handleLocalFiles(e.target.files));
+dom.localSubInput.addEventListener('change', e => handleLocalFiles(e.target.files));
+dom.btnLaunchLocal.onclick = () => {
+    if (state.localReady.v && state.localReady.s) {
+        renderTranscript();
+        enterWorkspace();
+    }
+};
 
+document.body.addEventListener('dragover', e => e.preventDefault());
+document.body.addEventListener('drop', e => { 
+    if(!dom.homeScreen.classList.contains('hidden')) {
+        e.preventDefault(); handleLocalFiles(e.dataTransfer.files); 
+    }
+});
+
+// 初始化
+renderLibrary();
 renderVocab();
 </script>
 </body>
 </html>
-
-
