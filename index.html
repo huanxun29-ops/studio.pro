@@ -8,14 +8,16 @@
         /* 🍎 极简配色系统与液态玻璃变量 */
         :root {
             --bg: #F5F5F7;
-            --surface: #FFFFFF;
+            --surface: rgba(255, 255, 255, 0.45); /* Glass surface */
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --glass-blur: blur(28px);
             --text-main: #1D1D1F;
             --text-sub: #86868B;
-            --border: rgba(0, 0, 0, 0.08);
+            --border: rgba(0, 0, 0, 0.05);
             --blue: #007AFF;
             --green: #34C759;
             --orange: #FF9500;
-            --hover-bg: rgba(0, 0, 0, 0.06);
+            --hover-bg: rgba(255, 255, 255, 0.5);
             
             /* 液态玻璃 (浅色) */
             --liquid-bg: rgba(255, 255, 255, 0.65);
@@ -24,20 +26,21 @@
                              inset 0 1px 1px rgba(255, 255, 255, 0.8),
                              inset 0 -1px 1px rgba(0, 0, 0, 0.02);
                              
-            --shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+            --shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
             --safe-bottom: env(safe-area-inset-bottom, 20px);
         }
 
         .dark-theme {
             --bg: #000000;
-            --surface: #1C1C1E;
+            --surface: rgba(28, 28, 30, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.1);
             --text-main: #F5F5F7;
             --text-sub: #8E8E93;
             --border: rgba(255, 255, 255, 0.1);
             --blue: #0A84FF;
             --green: #30D158;
             --orange: #FF9F0A;
-            --hover-bg: rgba(255, 255, 255, 0.12);
+            --hover-bg: rgba(255, 255, 255, 0.1);
             
             /* 液态玻璃 (深色) */
             --liquid-bg: rgba(30, 30, 32, 0.75);
@@ -46,7 +49,7 @@
                              inset 0 1px 1px rgba(255, 255, 255, 0.15),
                              inset 0 -1px 1px rgba(0, 0, 0, 0.2);
                              
-            --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+            --shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -64,13 +67,50 @@
             justify-content: center;
         }
 
+        /* --- 🍎 新增：温暖 Mesh Gradient 与 呼吸气泡 --- */
+        .mesh-bg {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
+            background-color: #fdfbfb;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(255, 228, 214, 0.8) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(226, 234, 255, 0.8) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(255, 241, 219, 0.8) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(253, 233, 244, 0.8) 0px, transparent 50%);
+            transition: 0.8s ease;
+        }
+        .dark-theme .mesh-bg {
+            background-color: #0d0f12;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(60, 40, 30, 0.6) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(30, 40, 70, 0.6) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(50, 40, 30, 0.6) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(50, 30, 45, 0.6) 0px, transparent 50%);
+        }
+        
+        .bubbles-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; overflow: hidden; pointer-events: none; }
+        .bubble {
+            position: absolute; bottom: -100px;
+            background: var(--surface); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border); box-shadow: var(--shadow);
+            border-radius: 50px; padding: 12px 28px;
+            color: var(--text-sub); font-size: 14px; font-weight: 500; letter-spacing: 1px;
+            animation: float-up linear infinite; opacity: 0;
+        }
+        @keyframes float-up {
+            0% { transform: translateY(0) rotate(-5deg) scale(0.9); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-110vh) rotate(15deg) scale(1.1); opacity: 0; }
+        }
+        /* ------------------------------------------- */
+
         /* =========================================
            🍎 首页：视频库与本地上传 (Home Screen)
            ========================================= */
         .home-screen {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             display: flex; flex-direction: column;
-            z-index: 100; background: var(--bg);
+            z-index: 100; background: transparent; /* 改为透明以显示底部 Mesh */
             transition: opacity 0.5s ease, visibility 0.5s ease, transform 0.5s ease;
             padding: 60px 40px; overflow-y: auto;
         }
@@ -84,13 +124,14 @@
         .section-title svg { width: 22px; height: 22px; fill: var(--blue); }
 
         /* 视频网格 */
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 32px; }
         .video-card {
-            background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
-            overflow: hidden; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+            background: var(--surface); border: 1px solid var(--glass-border); border-radius: 24px;
+            backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+            overflow: hidden; cursor: pointer; transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
             box-shadow: var(--shadow); position: relative;
         }
-        .video-card:hover { transform: translateY(-6px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); border-color: var(--blue); }
+        .video-card:hover { transform: translateY(-8px); box-shadow: 0 16px 48px rgba(0,0,0,0.08); border-color: var(--blue); }
         .video-card:active { transform: translateY(-2px) scale(0.98); }
         .card-cover { 
             height: 160px; background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); 
@@ -121,7 +162,8 @@
         /* 本地上传区域 */
         .upload-actions { display: flex; gap: 16px; flex-wrap: wrap; }
         .btn-large {
-            background: var(--surface); border: 1px solid var(--border); padding: 16px 24px;
+            background: var(--surface); border: 1px solid var(--glass-border); padding: 16px 24px;
+            backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
             border-radius: 16px; font-size: 15px; font-weight: 600; color: var(--text-main);
             cursor: pointer; box-shadow: var(--shadow); transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
             display: flex; align-items: center; gap: 10px; flex: 1; min-width: 200px;
@@ -146,17 +188,18 @@
            ========================================= */
         .workspace {
             display: flex; width: 100%; max-width: 1600px; height: 100dvh;
-            padding: 24px; gap: 24px; opacity: 0; visibility: hidden; position: absolute;
+            padding: 32px; gap: 32px; opacity: 0; visibility: hidden; position: absolute;
             transform: translateY(20px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .workspace.active { opacity: 1; visibility: visible; transform: translateY(0); position: relative; }
 
-        .sidebar { width: 45%; min-width: 400px; max-width: 720px; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px; }
-        .video-container { border-radius: 20px; overflow: hidden; background: #000; box-shadow: var(--shadow); transform: translateZ(0); }
+        .sidebar { width: 45%; min-width: 400px; max-width: 720px; flex-shrink: 0; display: flex; flex-direction: column; gap: 32px; }
+        .video-container { border-radius: 24px; overflow: hidden; background: #000; box-shadow: var(--shadow); transform: translateZ(0); }
         video { width: 100%; display: block; outline: none; }
 
         .vocab-container {
-            flex: 1; background: var(--surface); border-radius: 20px; border: 1px solid var(--border);
+            flex: 1; background: var(--surface); border-radius: 24px; border: 1px solid var(--glass-border);
+            backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
             display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow);
         }
         .vocab-header { padding: 16px 20px; font-size: 15px; font-weight: 600; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
@@ -170,7 +213,8 @@
         .word-item:hover .word-del { opacity: 1; }
 
         .main-content {
-            flex: 1; background: var(--surface); border-radius: 24px; border: 1px solid var(--border);
+            flex: 1; background: var(--surface); border-radius: 24px; border: 1px solid var(--glass-border);
+            backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
             position: relative; display: flex; flex-direction: column; box-shadow: var(--shadow); overflow: hidden;
         }
 
@@ -240,6 +284,49 @@
         
         .hl-word { background: rgba(52, 199, 89, 0.15); color: var(--green); border-radius: 6px; padding: 2px 4px; }
         .hl-phrase { background: rgba(255, 149, 0, 0.15); color: var(--orange); border-radius: 6px; padding: 2px 4px; }
+
+        /* 🍎 克漏字測驗模式 (Cloze Inputs) */
+        .cloze-input {
+            background: rgba(0, 0, 0, 0.05);
+            border: 2px solid transparent;
+            border-bottom: 2px solid var(--text-sub);
+            border-radius: 6px;
+            padding: 0 6px;
+            font-size: inherit;
+            font-family: inherit;
+            font-weight: 700;
+            color: var(--text-main);
+            text-align: center;
+            outline: none;
+            transition: 0.3s;
+            margin: 0 4px;
+            max-width: 100%;
+        }
+        .dark-theme .cloze-input { background: rgba(255, 255, 255, 0.1); border-bottom-color: var(--text-sub); }
+        .cloze-input:focus { 
+            border-color: transparent;
+            border-bottom-color: var(--blue); 
+            background: rgba(0, 122, 255, 0.1); 
+        }
+        .cloze-input.correct {
+            background: rgba(52, 199, 89, 0.15);
+            border-color: transparent;
+            border-bottom-color: var(--green);
+            color: var(--green);
+            pointer-events: none; /* 答對後鎖定輸入框 */
+        }
+        .cloze-input.incorrect {
+            background: rgba(255, 59, 48, 0.15);
+            border-color: transparent;
+            border-bottom-color: #ff3b30;
+            color: #ff3b30;
+            animation: shake 0.4s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-4px); }
+            40%, 80% { transform: translateX(4px); }
+        }
 
         /* 🍎 极简弹窗与菜单 */
         .tooltip {
@@ -327,6 +414,18 @@
 </head>
 <body>
 
+<!-- 🍎 温暖 Mesh Gradient 背景 -->
+<div class="mesh-bg"></div>
+
+<!-- 🍎 沉浸式气泡微交互 -->
+<div class="bubbles-container">
+    <div class="bubble" style="left: 15%; animation-duration: 25s; animation-delay: 0s;">Listen</div>
+    <div class="bubble" style="left: 35%; animation-duration: 22s; animation-delay: 5s;">Learn</div>
+    <div class="bubble" style="left: 65%; animation-duration: 28s; animation-delay: 2s;">Grow</div>
+    <div class="bubble" style="left: 80%; animation-duration: 24s; animation-delay: 8s;">Focus</div>
+    <div class="bubble" style="left: 50%; animation-duration: 30s; animation-delay: 12s;">Speak</div>
+</div>
+
 <!-- 🍎 视频库 / 首页 -->
 <div class="home-screen" id="homeScreen">
     <div class="home-header">
@@ -393,9 +492,16 @@
                 <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
             </button>
             <div class="divider"></div>
+            
             <button class="icon-btn active" id="translateBtn" title="Translation">
                 <svg viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
             </button>
+            
+            <!-- 恢復：克漏字（挖空）模式按鈕 -->
+            <button class="icon-btn" id="clozeBtn" title="Fill-in-the-blank Mode">
+                <svg viewBox="0 0 24 24"><path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11z"/></svg>
+            </button>
+
             <button class="icon-btn" id="dictationBtn" title="Dictation Mode">
                 <svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
             </button>
@@ -426,6 +532,10 @@
 </div>
 
 <script>
+// 🍎 Supabase 配置 (請到 Supabase Dashboard -> Project Settings -> API Keys 獲取)
+const SUPABASE_URL = 'https://revbsrjaeoldhhifibdx.supabase.co'; 
+const SUPABASE_ANON_KEY = 'sb_publishable_fo8RtO0BL9fBr1uPH8cu1Q_wy5bj5GI'; 
+
 // 🍎 数据驱动的精选视频配置
 const featuredVideos = [
     {
@@ -434,10 +544,8 @@ const featuredVideos = [
         desc: 'Academic Listening • B2 Level',
         coverUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=80', 
         duration: '03:45',
-        videoUrl: 'https://revbsrjaeoldhhifibdx.supabase.co/storage/v1/object/public/videos/study.mp4',
-        subUrl: 'http://localhost:8000/api/subtitles/seed_video_001?track_type=annotated&language=en-zh'
+        videoUrl: 'https://revbsrjaeoldhhifibdx.supabase.co/storage/v1/object/public/videos/study.mp4'
     }
-    // 未来可以轻松在此处追加更多视频...
 ];
 
 const state = { 
@@ -446,6 +554,7 @@ const state = {
     currentActiveIndex: -1, 
     dictationMode: false, 
     translationVisible: true, 
+    isClozeMode: false, // 恢復：追蹤克漏字模式是否開啟
     currentWord: null,
     videoObjectURL: null,
     localReady: { v: false, s: false }
@@ -458,6 +567,7 @@ const dom = {
     themeBtn: document.getElementById('themeBtn'), 
     homeThemeBtn: document.getElementById('homeThemeBtn'),
     translateBtn: document.getElementById('translateBtn'), 
+    clozeBtn: document.getElementById('clozeBtn'), // 恢復：克漏字按鈕
     dictationBtn: document.getElementById('dictationBtn'), 
     saveWordBtn: document.getElementById('saveWordBtn'), 
     vocabList: document.getElementById('vocabList'), 
@@ -470,7 +580,6 @@ const dom = {
     speedMenu: document.getElementById('speedMenu'), 
     backToHomeBtn: document.getElementById('backToHomeBtn'), 
     
-    // 本地上传元素
     btnLocalVideo: document.getElementById('btnLocalVideo'), 
     btnLocalSub: document.getElementById('btnLocalSub'),
     txtLocalVideo: document.getElementById('txtLocalVideo'),
@@ -482,11 +591,10 @@ const dom = {
     featuredGrid: document.getElementById('featuredGrid')
 };
 
-// 🍎 渲染视频库卡片
 function renderLibrary() {
     dom.featuredGrid.innerHTML = featuredVideos.map(v => `
         <div class="video-card" id="card-${v.id}" onclick="loadFeaturedVideo('${v.id}')">
-            <div class="card-loading-overlay"><div class="spinner"></div><span style="font-size:13px; font-weight:500;">加载字幕中...</span></div>
+            <div class="card-loading-overlay"><div class="spinner"></div><span style="font-size:13px; font-weight:500;">加載字幕中...</span></div>
             <div class="card-cover" style="background-image: url('${v.coverUrl}')">
                 <div class="card-duration">${v.duration}</div>
             </div>
@@ -498,79 +606,62 @@ function renderLibrary() {
     `).join('');
 }
 
-// 🍎 加载指定的精选视频
 async function loadFeaturedVideo(id) {
     const videoData = featuredVideos.find(v => v.id === id);
     if (!videoData) return;
 
     const card = document.getElementById(`card-${id}`);
-    card.classList.add('loading'); // 显示卡片上的加载动画
+    card.classList.add('loading');
 
     try {
-        // 1. 设置视频源
         if(state.videoObjectURL) { URL.revokeObjectURL(state.videoObjectURL); state.videoObjectURL = null; }
         dom.player.src = videoData.videoUrl;
         
-        // 2. 请求后端字幕
-        const res = await fetch(videoData.subUrl);
-        if (!res.ok) throw new Error("Backend response not ok");
-        const text = await res.text();
+        const queryUrl = `${SUPABASE_URL}/rest/v1/video_subtitles?select=content&video_id=eq.${id}&track_type=eq.annotated&language=eq.en-zh`;
         
-        // 3. 解析字幕
-        try {
-            let parsedData = JSON.parse(text);
-            
-            // 兼容处理：如果后端返回的是对象结构 (如 { data: [...] } 或 { subtitles: [...] })
-            if (!Array.isArray(parsedData)) {
-                if (parsedData.data && Array.isArray(parsedData.data)) {
-                    state.subtitles = parsedData.data;
-                } else if (parsedData.subtitles && Array.isArray(parsedData.subtitles)) {
-                    state.subtitles = parsedData.subtitles;
-                } else if (parsedData.items && Array.isArray(parsedData.items)) {
-                    state.subtitles = parsedData.items;
-                } else {
-                    console.warn("⚠️ 警告：无法在 JSON 中找到字幕数组，原始数据为:", parsedData);
-                    state.subtitles = []; // 找不到则置为空数组防止崩溃
-                }
-            } else {
-                state.subtitles = parsedData; // 如果直接就是数组
+        const res = await fetch(queryUrl, {
+            headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
             }
-        } catch (e) {
-            // JSON 解析失败则回退为 SRT 格式
-            state.subtitles = parseSRT(text);
+        });
+        
+        if (!res.ok) throw new Error("Supabase 請求失敗");
+        const data = await res.json();
+        
+        if (data && data.length > 0 && data[0].content) {
+            state.subtitles = data[0].content;
+        } else {
+            console.warn("⚠️ 警告：Supabase 中未找到該影片的字幕", data);
+            state.subtitles = [];
         }
 
-        // 终极容错：确保 state.subtitles 绝对是一个数组
         if (!Array.isArray(state.subtitles)) {
             state.subtitles = [];
         }
 
-        // 4. 进入工作区
         renderTranscript();
         enterWorkspace();
         
     } catch (err) {
         console.error("加载字幕失败:", err);
-        alert(`无法从 ${videoData.subUrl} 获取字幕，请检查后端服务是否启动。`);
+        alert(`無法獲取字幕，請確認 Supabase URL 和 Key 是否設定正確。`);
     } finally {
         card.classList.remove('loading');
     }
 }
 
-// 🍎 切换到工作区动画
 function enterWorkspace() {
     dom.homeScreen.classList.add('hidden');
     setTimeout(() => dom.workspace.classList.add('active'), 300);
 }
 
-// 🍎 退出工作区返回首页
 dom.backToHomeBtn.onclick = () => {
     dom.workspace.classList.remove('active');
     dom.player.pause();
     setTimeout(() => { dom.homeScreen.classList.remove('hidden'); }, 300);
 };
 
-// 🍎 主题切换 (同步首页和工作区)
 const toggleTheme = () => {
     document.body.classList.toggle('dark-theme'); 
     const isDark = document.body.classList.contains('dark-theme');
@@ -585,9 +676,7 @@ const toggleTheme = () => {
 dom.themeBtn.onclick = toggleTheme;
 dom.homeThemeBtn.onclick = toggleTheme;
 
-// ... [保留原有的解析器、高亮引擎、播放器控制逻辑] ...
-
-// 🍎 基于 JSON 结构化数据的高亮引擎
+// 🍎 恢復：核心更新：支援「克漏字模式」的高亮引擎
 function applyLocalHighlights(text, highlights) {
     if (!highlights || !Array.isArray(highlights) || highlights.length === 0) return text;
     let res = text;
@@ -598,8 +687,15 @@ function applyLocalHighlights(text, highlights) {
         const escapeRegExp = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const regex = new RegExp(`\\b${escapeRegExp(hl.text)}\\b`, 'gi');
         res = res.replace(regex, match => {
-            const className = hl.type === 'phrase' ? 'hl-phrase' : 'hl-word';
-            placeholders.push(`<span class="${className}">${match}</span>`);
+            if (state.isClozeMode) {
+                // 若開啟挖空模式，渲染文字輸入框，動態計算寬度 (每字元約 14px + 額外 Padding)
+                const width = Math.max(match.length * 14 + 16, 40); 
+                placeholders.push(`<input type="text" class="cloze-input" data-answer="${match.toLowerCase()}" data-original="${match}" style="width: ${width}px;" autocomplete="off" spellcheck="false" />`);
+            } else {
+                // 預設渲染高亮文字
+                const className = hl.type === 'phrase' ? 'hl-phrase' : 'hl-word';
+                placeholders.push(`<span class="${className}">${match}</span>`);
+            }
             return `__PH__${placeholders.length - 1}__`;
         });
     });
@@ -614,6 +710,23 @@ dom.translateBtn.onclick = () => {
     state.translationVisible = !state.translationVisible; dom.translateBtn.classList.toggle('active'); 
     document.querySelectorAll('.lyric-zh').forEach(el => el.classList.toggle('hidden', !state.translationVisible)); 
 };
+
+// 🍎 恢復：點擊「克漏字」按鈕的行為
+dom.clozeBtn.onclick = () => {
+    state.isClozeMode = !state.isClozeMode;
+    dom.clozeBtn.classList.toggle('active', state.isClozeMode);
+    
+    // 重新渲染整個字幕面板來生成輸入框
+    renderTranscript(); 
+    
+    // 嘗試恢復播放器當前進度的高亮滾動
+    if (state.currentActiveIndex !== -1 && lyricNodes[state.currentActiveIndex]) {
+        lyricNodes[state.currentActiveIndex].classList.add('active');
+        const offset = window.innerWidth <= 1024 ? 140 : dom.transcript.clientHeight / 2;
+        dom.transcript.scrollTo({ top: lyricNodes[state.currentActiveIndex].offsetTop - offset, behavior: 'smooth' });
+    }
+};
+
 dom.dictationBtn.onclick = () => { state.dictationMode = !state.dictationMode; dom.dictationBtn.classList.toggle('active'); };
 
 dom.speedToggleBtn.onclick = (e) => {
@@ -652,7 +765,6 @@ document.querySelectorAll('.sp-item').forEach(item => {
 dom.mobileVocabToggle.onclick = () => dom.vocabContainer.classList.add('open');
 dom.closeVocabBtn.onclick = () => dom.vocabContainer.classList.remove('open');
 
-// 🍎 解耦与容错升级的 SRT 解析器
 function parseSRT(data) {
     const subtitleRegex = /(\d{2}:\d{2}:\d{2}[,.]\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}[,.]\d{3})(?:\s+[^\n]*)?\n([\s\S]*?)(?=\n{2,}|\n\d+\n\d{2}:|$)/g;
     const subtitles = [];
@@ -684,10 +796,48 @@ function renderTranscript() {
     lyricNodes = Array.from(document.querySelectorAll('.lyric-line'));
     
     lyricNodes.forEach((node, i) => {
-        node.onclick = () => { dom.player.currentTime = state.subtitles[i].start; dom.player.play(); };
-        node.ondblclick = () => toggleLoop(i, node);
+        // 恢復：更新點擊邏輯：如果是點到輸入框，就不會觸發影片跳轉，防止干擾打字
+        node.onclick = (e) => { 
+            if (e.target.tagName === 'INPUT') return;
+            dom.player.currentTime = state.subtitles[i].start; dom.player.play(); 
+        };
+        node.ondblclick = (e) => {
+            if (e.target.tagName === 'INPUT') return;
+            toggleLoop(i, node);
+        };
     });
 }
+
+// 🍎 恢復：克漏字輸入框即時驗證邏輯
+dom.transcript.addEventListener('input', (e) => {
+    if (e.target.classList.contains('cloze-input')) {
+        const answer = e.target.dataset.answer; // 已經是小寫
+        const value = e.target.value.toLowerCase().trim();
+
+        if (value === answer) {
+            e.target.classList.add('correct');
+            e.target.classList.remove('incorrect');
+            e.target.value = e.target.dataset.original; // 答對後自動恢復正確大小寫
+            e.target.blur(); // 答對自動移出焦點
+        } else {
+            e.target.classList.remove('correct');
+            // 輸入中不立刻顯示紅色，避免壓力過大
+        }
+    }
+});
+
+// 🍎 恢復：離開輸入框時的驗證 (如果打錯字則變紅)
+dom.transcript.addEventListener('focusout', (e) => {
+    if (e.target.classList.contains('cloze-input')) {
+        const answer = e.target.dataset.answer;
+        const value = e.target.value.toLowerCase().trim();
+        if (value !== answer && value.length > 0) {
+            e.target.classList.add('incorrect');
+        } else {
+            e.target.classList.remove('incorrect');
+        }
+    }
+});
 
 function toggleLoop(index, node) {
     if (state.currentLoopIndex === index) {
@@ -816,7 +966,6 @@ function renderVocab() {
 }
 window.deleteWord = i => { let words = getVocab(); words.splice(i, 1); saveVocab(words); renderVocab(); };
 
-// 🍎 本地文件逻辑处理
 function checkLocalReady() {
     if (state.localReady.v && state.localReady.s) {
         dom.btnLaunchLocal.classList.add('active');
