@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Studio Listening Pro</title>
+    <!-- ① 引入 Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* 🍎 极简配色系统与液态玻璃变量 */
         :root {
@@ -17,6 +19,7 @@
             --blue: #007AFF;
             --green: #34C759;
             --orange: #FF9500;
+            --red: #FF3B30;
             --hover-bg: rgba(255, 255, 255, 0.5);
             
             /* 液态玻璃 (浅色) */
@@ -30,26 +33,27 @@
             --safe-bottom: env(safe-area-inset-bottom, 20px);
         }
 
+        /* 🍎 升级版 VisionOS 风格深色模式 */
         .dark-theme {
-            --bg: #000000;
-            --surface: rgba(28, 28, 30, 0.45);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --text-main: #F5F5F7;
-            --text-sub: #8E8E93;
-            --border: rgba(255, 255, 255, 0.1);
+            --bg: #050505;
+            --surface: rgba(22, 22, 24, 0.55);
+            --liquid-bg: rgba(24, 24, 28, 0.72);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-sub: #a1a1aa;
+            --border: rgba(255, 255, 255, 0.08);
             --blue: #0A84FF;
             --green: #30D158;
             --orange: #FF9F0A;
+            --red: #FF453A;
             --hover-bg: rgba(255, 255, 255, 0.1);
             
-            /* 液态玻璃 (深色) */
-            --liquid-bg: rgba(30, 30, 32, 0.75);
             --liquid-border: rgba(255, 255, 255, 0.15);
-            --liquid-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), 
+            --liquid-shadow: 0 20px 60px rgba(0, 0, 0, 0.55), 
                              inset 0 1px 1px rgba(255, 255, 255, 0.15),
                              inset 0 -1px 1px rgba(0, 0, 0, 0.2);
                              
-            --shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+            --shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -81,10 +85,10 @@
         .dark-theme .mesh-bg {
             background-color: #0d0f12;
             background-image: 
-                radial-gradient(at 0% 0%, rgba(60, 40, 30, 0.6) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(30, 40, 70, 0.6) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(50, 40, 30, 0.6) 0px, transparent 50%),
-                radial-gradient(at 0% 100%, rgba(50, 30, 45, 0.6) 0px, transparent 50%);
+                radial-gradient(at 0% 0%, rgba(40, 30, 20, 0.6) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(20, 30, 50, 0.6) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(30, 20, 30, 0.6) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(20, 30, 30, 0.6) 0px, transparent 50%);
         }
         
         .bubbles-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; overflow: hidden; pointer-events: none; }
@@ -151,10 +155,21 @@
         .home-content-wrapper { max-width: 1200px; width: 100%; display: flex; flex-direction: column; gap: 32px; }
 
         .home-header { display: flex; justify-content: space-between; align-items: flex-end; width: 100%; border-bottom: 1px solid var(--border); padding-bottom: 20px;}
-        .header-left { display: flex; flex-direction: column; gap: 16px; }
+        .header-left { display: flex; flex-direction: column; gap: 16px; flex: 1; }
         .home-title { font-size: 40px; font-weight: 800; letter-spacing: -1.5px; line-height: 1; }
         
         .mobile-theme-btn { display: none; }
+
+        /* 新增：搜索框 */
+        .search-box { width: 100%; max-width: 600px; position: relative; margin-top: 8px; }
+        .search-box input {
+            width: 100%; height: 50px; border: 1px solid var(--glass-border); outline: none;
+            border-radius: 18px; padding: 0 20px 0 48px; font-size: 16px; font-weight: 500;
+            background: var(--surface); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+            color: var(--text-main); box-shadow: var(--shadow); transition: 0.3s;
+        }
+        .search-box input:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15); }
+        .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; fill: var(--text-sub); }
 
         /* 过滤栏 Filters */
         .filter-bar { 
@@ -177,6 +192,18 @@
         .dark-theme .filter-select:hover { background-color: rgba(255,255,255,0.15); }
         .filter-divider { width: 1px; height: 24px; background: var(--border); margin: 0 8px; }
 
+        /* --- 🍎 Netflix / Apple TV 风格分类滚动区 --- */
+        .category-section { margin-bottom: 40px; }
+        .category-header { font-size: 22px; font-weight: 700; color: var(--text-main); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end;}
+        .row-scroll {
+            display: flex; overflow-x: auto; gap: 24px; padding-bottom: 24px; margin-bottom: -12px;
+            scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+        }
+        .row-scroll::-webkit-scrollbar { height: 6px; }
+        .row-scroll::-webkit-scrollbar-track { background: transparent; }
+        .row-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        .row-scroll .video-card { flex: 0 0 320px; scroll-snap-align: start; }
+
         /* --- 🍎 标准化视频卡片 UI --- */
         .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 32px; width: 100%; }
         
@@ -186,13 +213,32 @@
             overflow: hidden; cursor: pointer; transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
             box-shadow: var(--shadow); position: relative; display: flex; flex-direction: column;
         }
+        /* 提升：VisionOS 风格边缘高光 */
+        .dark-theme .video-card::before {
+            content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+            background: linear-gradient(180deg, rgba(255,255,255,0.08), transparent 25%);
+            z-index: 2;
+        }
+        
         .video-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.12); border-color: var(--blue); }
         .video-card:active { transform: translateY(-2px) scale(0.98); }
         
+        /* 新增：收藏按钮 */
+        .favorite-btn {
+            position: absolute; top: 12px; left: 12px; width: 36px; height: 36px; border-radius: 50%;
+            background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center; z-index: 5;
+            cursor: pointer; border: 1px solid rgba(255,255,255,0.2); transition: 0.3s;
+        }
+        .favorite-btn svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 2; transition: 0.3s; }
+        .favorite-btn:hover { background: rgba(0,0,0,0.6); transform: scale(1.1); }
+        .favorite-btn.active svg { fill: var(--red); stroke: var(--red); }
+
         /* 1. 顶部：媒体区域 (占比大) */
         .card-top { 
             position: relative; aspect-ratio: 16/9; background: #e0e0e0; 
             background-size: cover; background-position: center; border-bottom: 1px solid var(--border);
+            z-index: 1;
         }
         .card-creator {
             position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.6);
@@ -208,7 +254,7 @@
         /* 2. 中部：标题与评分 */
         .card-middle { 
             display: flex; justify-content: space-between; align-items: flex-start; 
-            padding: 20px 20px 12px 20px; gap: 12px;
+            padding: 20px 20px 12px 20px; gap: 12px; z-index: 1;
         }
         .card-ep-group { display: flex; flex-direction: column; gap: 4px; }
         .card-ep { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; color: var(--text-main); line-height: 1.1; }
@@ -220,7 +266,7 @@
         .dark-theme .star.empty { fill: rgba(255,255,255,0.2); }
 
         /* 3. 底部：元数据标签 */
-        .card-bottom { padding: 0 20px 20px 20px; display: flex; flex-direction: column; gap: 16px; }
+        .card-bottom { padding: 0 20px 20px 20px; display: flex; flex-direction: column; gap: 16px; z-index: 1; }
         .card-tags { display: flex; gap: 8px; flex-wrap: wrap; }
         .card-tag { 
             padding: 6px 12px; background: rgba(0, 122, 255, 0.08); color: var(--blue); 
@@ -234,7 +280,7 @@
 
         .card-progress {
             position: absolute; bottom: 0; left: 0; height: 4px; background: var(--green);
-            border-radius: 0 0 0 24px; transition: width 0.3s;
+            border-radius: 0 0 0 24px; transition: width 0.3s; z-index: 3;
         }
 
         /* 状态覆盖层 */
@@ -280,7 +326,7 @@
         .empty-state h3 { font-size: 18px; color: var(--text-main); margin-bottom: 8px; }
 
         /* =========================================
-           🍎 主工作区 (Workspace - 保持原有设计)
+           🍎 主工作区 (Workspace)
            ========================================= */
         .workspace {
             display: flex; width: 100%; max-width: 1600px; height: 100dvh;
@@ -298,7 +344,9 @@
             backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
             display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow);
         }
-        .vocab-header { padding: 16px 20px; font-size: 15px; font-weight: 600; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+        .vocab-header { padding: 16px 20px; font-size: 15px; font-weight: 600; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .export-btn { background: rgba(0,0,0,0.05); color: var(--text-main); border: none; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; margin-left: auto; margin-right: 12px; }
+        .dark-theme .export-btn { background: rgba(255,255,255,0.1); }
         .vocab-list { flex: 1; overflow-y: auto; padding: 12px; }
         .word-item { padding: 12px 16px; border-radius: 12px; margin-bottom: 4px; transition: 0.2s; }
         .word-item:hover { background: var(--hover-bg); }
@@ -360,9 +408,9 @@
         .cloze-input.incorrect { background: rgba(255, 59, 48, 0.15); border-color: transparent; border-bottom-color: #ff3b30; color: #ff3b30; animation: shake 0.4s ease-in-out; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
 
-        /* 弹窗与菜单 */
+        /* 弹窗与菜单 (AI 词汇解析升级) */
         .tooltip {
-            position: fixed; width: 280px; padding: 20px; border-radius: 20px;
+            position: fixed; width: 320px; padding: 20px; border-radius: 20px;
             background: var(--liquid-bg); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%);
             border: 1px solid var(--liquid-border); box-shadow: var(--liquid-shadow);
             display: none; z-index: 9999; transform: translateY(10px); opacity: 0; transition: all 0.3s;
@@ -370,8 +418,15 @@
         .tooltip.show { transform: translateY(0); opacity: 1; display: block; }
         .tt-word { font-size: 22px; font-weight: 700; margin-bottom: 2px; }
         .tt-phonetic { font-size: 13px; font-family: monospace; color: var(--text-sub); margin-bottom: 12px; }
-        .tt-def { font-size: 14px; line-height: 1.5; margin-bottom: 16px; max-height: 120px; overflow-y: auto;}
-        .tt-btn { width: 100%; background: var(--text-main); color: var(--bg); border: none; padding: 12px; border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s; }
+        .tt-section { margin-bottom: 12px; }
+        .tt-sec-title { font-size: 12px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .tt-def { font-size: 14px; line-height: 1.5; color: var(--text-main); }
+        .tt-example { font-size: 13px; line-height: 1.4; color: var(--text-sub); font-style: italic; border-left: 2px solid var(--border); padding-left: 8px; margin-top: 4px;}
+        .tt-synonyms { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+        .tt-synonym-tag { background: rgba(0,0,0,0.05); padding: 2px 8px; border-radius: 6px; font-size: 12px; color: var(--text-main); }
+        .dark-theme .tt-synonym-tag { background: rgba(255,255,255,0.1); }
+        
+        .tt-btn { width: 100%; background: var(--text-main); color: var(--bg); border: none; padding: 12px; border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s; margin-top: 8px;}
         
         .speed-menu {
             position: fixed; width: 100px; 
@@ -400,7 +455,6 @@
                 background: var(--liquid-bg);
                 box-shadow: var(--liquid-shadow);
                 z-index: 99;
-                /* 新增橫向捲動以容納所有項目 */
                 overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch;
                 justify-content: flex-start; gap: 16px;
             }
@@ -409,7 +463,6 @@
             .app-nav { flex-direction: row; width: auto; justify-content: flex-start; gap: 12px; flex: 0 0 auto; }
             .nav-item { flex-direction: column; gap: 6px; font-size: 11px; padding: 8px 12px; min-width: 60px; }
             
-            /* 側邊欄上傳區在手機端變成導覽列一部分 */
             .sidebar-upload {
                 flex-direction: row; border-top: none; padding-top: 0; margin-top: 0;
                 border-left: 1px solid var(--border); padding-left: 16px; margin-left: 0;
@@ -477,38 +530,42 @@
         <nav class="app-nav" id="sidebarNav">
             <div class="nav-item active" data-tab="all" data-title="Library">
                 <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
-                <span data-i18n="title_all">Library</span>
+                <span data-i18n="title_all">视频库</span>
             </div>
             <div class="nav-item" data-tab="history" data-title="History">
                 <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
-                <span data-i18n="title_history">History</span>
+                <span data-i18n="title_history">观看历史</span>
+            </div>
+            <!-- 新增：Favorites 标签 -->
+            <div class="nav-item" data-tab="favorites" data-title="Favorites">
+                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                <span data-i18n="title_favorites">我的收藏</span>
             </div>
             <div class="nav-item" data-tab="completed" data-title="Completed">
                 <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                <span data-i18n="title_completed">Completed</span>
+                <span data-i18n="title_completed">已学完</span>
             </div>
         </nav>
         
-        <!-- 上傳區移至側邊欄 -->
         <div class="sidebar-upload">
             <div class="upload-label" data-i18n="sidebar_local">LOCAL FILES</div>
             <label class="nav-item upload-item" id="btnLocalVideo">
                 <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-                <span id="txtLocalVideo" class="truncate" data-i18n="sidebar_video">Video (MP4)</span>
+                <span id="txtLocalVideo" class="truncate" data-i18n="sidebar_video">选择视频 (MP4)</span>
                 <input type="file" id="localVideoInput" accept="video/mp4,video/webm" hidden>
             </label>
             <label class="nav-item upload-item" id="btnLocalSub">
                 <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-                <span id="txtLocalSub" class="truncate" data-i18n="sidebar_sub">Subtitles (SRT)</span>
-                <input type="file" id="localSubInput" accept=".srt,.json" hidden>
+                <span id="txtLocalSub" class="truncate" data-i18n="sidebar_sub">选择字幕 (SRT/VTT)</span>
+                <input type="file" id="localSubInput" accept=".srt,.json,.vtt,.ass" hidden>
             </label>
-            <button class="launch-btn" id="btnLaunchLocal" data-i18n="sidebar_launch">Launch</button>
+            <button class="launch-btn" id="btnLaunchLocal" data-i18n="sidebar_launch">进入学习舱</button>
         </div>
 
         <div class="sidebar-bottom">
             <div class="nav-item" id="sidebarThemeBtn">
                 <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
-                <span data-i18n="sidebar_theme">Theme</span>
+                <span data-i18n="sidebar_theme">外观主题</span>
             </div>
         </div>
     </aside>
@@ -520,11 +577,15 @@
             <!-- 头部与导航 -->
             <div class="home-header">
                 <div class="header-left">
-                    <div class="home-title" id="pageTitle" data-i18n="title_all">Library</div>
+                    <div class="home-title" id="pageTitle" data-i18n="title_all">视频库</div>
+                    <!-- 搜索框 -->
+                    <div class="search-box">
+                        <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                        <input type="text" id="searchInput" placeholder="搜索视频..." data-i18n-placeholder="search_placeholder">
+                    </div>
                 </div>
-                <!-- 移动端保留的主题切换按钮及多语言切换 -->
                 <div class="header-actions" style="display: flex; gap: 12px; align-items: center;">
-                    <button class="icon-btn" id="langToggleBtn" title="Toggle Language" style="background:var(--surface); border:1px solid var(--border); font-size: 14px; font-weight: 700; font-family: inherit;">中</button>
+                    <button class="icon-btn" id="langToggleBtn" title="Toggle Language" style="background:var(--surface); border:1px solid var(--border); font-size: 14px; font-weight: 700; font-family: inherit;">EN</button>
                     <button class="icon-btn mobile-theme-btn" id="homeThemeBtn" title="Toggle Theme" style="background:var(--surface); border:1px solid var(--border)">
                         <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
                     </button>
@@ -534,42 +595,42 @@
             <!-- 过滤栏 -->
             <div class="filter-bar" id="filterBar">
                 <div class="filter-group">
-                    <span class="filter-label" data-i18n="filter_difficulty">Difficulty</span>
+                    <span class="filter-label" data-i18n="filter_difficulty">难度</span>
                     <select class="filter-select" id="filterRating">
-                        <option value="all" data-i18n="filter_level_all">All Levels</option>
-                        <option value="5" data-i18n="filter_level_5">⭐⭐⭐⭐⭐ (Hard)</option>
-                        <option value="4" data-i18n="filter_level_4">⭐⭐⭐⭐ (Advanced)</option>
-                        <option value="3" data-i18n="filter_level_3">⭐⭐⭐ (Intermediate)</option>
-                        <option value="2" data-i18n="filter_level_2">⭐⭐ (Basic)</option>
-                        <option value="1" data-i18n="filter_level_1">⭐ (Beginner)</option>
+                        <option value="all" data-i18n="filter_level_all">所有难度</option>
+                        <option value="5" data-i18n="filter_level_5">⭐⭐⭐⭐⭐ (困难)</option>
+                        <option value="4" data-i18n="filter_level_4">⭐⭐⭐⭐ (进阶)</option>
+                        <option value="3" data-i18n="filter_level_3">⭐⭐⭐ (中等)</option>
+                        <option value="2" data-i18n="filter_level_2">⭐⭐ (基础)</option>
+                        <option value="1" data-i18n="filter_level_1">⭐ (入门)</option>
                     </select>
                 </div>
                 <div class="filter-divider"></div>
                 <div class="filter-group">
-                    <span class="filter-label" data-i18n="filter_scenario">Scenario</span>
+                    <span class="filter-label" data-i18n="filter_scenario">场景</span>
                     <select class="filter-select" id="filterTag">
-                        <option value="all" data-i18n="filter_topic_all">All Topics</option>
-                        <option value="Academic" data-i18n="filter_topic_acad">Academic</option>
-                        <option value="Daily" data-i18n="filter_topic_daily">Daily Life</option>
-                        <option value="Business" data-i18n="filter_topic_bus">Business</option>
-                        <option value="Entertainment" data-i18n="filter_topic_ent">Entertainment</option>
+                        <option value="all" data-i18n="filter_topic_all">所有主题</option>
+                        <option value="Academic" data-i18n="filter_topic_acad">学术</option>
+                        <option value="Daily" data-i18n="filter_topic_daily">日常生活</option>
+                        <option value="Business" data-i18n="filter_topic_bus">商业</option>
+                        <option value="Entertainment" data-i18n="filter_topic_ent">娱乐</option>
                     </select>
                 </div>
                 <div class="filter-divider"></div>
                 <div class="filter-group">
-                    <span class="filter-label" data-i18n="filter_accent">Accent</span>
+                    <span class="filter-label" data-i18n="filter_accent">口音</span>
                     <select class="filter-select" id="filterAccent">
-                        <option value="all" data-i18n="filter_acc_all">All Accents</option>
-                        <option value="US" data-i18n="filter_acc_us">🇺🇸 US English</option>
-                        <option value="UK" data-i18n="filter_acc_uk">🇬🇧 UK English</option>
-                        <option value="AU" data-i18n="filter_acc_au">🇦🇺 AU English</option>
+                        <option value="all" data-i18n="filter_acc_all">所有口音</option>
+                        <option value="US" data-i18n="filter_acc_us">🇺🇸 美式英语</option>
+                        <option value="UK" data-i18n="filter_acc_uk">🇬🇧 英式英语</option>
+                        <option value="AU" data-i18n="filter_acc_au">🇦🇺 澳式英语</option>
                     </select>
                 </div>
             </div>
 
-            <!-- 视频网格容器 -->
-            <div class="video-grid" id="mainGrid">
-                <!-- 动态生成 -->
+            <!-- 视频网格容器 (动态插入网格或横向分类滚轴) -->
+            <div id="mainContentArea">
+                <!-- 由 JS 渲染 -->
             </div>
 
         </div>
@@ -584,7 +645,8 @@
         </div>
         <div class="vocab-container" id="vocabContainer">
             <div class="vocab-header">
-                <span><span data-i18n="vocab_title">Vocabulary</span> <span id="vocabCount" style="color:var(--text-sub); font-weight:normal; margin-left:6px;">0</span></span>
+                <span><span data-i18n="vocab_title">生词本</span> <span id="vocabCount" style="color:var(--text-sub); font-weight:normal; margin-left:6px;">0</span></span>
+                <button class="export-btn" id="exportVocabBtn" data-i18n="btn_export">导出 CSV</button>
                 <span class="vocab-close-mobile" id="closeVocabBtn">✕</span>
             </div>
             <div class="vocab-list" id="vocabList"></div>
@@ -628,87 +690,88 @@
     <div class="sp-item" data-speed="1.5">1.5x</div>
 </div>
 
+<!-- 升级版 AI 字典卡片 -->
 <div class="tooltip" id="tooltip">
     <div class="tt-word" id="tooltipWord"></div>
     <div class="tt-phonetic" id="tooltipPhonetic"></div>
-    <div class="tt-def" id="tooltipDef"></div>
-    <button class="tt-btn" id="saveWordBtn" data-i18n="tt_add">Add to Vocab</button>
+    
+    <div class="tt-section" id="tooltipDefSection">
+        <div class="tt-sec-title" data-i18n="tt_definition">Definition</div>
+        <div class="tt-def" id="tooltipDef"></div>
+    </div>
+    
+    <div class="tt-section" id="tooltipExSection" style="display:none;">
+        <div class="tt-sec-title" data-i18n="tt_example">Example</div>
+        <div class="tt-example" id="tooltipExample"></div>
+    </div>
+    
+    <div class="tt-section" id="tooltipSynSection" style="display:none;">
+        <div class="tt-sec-title" data-i18n="tt_synonyms">Synonyms</div>
+        <div class="tt-synonyms" id="tooltipSynonyms"></div>
+    </div>
+
+    <button class="tt-btn" id="saveWordBtn" data-i18n="tt_add">加入生词本</button>
 </div>
 
 <script>
 // ==========================================
 // 🍎 数据层：丰富的模拟视频数据库
 // ==========================================
-const SUPABASE_URL = 'https://revbsrjaeoldhhifibdx.supabase.co'; 
-const SUPABASE_ANON_KEY = 'sb_publishable_fo8RtO0BL9fBr1uPH8cu1Q_wy5bj5GI'; 
+// ② 替换你当前配置
+const SUPABASE_URL = "https://revbsrjaeoldhhifibdx.supabase.co"; 
+const SUPABASE_ANON_KEY = "sb_publishable_fo8RtO0BL9fBr1uPH8cu1Q_wy5bj5GI"; 
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // 状态：new (未看), history (观看中), completed (已完成)
-let videoDatabase = [
-    {
-        id: 'seed_video_001',
-        title: 'Study Motivation for Final Exams',
-        episode: '第 15 期',
-        rating: 4,
-        tags: ['Academic', 'Daily'],
-        accent: 'US',
-        creator: 'TED-Ed',
-        flag: '🇺🇸',
-        coverUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80', 
-        duration: '03:45',
-        date: 'Updated Oct 24, 2023',
-        status: 'new',
-        progress: 0,
-        videoUrl: 'https://revbsrjaeoldhhifibdx.supabase.co/storage/v1/object/public/videos/study.mp4'
-    },
-    {
-        id: 'mock_002',
-        title: 'How to order coffee in London',
-        episode: '第 16 期',
-        rating: 3,
-        tags: ['Daily', 'Travel'],
-        accent: 'UK',
-        creator: 'English with Lucy',
-        flag: '🇬🇧',
-        coverUrl: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&w=800&q=80', 
-        duration: '05:20',
-        date: 'Updated Nov 02, 2023',
-        status: 'history',
-        progress: 45, // 45% watched
-        videoUrl: '' // Mock
-    },
-    {
-        id: 'mock_003',
-        title: 'Aussie Slang Masterclass',
-        episode: '第 17 期',
-        rating: 5,
-        tags: ['Entertainment'],
-        accent: 'AU',
-        creator: 'Ozzie English',
-        flag: '🇦🇺',
-        coverUrl: 'https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?auto=format&fit=crop&w=800&q=80', 
-        duration: '08:15',
-        date: 'Updated Nov 10, 2023',
-        status: 'new',
-        progress: 0,
-        videoUrl: ''
-    },
-    {
-        id: 'mock_004',
-        title: 'Tech Interview Preparation',
-        episode: '第 12 期',
-        rating: 4,
-        tags: ['Business', 'Academic'],
-        accent: 'US',
-        creator: 'TechLead',
-        flag: '🇺🇸',
-        coverUrl: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=800&q=80', 
-        duration: '12:30',
-        date: 'Updated Sep 15, 2023',
-        status: 'completed',
-        progress: 100,
-        videoUrl: ''
+let videoDatabase = [];
+
+// ==========================================
+// 🍎 异步加载真实数据架构 (预留给 Supabase)
+// ==========================================
+// ③ 替换 loadVideosFromSupabase()
+async function loadVideosFromSupabase() {
+    try {
+        const { data, error } = await supabaseClient
+            .from('videos')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if(error) {
+            console.error(error);
+            return;
+        }
+
+        videoDatabase = data.map(v => ({
+            id: v.id,
+            title: v.title,
+            episode: v.episode || '',
+            rating: v.rating || 5,
+            tags: v.tags || [],
+            accent: v.accent || 'US',
+            creator: v.creator || '',
+            coverUrl: v.cover_url,
+            videoUrl: v.video_url,
+            progress: 0,
+            favorite: false,
+            status: 'new',
+            duration: '--:--',
+            date: 'Cloud'
+        }));
+
+        // 恢复所有视频保存的进度
+        videoDatabase.forEach(v => {
+            const savedPct = localStorage.getItem(`prog_pct_${v.id}`);
+            if(savedPct) {
+                v.progress = parseFloat(savedPct);
+                v.status = v.progress >= 99 ? 'completed' : 'history';
+            }
+        });
+
+        renderGrid();
+    } catch(e){
+        console.error(e);
     }
-];
+}
 
 // ==========================================
 // 🍎 状态管理 (包含 i18n 字典)
@@ -718,11 +781,13 @@ const i18n = {
         title_all: "Library",
         title_history: "History",
         title_completed: "Completed",
+        title_favorites: "Favorites",
         sidebar_theme: "Theme",
         sidebar_local: "LOCAL FILES",
         sidebar_video: "Video (MP4)",
-        sidebar_sub: "Subtitles (SRT)",
+        sidebar_sub: "Subtitles (SRT/VTT)",
         sidebar_launch: "Launch",
+        search_placeholder: "Search videos...",
         filter_difficulty: "Difficulty",
         filter_level_all: "All Levels",
         filter_level_5: "⭐⭐⭐⭐⭐ (Hard)",
@@ -744,21 +809,31 @@ const i18n = {
         empty_title: "No videos found",
         empty_desc: "Try adjusting your filters or check back later.",
         vocab_title: "Vocabulary",
+        btn_export: "Export CSV",
         tt_add: "Add to Vocab",
         tt_analyzing: "Analyzing...",
+        tt_definition: "Definition",
+        tt_example: "Example",
+        tt_synonyms: "Synonyms",
         word_remove: "Remove",
         loading: "Loading...",
-        card_accent: "Accent:"
+        card_accent: "Accent:",
+        cat_continue: "Continue Watching",
+        cat_academic: "Academic Deep Dive",
+        cat_daily: "Daily Life & Travel",
+        cat_business: "Business English"
     },
     zh: {
         title_all: "视频库",
         title_history: "观看历史",
         title_completed: "已学完",
+        title_favorites: "我的收藏",
         sidebar_theme: "外观主题",
         sidebar_local: "本地文件",
         sidebar_video: "选择视频 (MP4)",
-        sidebar_sub: "选择字幕 (SRT)",
+        sidebar_sub: "选择字幕 (SRT/VTT)",
         sidebar_launch: "进入学习舱",
+        search_placeholder: "搜索视频...",
         filter_difficulty: "难度",
         filter_level_all: "所有难度",
         filter_level_5: "⭐⭐⭐⭐⭐ (困难)",
@@ -780,19 +855,29 @@ const i18n = {
         empty_title: "未找到视频",
         empty_desc: "请尝试调整筛选条件或稍后重试。",
         vocab_title: "生词本",
+        btn_export: "导出 CSV",
         tt_add: "加入生词本",
         tt_analyzing: "分析中...",
+        tt_definition: "释义",
+        tt_example: "例句",
+        tt_synonyms: "同义词",
         word_remove: "移除",
         loading: "加载中...",
-        card_accent: "口音:"
+        card_accent: "口音:",
+        cat_continue: "继续学习",
+        cat_academic: "学术深研",
+        cat_daily: "日常与旅行",
+        cat_business: "商务英语"
     }
 };
 
 const state = { 
-    lang: 'en',
-    currentTab: 'all', // all, history, completed
+    lang: 'zh',
+    currentTab: 'all', // all, history, completed, favorites
+    searchText: '',
     filters: { rating: 'all', tag: 'all', accent: 'all' },
     
+    currentVideoId: null,
     subtitles: [], 
     currentLoopIndex: null, 
     currentActiveIndex: -1, 
@@ -814,6 +899,7 @@ const dom = {
     clozeBtn: document.getElementById('clozeBtn'),
     dictationBtn: document.getElementById('dictationBtn'), 
     saveWordBtn: document.getElementById('saveWordBtn'), 
+    exportVocabBtn: document.getElementById('exportVocabBtn'),
     vocabList: document.getElementById('vocabList'), 
     homeScreen: document.getElementById('homeScreen'), 
     workspace: document.getElementById('workspace'), 
@@ -827,11 +913,12 @@ const dom = {
     sidebarNav: document.getElementById('sidebarNav'),
     sidebarThemeBtn: document.getElementById('sidebarThemeBtn'),
     pageTitle: document.getElementById('pageTitle'),
+    searchInput: document.getElementById('searchInput'),
     filterBar: document.getElementById('filterBar'),
     filterRating: document.getElementById('filterRating'),
     filterTag: document.getElementById('filterTag'),
     filterAccent: document.getElementById('filterAccent'),
-    mainGrid: document.getElementById('mainGrid'),
+    mainContentArea: document.getElementById('mainContentArea'),
 
     btnLocalVideo: document.getElementById('btnLocalVideo'), 
     btnLocalSub: document.getElementById('btnLocalSub'),
@@ -844,10 +931,9 @@ const dom = {
 };
 
 // ==========================================
-// 🍎 UI 渲染核心 (Library / Filters / Grid)
+// 🍎 UI 渲染核心 (Apple TV / Netflix 风格)
 // ==========================================
 
-// 辅助：生成星星SVG
 const getStarsHtml = (rating) => {
     let html = '';
     for(let i=1; i<=5; i++) {
@@ -857,34 +943,74 @@ const getStarsHtml = (rating) => {
     return html;
 };
 
+// 抽出：單一卡片渲染邏輯
+const renderVideoCard = (v, dict) => `
+    <div class="video-card" id="card-${v.id}" onclick="loadVideo('${v.id}')">
+        <div class="card-overlay"><div class="spinner"></div><span style="font-size:13px; font-weight:600;">${dict.loading}</span></div>
+        
+        <!-- 收藏按鈕 -->
+        <div class="favorite-btn ${v.favorite ? 'active' : ''}" onclick="toggleFavorite(event, '${v.id}')" title="Toggle Favorite">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        </div>
+
+        <div class="card-top" style="background-image: url('${v.coverUrl}')">
+            <div class="card-creator">${v.creator} ${v.flag}</div>
+            <div class="card-duration">${v.duration}</div>
+        </div>
+        <div class="card-middle">
+            <div class="card-ep-group"><div class="card-ep">${v.episode}</div><div class="card-title">${v.title}</div></div>
+            <div class="card-rating">${getStarsHtml(v.rating)}</div>
+        </div>
+        <div class="card-bottom">
+            <div class="card-tags">${v.tags.map(t => `<span class="card-tag">${t}</span>`).join('')}</div>
+            <div class="card-meta">
+                <div class="card-accent">${dict.card_accent} ${v.flag} ${v.accent}</div>
+                <div class="card-date">${v.date}</div>
+            </div>
+        </div>
+        ${v.progress > 0 ? `<div class="card-progress" style="width: ${v.progress}%"></div>` : ''}
+    </div>
+`;
+
+window.toggleFavorite = (e, id) => {
+    e.stopPropagation(); // 阻止卡片點擊事件
+    const video = videoDatabase.find(v => v.id === id);
+    if(video) {
+        video.favorite = !video.favorite;
+        renderGrid(); // 重新渲染更新愛心狀態
+    }
+};
+
 function renderGrid() {
     let filtered = videoDatabase;
-
-    // 1. 根据 Tab 过滤状态
-    if (state.currentTab === 'history') {
-        filtered = filtered.filter(v => v.status === 'history');
-    } else if (state.currentTab === 'completed') {
-        filtered = filtered.filter(v => v.status === 'completed');
-    }
-
-    // 2. 仅在 "Library(All)" 下应用下拉框过滤
-    if (state.currentTab === 'all') {
-        if (state.filters.rating !== 'all') {
-            filtered = filtered.filter(v => v.rating === parseInt(state.filters.rating));
-        }
-        if (state.filters.tag !== 'all') {
-            filtered = filtered.filter(v => v.tags.includes(state.filters.tag));
-        }
-        if (state.filters.accent !== 'all') {
-            filtered = filtered.filter(v => v.accent === state.filters.accent);
-        }
-    }
-
     const dict = i18n[state.lang];
 
+    // 1. 搜尋過濾
+    if (state.searchText) {
+        filtered = filtered.filter(v => v.title.toLowerCase().includes(state.searchText.toLowerCase()));
+    }
+
+    // 2. Tab 過濾
+    if (state.currentTab === 'history') {
+        filtered = filtered.filter(v => v.status === 'history' || v.progress > 0 && v.progress < 99);
+    } else if (state.currentTab === 'completed') {
+        filtered = filtered.filter(v => v.status === 'completed' || v.progress >= 99);
+    } else if (state.currentTab === 'favorites') {
+        filtered = filtered.filter(v => v.favorite === true);
+    }
+
+    // 3. 下拉框過濾 (僅限 All 標籤)
+    let isFiltering = false;
+    if (state.currentTab === 'all') {
+        if (state.filters.rating !== 'all') { filtered = filtered.filter(v => v.rating === parseInt(state.filters.rating)); isFiltering = true; }
+        if (state.filters.tag !== 'all') { filtered = filtered.filter(v => v.tags.includes(state.filters.tag)); isFiltering = true; }
+        if (state.filters.accent !== 'all') { filtered = filtered.filter(v => v.accent === state.filters.accent); isFiltering = true; }
+    }
+
+    // 空狀態
     if (filtered.length === 0) {
-        dom.mainGrid.innerHTML = `
-            <div class="empty-state">
+        dom.mainContentArea.innerHTML = `
+            <div class="empty-state" style="margin-top:40px;">
                 <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
                 <h3>${dict.empty_title}</h3>
                 <p>${dict.empty_desc}</p>
@@ -893,39 +1019,52 @@ function renderGrid() {
         return;
     }
 
-    dom.mainGrid.innerHTML = filtered.map(v => `
-        <div class="video-card" id="card-${v.id}" onclick="loadVideo('${v.id}')">
-            <div class="card-overlay"><div class="spinner"></div><span style="font-size:13px; font-weight:600;">${dict.loading}</span></div>
-            
-            <!-- 1. 顶部：缩略图/时长/创作者 -->
-            <div class="card-top" style="background-image: url('${v.coverUrl}')">
-                <div class="card-creator">${v.creator} ${v.flag}</div>
-                <div class="card-duration">${v.duration}</div>
-            </div>
-            
-            <!-- 2. 中部：期数、标题与评分 -->
-            <div class="card-middle">
-                <div class="card-ep-group">
-                    <div class="card-ep">${v.episode}</div>
-                    <div class="card-title">${v.title}</div>
-                </div>
-                <div class="card-rating">${getStarsHtml(v.rating)}</div>
-            </div>
-            
-            <!-- 3. 底部：分类、口音、日期 -->
-            <div class="card-bottom">
-                <div class="card-tags">
-                    ${v.tags.map(t => `<span class="card-tag">${t}</span>`).join('')}
-                </div>
-                <div class="card-meta">
-                    <div class="card-accent">${dict.card_accent} ${v.flag} ${v.accent}</div>
-                    <div class="card-date">${v.date}</div>
-                </div>
-            </div>
-            
-            ${(v.status === 'history' || v.status === 'completed') ? `<div class="card-progress" style="width: ${v.progress}%"></div>` : ''}
-        </div>
-    `).join('');
+    // 🍎 Apple TV 風格橫向佈局判斷：只有在首頁(All)且沒有進行任何搜尋、過濾時才顯示分類滾動
+    if (state.currentTab === 'all' && !state.searchText && !isFiltering) {
+        let html = '';
+        
+        // 繼續觀看
+        const continueWatching = filtered.filter(v => v.progress > 0 && v.progress < 99);
+        if (continueWatching.length > 0) {
+            html += `<div class="category-section"><div class="category-header">${dict.cat_continue}</div>
+                     <div class="row-scroll">${continueWatching.map(v => renderVideoCard(v, dict)).join('')}</div></div>`;
+        }
+
+        // 學術深度
+        const academic = filtered.filter(v => v.tags.includes('Academic'));
+        if (academic.length > 0) {
+            html += `<div class="category-section"><div class="category-header">${dict.cat_academic}</div>
+                     <div class="row-scroll">${academic.map(v => renderVideoCard(v, dict)).join('')}</div></div>`;
+        }
+
+        // 日常與娛樂
+        const daily = filtered.filter(v => v.tags.includes('Daily') || v.tags.includes('Entertainment'));
+        if (daily.length > 0) {
+            html += `<div class="category-section"><div class="category-header">${dict.cat_daily}</div>
+                     <div class="row-scroll">${daily.map(v => renderVideoCard(v, dict)).join('')}</div></div>`;
+        }
+        
+        // 商業
+        const business = filtered.filter(v => v.tags.includes('Business'));
+        if (business.length > 0) {
+            html += `<div class="category-section"><div class="category-header">${dict.cat_business}</div>
+                     <div class="row-scroll">${business.map(v => renderVideoCard(v, dict)).join('')}</div></div>`;
+        }
+
+        dom.mainContentArea.innerHTML = html;
+    } 
+    // 標準網格視圖
+    else {
+        dom.mainContentArea.innerHTML = `<div class="video-grid">${filtered.map(v => renderVideoCard(v, dict)).join('')}</div>`;
+    }
+}
+
+// 綁定搜尋輸入
+if(dom.searchInput) {
+    dom.searchInput.addEventListener('input', (e) => {
+        state.searchText = e.target.value;
+        renderGrid();
+    });
 }
 
 // 绑定侧边栏切换事件
@@ -937,32 +1076,29 @@ if(dom.sidebarNav) {
             item.classList.add('active');
             state.currentTab = item.dataset.tab;
             
-            // 更新页面大标题并适配翻译
             if (dom.pageTitle) {
                 dom.pageTitle.setAttribute('data-i18n', `title_${state.currentTab}`);
                 dom.pageTitle.innerText = i18n[state.lang][`title_${state.currentTab}`];
             }
             
-            // 只有在 All 下显示过滤栏
             if(dom.filterBar) {
                 dom.filterBar.style.display = state.currentTab === 'all' ? 'flex' : 'none';
             }
             
-            // 如果切换走，重置过滤器 (可选)
             if(state.currentTab !== 'all') {
                 state.filters = { rating: 'all', tag: 'all', accent: 'all' };
                 if(dom.filterRating) dom.filterRating.value = 'all'; 
                 if(dom.filterTag) dom.filterTag.value = 'all'; 
                 if(dom.filterAccent) dom.filterAccent.value = 'all';
+                state.searchText = ''; dom.searchInput.value = '';
             }
             renderGrid();
         }
     });
 }
 
-// 绑定过滤器事件
 [dom.filterRating, dom.filterTag, dom.filterAccent].forEach(select => {
-    if (select) { // 增加安全檢查，防止 DOM 未加載時報錯
+    if (select) {
         select.addEventListener('change', (e) => {
             const id = e.target.id;
             if (id === 'filterRating') state.filters.rating = e.target.value;
@@ -974,16 +1110,17 @@ if(dom.sidebarNav) {
 });
 
 // ==========================================
-// 🍎 视频加载与播放器逻辑
+// 🍎 视频加载与播放器逻辑 (增加進度恢復與倍速還原)
 // ==========================================
+// ④ 替换 loadVideo()
 async function loadVideo(id) {
     const videoData = videoDatabase.find(v => v.id === id);
     if (!videoData) return;
+    state.currentVideoId = id;
     
-    // 如果是 mock 没有真实视频源，给个提示
     if (!videoData.videoUrl) {
-        alert("This is a mock card. Only the first video 'Study Motivation' is fully connected to the database. Loading the first video instead.");
-        return loadVideo('seed_video_001');
+        alert("This is a mock card. Please ensure the video URL is set in Supabase.");
+        return;
     }
 
     const card = document.getElementById(`card-${id}`);
@@ -993,25 +1130,32 @@ async function loadVideo(id) {
         if(state.videoObjectURL) { URL.revokeObjectURL(state.videoObjectURL); state.videoObjectURL = null; }
         dom.player.src = videoData.videoUrl;
         
-        const queryUrl = `${SUPABASE_URL}/rest/v1/video_subtitles?select=content&video_id=eq.${id}&track_type=eq.annotated&language=eq.en-zh`;
-        const res = await fetch(queryUrl, {
-            headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+        // 恢復倍速
+        const savedRate = localStorage.getItem('playbackRate') || 1;
+        dom.player.playbackRate = parseFloat(savedRate);
+        dom.speedToggleBtn.innerText = `${parseFloat(savedRate).toFixed(1)}x`;
+
+        // 恢復播放進度
+        dom.player.addEventListener('loadedmetadata', function onLoaded() {
+            const savedProg = localStorage.getItem(`prog_time_${id}`);
+            if(savedProg && parseFloat(savedProg) > 0) {
+                dom.player.currentTime = parseFloat(savedProg);
+            }
+            dom.player.removeEventListener('loadedmetadata', onLoaded);
         });
         
-        if (!res.ok) throw new Error("Supabase Fetch Failed");
-        const data = await res.json();
-        
-        if (data && data.length > 0 && data[0].content) {
-            state.subtitles = data[0].content;
-        } else {
-            console.warn("No subtitles found in Supabase.");
-            state.subtitles = [];
+        const { data, error } = await supabaseClient
+            .from('video_subtitles')
+            .select('content')
+            .eq('video_id', id)
+            .single();
+
+        if(error) {
+            console.error(error);
+            return;
         }
 
-        if (!Array.isArray(state.subtitles)) state.subtitles = [];
-
-        // 模拟：点击加载后，状态变为 history
-        if(videoData.status === 'new') videoData.status = 'history';
+        state.subtitles = data.content || [];
 
         renderTranscript();
         enterWorkspace();
@@ -1034,12 +1178,13 @@ dom.backToHomeBtn.onclick = () => {
     dom.player.pause();
     setTimeout(() => { 
         dom.homeScreen.classList.remove('hidden'); 
-        renderGrid(); // 返回时重新渲染，更新进度条或状态
+        state.currentVideoId = null;
+        renderGrid(); // 更新進度條
     }, 300);
 };
 
 // ==========================================
-// 🍎 交互功能：主题、高亮、克漏字、字典等
+// 🍎 交互功能：主题、高亮、克漏字、倍速
 // ==========================================
 const toggleTheme = () => {
     document.body.classList.toggle('dark-theme'); 
@@ -1054,13 +1199,12 @@ const toggleTheme = () => {
         if(dom.sidebarThemeBtn) dom.sidebarThemeBtn.classList.remove('active');
     }
 };
-dom.themeBtn.onclick = toggleTheme; 
-dom.homeThemeBtn.onclick = toggleTheme;
+dom.themeBtn.onclick = toggleTheme; dom.homeThemeBtn.onclick = toggleTheme;
 if(dom.sidebarThemeBtn) dom.sidebarThemeBtn.onclick = toggleTheme;
 
 const toggleLang = () => {
     state.lang = state.lang === 'en' ? 'zh' : 'en';
-    if(dom.langToggleBtn) dom.langToggleBtn.innerText = state.lang === 'en' ? '中' : 'EN';
+    if(dom.langToggleBtn) dom.langToggleBtn.innerText = state.lang === 'en' ? 'EN' : '中';
     updateLanguageUI();
 };
 if(dom.langToggleBtn) dom.langToggleBtn.onclick = toggleLang;
@@ -1071,10 +1215,15 @@ function updateLanguageUI() {
         const key = el.getAttribute('data-i18n');
         if (dict[key]) el.innerText = dict[key];
     });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (dict[key]) el.placeholder = dict[key];
+    });
     renderGrid();
     renderVocab();
 }
 
+// ... 高亮與排版邏輯保持不變
 function applyLocalHighlights(text, highlights) {
     if (!highlights || !Array.isArray(highlights) || highlights.length === 0) return text;
     let res = text; let placeholders = [];
@@ -1101,6 +1250,37 @@ function applyLocalHighlights(text, highlights) {
 const getVocab = () => JSON.parse(localStorage.getItem('vocabPro2')) || [];
 const saveVocab = words => { try { localStorage.setItem('vocabPro2', JSON.stringify(words)); } catch(e){} };
 
+// 導出 CSV
+dom.exportVocabBtn.onclick = () => {
+    const words = getVocab();
+    if(words.length === 0) return alert('No words to export.');
+    
+    // 清理 HTML 標籤
+    const stripHtml = (html) => {
+       const tmp = document.createElement('DIV');
+       tmp.innerHTML = html;
+       return tmp.textContent || tmp.innerText || '';
+    };
+
+    let csvContent = "Word,Definition,Example,Synonyms\n";
+    words.forEach(w => {
+        const cleanDef = stripHtml(w.definition).replace(/"/g, '""');
+        const cleanEx = (w.example || "").replace(/"/g, '""');
+        const cleanSyn = (w.synonyms || []).join('; ').replace(/"/g, '""');
+        csvContent += `"${w.word}","${cleanDef}","${cleanEx}","${cleanSyn}"\n`;
+    });
+
+    const blob = new Blob(["\uFEFF"+csvContent], { type: 'text/csv;charset=utf-8;' }); // 加上 BOM 以支援 Excel 中文
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", "vocabulary_export.csv");
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
+
 dom.translateBtn.onclick = () => { 
     state.translationVisible = !state.translationVisible; dom.translateBtn.classList.toggle('active'); 
     document.querySelectorAll('.lyric-zh').forEach(el => el.classList.toggle('hidden', !state.translationVisible)); 
@@ -1109,11 +1289,6 @@ dom.translateBtn.onclick = () => {
 dom.clozeBtn.onclick = () => {
     state.isClozeMode = !state.isClozeMode; dom.clozeBtn.classList.toggle('active', state.isClozeMode);
     renderTranscript(); 
-    if (state.currentActiveIndex !== -1 && lyricNodes[state.currentActiveIndex]) {
-        lyricNodes[state.currentActiveIndex].classList.add('active');
-        const offset = window.innerWidth <= 1024 ? 140 : dom.transcript.clientHeight / 2;
-        dom.transcript.scrollTo({ top: lyricNodes[state.currentActiveIndex].offsetTop - offset, behavior: 'smooth' });
-    }
 };
 
 dom.dictationBtn.onclick = () => { state.dictationMode = !state.dictationMode; dom.dictationBtn.classList.toggle('active'); };
@@ -1134,7 +1309,9 @@ dom.speedToggleBtn.onclick = (e) => {
 document.addEventListener('click', e => { if (!dom.speedMenu.contains(e.target) && e.target !== dom.speedToggleBtn) dom.speedMenu.classList.remove('show'); });
 document.querySelectorAll('.sp-item').forEach(item => {
     item.onclick = () => {
-        const speed = parseFloat(item.dataset.speed); dom.player.playbackRate = speed;
+        const speed = parseFloat(item.dataset.speed); 
+        dom.player.playbackRate = speed;
+        localStorage.setItem('playbackRate', speed); // 保存倍速
         dom.speedToggleBtn.innerText = `${speed.toFixed(1)}x`;
         document.querySelectorAll('.sp-item').forEach(i => i.classList.remove('active'));
         item.classList.add('active'); dom.speedMenu.classList.remove('show');
@@ -1144,7 +1321,11 @@ document.querySelectorAll('.sp-item').forEach(item => {
 dom.mobileVocabToggle.onclick = () => dom.vocabContainer.classList.add('open');
 dom.closeVocabBtn.onclick = () => dom.vocabContainer.classList.remove('open');
 
-function parseSRT(data) {
+// 支援 VTT 解析
+function parseSRT(data, isVtt = false) {
+    if(isVtt) data = data.replace(/^WEBVTT.*\n*/, ''); // 移除 VTT 頭部
+    
+    // 相容 . (VTT) 或 , (SRT)
     const subtitleRegex = /(\d{2}:\d{2}:\d{2}[,.]\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}[,.]\d{3})(?:\s+[^\n]*)?\n([\s\S]*?)(?=\n{2,}|\n\d+\n\d{2}:|$)/g;
     const subtitles = []; let match;
     const timeToSec = (t) => { const [hrs, mins, secs] = t.replace(',', '.').split(':'); return (+hrs * 3600) + (+mins * 60) + parseFloat(secs); };
@@ -1153,6 +1334,20 @@ function parseSRT(data) {
         const text = match[3].replace(/<[^>]+>/g, '').trim(); const cleanText = text.replace(/\n/g, ' '); 
         if (cleanText) subtitles.push({ start, end, en: cleanText, zh: "", highlights: [] });
     }
+    return subtitles;
+}
+// 極簡 ASS 文字擷取 (預留)
+function parseASS(data) {
+    const lines = data.split('\n'); const subtitles = [];
+    lines.forEach(l => {
+        if(l.startsWith('Dialogue:')) {
+            const parts = l.split(',');
+            if(parts.length > 9) {
+                // 非常基礎的擷取，忽略時間軸僅作展示
+                subtitles.push({ start: 0, end: 5, en: parts.slice(9).join(',').replace(/{[^}]+}/g, ''), zh: "", highlights: [] });
+            }
+        }
+    });
     return subtitles;
 }
 
@@ -1172,63 +1367,72 @@ function renderTranscript() {
     });
 }
 
-dom.transcript.addEventListener('input', (e) => {
-    if (e.target.classList.contains('cloze-input')) {
-        const answer = e.target.dataset.answer; const value = e.target.value.toLowerCase().trim();
-        if (value === answer) {
-            e.target.classList.add('correct'); e.target.classList.remove('incorrect');
-            e.target.value = e.target.dataset.original; e.target.blur();
-        }
-    }
-});
-dom.transcript.addEventListener('focusout', (e) => {
-    if (e.target.classList.contains('cloze-input')) {
-        const answer = e.target.dataset.answer; const value = e.target.value.toLowerCase().trim();
-        if (value !== answer && value.length > 0) e.target.classList.add('incorrect');
-        else e.target.classList.remove('incorrect');
-    }
-});
-
-function toggleLoop(index, node) {
-    if (state.currentLoopIndex === index) { state.currentLoopIndex = null; node.classList.remove('looping'); } 
-    else {
-        if(state.currentLoopIndex !== null && lyricNodes[state.currentLoopIndex]) lyricNodes[state.currentLoopIndex].classList.remove('looping');
-        state.currentLoopIndex = index; node.classList.add('looping');
-        dom.player.currentTime = state.subtitles[index].start; dom.player.play();
-    }
-}
-
+// 播放進度自動保存邏輯
 let isThrottled = false;
 dom.player.addEventListener('timeupdate', () => {
-    if (isThrottled || !state.subtitles.length || !lyricNodes.length) return;
+    if (isThrottled) return;
     isThrottled = true;
     requestAnimationFrame(() => {
-        const now = dom.player.currentTime; let activeIdx = -1;
-        let l = 0, r = state.subtitles.length - 1;
-        while(l <= r) {
-            const m = Math.floor((l+r)/2);
-            if(now >= state.subtitles[m].start && now <= state.subtitles[m].end) { activeIdx = m; break; }
-            if(now < state.subtitles[m].start) r = m - 1; else l = m + 1;
-        }
-
-        if (activeIdx !== state.currentActiveIndex) {
-            if (state.currentActiveIndex !== -1 && lyricNodes[state.currentActiveIndex]) lyricNodes[state.currentActiveIndex].classList.remove('active');
-            if (activeIdx !== -1 && lyricNodes[activeIdx]) {
-                lyricNodes[activeIdx].classList.add('active');
-                const offset = window.innerWidth <= 1024 ? 140 : dom.transcript.clientHeight / 2;
-                dom.transcript.scrollTo({ top: lyricNodes[activeIdx].offsetTop - offset, behavior: 'smooth' });
+        const now = dom.player.currentTime; 
+        
+        // --- 字幕捲動 ---
+        if(state.subtitles.length && lyricNodes.length) {
+            let activeIdx = -1;
+            let l = 0, r = state.subtitles.length - 1;
+            while(l <= r) {
+                const m = Math.floor((l+r)/2);
+                if(now >= state.subtitles[m].start && now <= state.subtitles[m].end) { activeIdx = m; break; }
+                if(now < state.subtitles[m].start) r = m - 1; else l = m + 1;
             }
-            state.currentActiveIndex = activeIdx;
-        }
 
-        if (activeIdx !== -1 && state.dictationMode && now >= state.subtitles[activeIdx].end - 0.1) dom.player.pause();
-        if (state.currentLoopIndex !== null) {
-            const sub = state.subtitles[state.currentLoopIndex];
-            if (now >= sub.end - 0.05 || now < sub.start) dom.player.currentTime = sub.start;
+            if (activeIdx !== state.currentActiveIndex) {
+                if (state.currentActiveIndex !== -1 && lyricNodes[state.currentActiveIndex]) lyricNodes[state.currentActiveIndex].classList.remove('active');
+                if (activeIdx !== -1 && lyricNodes[activeIdx]) {
+                    lyricNodes[activeIdx].classList.add('active');
+                    const offset = window.innerWidth <= 1024 ? 140 : dom.transcript.clientHeight / 2;
+                    dom.transcript.scrollTo({ top: lyricNodes[activeIdx].offsetTop - offset, behavior: 'smooth' });
+                }
+                state.currentActiveIndex = activeIdx;
+            }
+
+            if (activeIdx !== -1 && state.dictationMode && now >= state.subtitles[activeIdx].end - 0.1) dom.player.pause();
+            if (state.currentLoopIndex !== null) {
+                const sub = state.subtitles[state.currentLoopIndex];
+                if (now >= sub.end - 0.05 || now < sub.start) dom.player.currentTime = sub.start;
+            }
         }
         isThrottled = false;
     });
 });
+
+// ⑤ 自动保存观看进度
+setInterval(async () => {
+    if(!state.currentVideoId) return;
+    if(!dom.player.duration) return;
+
+    const pct = Math.floor((dom.player.currentTime / dom.player.duration) * 100);
+
+    localStorage.setItem(`prog_time_${state.currentVideoId}`, dom.player.currentTime);
+    localStorage.setItem(`prog_pct_${state.currentVideoId}`, pct);
+
+    // 找到記憶體中的影片並更新
+    const vid = videoDatabase.find(v => v.id === state.currentVideoId);
+    if(vid) vid.progress = pct;
+
+    try {
+        await supabaseClient
+        .from('progress')
+        .upsert({
+            user_id: 'guest',
+            video_id: state.currentVideoId,
+            watched_seconds: dom.player.currentTime,
+            progress_percent: pct
+        });
+    } catch(e) {
+        console.error("Progress save error:", e);
+    }
+
+}, 5000);
 
 document.addEventListener('selectionchange', () => setTimeout(handleSelection, 300));
 async function handleSelection() {
@@ -1238,15 +1442,22 @@ async function handleSelection() {
         
         if(window.innerWidth > 1024) {
             const rect = window.getSelection().getRangeAt(0).getBoundingClientRect();
-            let topPos = rect.top - 200; let leftPos = rect.left + (rect.width/2) - 140;
+            let topPos = rect.top - 200; let leftPos = rect.left + (rect.width/2) - 160;
             if (topPos < 20) topPos = rect.bottom + 10;
-            if (leftPos < 10) leftPos = 10; if (leftPos + 280 > window.innerWidth) leftPos = window.innerWidth - 290;
+            if (leftPos < 10) leftPos = 10; if (leftPos + 320 > window.innerWidth) leftPos = window.innerWidth - 330;
             dom.tooltip.style.left = `${leftPos}px`; dom.tooltip.style.top = `${topPos}px`;
         }
         
         const dict = i18n[state.lang];
-        dom.tooltip.classList.add('show'); document.getElementById('tooltipWord').innerText = text.toLowerCase();
-        document.getElementById('tooltipPhonetic').innerText = dict.tt_analyzing; document.getElementById('tooltipDef').innerHTML = "";
+        dom.tooltip.classList.add('show'); 
+        document.getElementById('tooltipWord').innerText = text.toLowerCase();
+        document.getElementById('tooltipPhonetic').innerText = dict.tt_analyzing; 
+        document.getElementById('tooltipDef').innerHTML = "";
+        
+        // 隱藏升級板塊
+        document.getElementById('tooltipExSection').style.display = 'none';
+        document.getElementById('tooltipSynSection').style.display = 'none';
+        
         dom.saveWordBtn.disabled = true;
 
         const isPhrase = text.includes(' ');
@@ -1254,16 +1465,47 @@ async function handleSelection() {
             if (isPhrase) {
                 document.getElementById('tooltipPhonetic').innerText = "[Idea Unit / Phrase]";
                 document.getElementById('tooltipDef').innerHTML = "<em>Phrase definitions require an advanced NLP endpoint. Saved as an integrated unit.</em>";
-                state.currentWord = { word: text.toLowerCase(), phonetic: '', definition: "Phrase / Idea Unit" };
+                state.currentWord = { word: text.toLowerCase(), phonetic: '', definition: "Phrase / Idea Unit", example: "", synonyms: [] };
                 dom.saveWordBtn.disabled = false;
             } else {
                 const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${text}`);
                 if (!res.ok) throw new Error('Not found');
                 const data = await res.json();
-                const defs = data[0].meanings.slice(0,2).map(m => `<strong>${m.partOfSpeech}</strong>: ${m.definitions[0].definition}`).join('<br><br>');
-                state.currentWord = { word: text.toLowerCase(), phonetic: data[0].phonetic || '', definition: defs };
+                
+                // 🍎 提取 AI 級解析資料：例句與同義詞
+                const defs = []; let synonyms = []; let example = "";
+                data[0].meanings.forEach(m => {
+                    if(m.synonyms && m.synonyms.length > 0) synonyms.push(...m.synonyms);
+                    m.definitions.forEach(d => {
+                        if(d.example && !example) example = d.example; // 取第一個例句
+                        defs.push(`<strong>${m.partOfSpeech}</strong>: ${d.definition}`);
+                    });
+                });
+                
+                // 去重同義詞並取前 5 個
+                synonyms = [...new Set(synonyms)].slice(0, 5);
+                const finalDef = defs.slice(0,2).join('<br><br>');
+
+                state.currentWord = { 
+                    word: text.toLowerCase(), 
+                    phonetic: data[0].phonetic || '', 
+                    definition: finalDef,
+                    example: example,
+                    synonyms: synonyms
+                };
+                
                 document.getElementById('tooltipPhonetic').innerText = state.currentWord.phonetic;
-                document.getElementById('tooltipDef').innerHTML = state.currentWord.definition;
+                document.getElementById('tooltipDef').innerHTML = finalDef;
+                
+                if (example) {
+                    document.getElementById('tooltipExSection').style.display = 'block';
+                    document.getElementById('tooltipExample').innerText = `"${example}"`;
+                }
+                if (synonyms.length > 0) {
+                    document.getElementById('tooltipSynSection').style.display = 'block';
+                    document.getElementById('tooltipSynonyms').innerHTML = synonyms.map(s => `<span class="tt-synonym-tag">${s}</span>`).join('');
+                }
+                
                 dom.saveWordBtn.disabled = false;
             }
         } catch {
@@ -1288,12 +1530,13 @@ dom.saveWordBtn.onclick = () => {
 
 function renderVocab() {
     const words = getVocab();
-    const dict = i18n[state.lang] || i18n.en;
+    const dict = i18n[state.lang] || i18n.zh;
     document.getElementById('vocabCount').innerText = words.length;
     dom.vocabList.innerHTML = words.map((w, i) => `
         <div class="word-item">
             <div class="word-head"><div class="word-text">${w.word}</div><div class="word-del" onclick="deleteWord(${i})">${dict.word_remove}</div></div>
             <div class="word-def">${w.definition}</div>
+            ${w.example ? `<div style="font-size:12px; color:var(--text-sub); margin-top:4px; font-style:italic;">Ex: ${w.example}</div>` : ''}
         </div>
     `).join('');
 }
@@ -1306,10 +1549,14 @@ function handleLocalFiles(files) {
             if(state.videoObjectURL) URL.revokeObjectURL(state.videoObjectURL);
             state.videoObjectURL = URL.createObjectURL(f); dom.player.src = state.videoObjectURL;
             dom.btnLocalVideo.classList.add('ready'); dom.txtLocalVideo.innerText = f.name; state.localReady.v = true;
-        } else if (f.name.endsWith('.srt') || f.name.endsWith('.json')) {
+        } else if (f.name.endsWith('.srt') || f.name.endsWith('.json') || f.name.endsWith('.vtt') || f.name.endsWith('.ass')) {
             const r = new FileReader();
             r.onload = () => {
-                state.subtitles = f.name.endsWith('.json') ? JSON.parse(r.result) : parseSRT(r.result);
+                if(f.name.endsWith('.json')) state.subtitles = JSON.parse(r.result);
+                else if (f.name.endsWith('.vtt')) state.subtitles = parseSRT(r.result, true);
+                else if (f.name.endsWith('.ass')) state.subtitles = parseASS(r.result);
+                else state.subtitles = parseSRT(r.result);
+                
                 dom.btnLocalSub.classList.add('ready'); dom.txtLocalSub.innerText = f.name; state.localReady.s = true; checkLocalReady();
             };
             r.readAsText(f);
@@ -1325,7 +1572,16 @@ document.body.addEventListener('dragover', e => e.preventDefault());
 document.body.addEventListener('drop', e => { if(!dom.homeScreen.classList.contains('hidden')) { e.preventDefault(); handleLocalFiles(e.dataTransfer.files); } });
 
 // 初始化
+loadVideosFromSupabase(); // 首先嘗試恢復存儲的進度並加載
 updateLanguageUI();
+
+// 恢復初始倍速 UI
+const initialRate = localStorage.getItem('playbackRate') || 1;
+dom.speedToggleBtn.innerText = `${parseFloat(initialRate).toFixed(1)}x`;
+document.querySelectorAll('.sp-item').forEach(i => {
+    i.classList.toggle('active', parseFloat(i.dataset.speed) === parseFloat(initialRate));
+});
+
 </script>
 </body>
 </html>
