@@ -455,39 +455,50 @@
             .search-box input { height: 44px; border-radius: 14px; font-size: 14px; padding-left: 40px; }
             .search-icon { left: 14px; width: 18px; height: 18px; }
 
-            /* 取消过滤栏的横向滑动，恢复垂直堆叠 */
+            /* 过滤栏变横向滚动胶囊 */
             .filter-bar { 
-                flex-direction: column; align-items: stretch; justify-content: flex-start;
-                padding: 16px; border-radius: 20px; gap: 12px; margin-top: 8px;
+                flex-direction: row; align-items: center; justify-content: flex-start;
+                flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch;
+                padding: 8px 12px; border-radius: 16px; gap: 8px; margin-top: 8px;
             }
-            .filter-group { flex-direction: column; align-items: stretch; gap: 8px; }
-            .filter-label { display: block; }
-            .filter-select { padding: 10px 32px 10px 16px; font-size: 14px; height: auto; border-radius: 12px; }
+            .filter-bar::-webkit-scrollbar { display: none; }
+            .filter-group { flex: 0 0 auto; flex-direction: row; align-items: center; gap: 0; }
+            .filter-label { display: none; } /* 隐藏文字，节省空间 */
+            .filter-select { padding: 6px 28px 6px 12px; font-size: 13px; height: 34px; border-radius: 10px; background-position: right 10px top 50%; }
             .filter-divider { display: none; }
 
-            /* 取消分类的横向滑动，恢复垂直网格 */
-            .category-header { font-size: 20px; margin-bottom: 16px; }
-            .row-scroll { display: grid; grid-template-columns: 1fr; gap: 20px; overflow-x: visible; padding-bottom: 0; margin-bottom: 0; }
-            .row-scroll .video-card { flex: auto; max-width: none; }
+            /* 分类横向滚动 (露出下一张卡片边缘 Peek Effect) */
+            .category-header { font-size: 18px; margin-bottom: 12px; }
+            .row-scroll { gap: 16px; padding-bottom: 16px; margin-bottom: -4px; }
+            .row-scroll .video-card { flex: 0 0 82vw; max-width: 320px; }
             .video-grid { grid-template-columns: 1fr; gap: 20px; }
 
-            /* 取消底部导航的横向滑动，恢复固定等距分布 */
+            /* 底部导航重构 */
             .app-sidebar {
                 width: 100%; border-right: none; position: fixed; bottom: 0; left: 0;
-                flex-direction: row; justify-content: space-around; align-items: center;
-                padding: 12px 16px calc(12px + var(--safe-bottom)) 16px;
-                border-top: 1px solid var(--liquid-border); border-radius: 28px 28px 0 0;
+                flex-direction: row; align-items: center;
+                padding: 8px 12px calc(8px + var(--safe-bottom)) 12px;
+                border-top: 1px solid var(--liquid-border); border-radius: 24px 24px 0 0;
                 background: var(--liquid-bg); box-shadow: var(--liquid-shadow); z-index: 99;
-                overflow-x: visible;
+                overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch;
+                justify-content: flex-start; gap: 12px;
             }
+            .app-sidebar::-webkit-scrollbar { display: none; }
             .app-brand, .sidebar-bottom { display: none; }
             
-            .app-nav { flex-direction: row; width: 100%; justify-content: space-around; gap: 0; flex: 1; }
-            .nav-item { flex-direction: column; gap: 4px; font-size: 11px; padding: 8px; min-width: 0; border-radius: 12px; }
+            .app-nav { flex-direction: row; width: auto; justify-content: flex-start; gap: 4px; flex: 0 0 auto; }
+            .nav-item { flex-direction: column; gap: 4px; font-size: 10px; padding: 6px 8px; min-width: 54px; border-radius: 12px; }
             .nav-item svg { width: 22px; height: 22px; }
             
-            /* 手机端隐藏本地上传以保持底部空间充裕 */
-            .sidebar-upload { display: none; }
+            /* 本地上传移至横向滚动末尾 */
+            .sidebar-upload {
+                flex-direction: row; border-top: none; padding-top: 0; margin-top: 0;
+                border-left: 2px solid var(--border); padding-left: 12px; margin-left: 0;
+                flex: 0 0 auto; gap: 8px; align-items: center; height: 100%;
+            }
+            .upload-label, .sidebar-upload .truncate { display: none; }
+            .sidebar-upload .nav-item { min-width: 44px; padding: 6px; }
+            .sidebar-upload .launch-btn { width: auto; margin-top: 0; padding: 8px 16px; font-size: 13px; border-radius: 12px; }
 
             .mobile-theme-btn { display: flex; }
             
