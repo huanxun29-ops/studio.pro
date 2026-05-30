@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Studio Listening Pro</title>
-    <!-- ① 引入 Supabase SDK -->
+    <!-- 引入 Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* 🍎 极简配色系统与液态玻璃变量 */
@@ -171,7 +171,7 @@
         .search-box input:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15); }
         .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; fill: var(--text-sub); }
 
-        /* 过滤栏 Filters */
+        /* 过滤栏 Filters (升级为自定义玻璃按钮) */
         .filter-bar { 
             display: flex; gap: 16px; flex-wrap: wrap; 
             background: var(--surface); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
@@ -180,17 +180,46 @@
         }
         .filter-group { display: flex; align-items: center; gap: 12px; }
         .filter-label { font-size: 13px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; }
-        .filter-select {
-            appearance: none; background: rgba(0,0,0,0.04); border: 1px solid transparent; 
-            padding: 8px 32px 8px 16px; border-radius: 12px; font-size: 14px; font-weight: 600; color: var(--text-main);
-            cursor: pointer; outline: none; transition: 0.2s;
-            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2386868B%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E");
-            background-repeat: no-repeat; background-position: right 12px top 50%; background-size: 10px auto;
+        
+        .custom-filter-btn {
+            display: flex; align-items: center; gap: 6px;
+            padding: 8px 16px; height: 38px; border-radius: 12px;
+            background: rgba(0,0,0,0.04); font-size: 14px; font-weight: 600; 
+            color: var(--text-main); cursor: pointer; transition: 0.2s; border: 1px solid transparent;
         }
-        .dark-theme .filter-select { background-color: rgba(255,255,255,0.08); background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%238E8E93%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E"); }
-        .filter-select:hover { background-color: rgba(0,0,0,0.08); }
-        .dark-theme .filter-select:hover { background-color: rgba(255,255,255,0.15); }
+        .dark-theme .custom-filter-btn { background: rgba(255,255,255,0.08); }
+        .custom-filter-btn:hover { background: rgba(0,0,0,0.08); }
+        .dark-theme .custom-filter-btn:hover { background: rgba(255,255,255,0.15); }
+        .custom-filter-btn svg { width: 18px; height: 18px; fill: var(--text-sub); transition: 0.3s; }
+        
         .filter-divider { width: 1px; height: 24px; background: var(--border); margin: 0 8px; }
+
+        /* 悬浮玻璃菜单 (Glass Modal for Selects) */
+        .glass-modal {
+            position: fixed; inset: 0; z-index: 10000;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.2); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .glass-modal.active { opacity: 1; visibility: visible; }
+
+        .glass-modal-content {
+            background: var(--liquid-bg); border: 1px solid var(--liquid-border);
+            box-shadow: var(--liquid-shadow); border-radius: 24px;
+            padding: 16px; width: 280px; max-width: 85vw; max-height: 80vh; overflow-y: auto;
+            transform: scale(0.95); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-modal-content::-webkit-scrollbar { display: none; }
+        .glass-modal.active .glass-modal-content { transform: scale(1); }
+
+        .glass-option {
+            padding: 14px 16px; border-radius: 14px; font-size: 15px; font-weight: 600;
+            color: var(--text-main); margin-bottom: 4px; cursor: pointer; transition: 0.2s;
+            text-align: center;
+        }
+        .glass-option:last-child { margin-bottom: 0; }
+        .glass-option:active { transform: scale(0.96); background: var(--hover-bg); }
+        .glass-option.active { background: var(--text-main); color: var(--bg); }
 
         /* --- 🍎 Netflix / Apple TV 风格分类滚动区 --- */
         .category-section { margin-bottom: 40px; }
@@ -413,7 +442,7 @@
             position: fixed; width: 320px; padding: 20px; border-radius: 20px;
             background: var(--liquid-bg); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%);
             border: 1px solid var(--liquid-border); box-shadow: var(--liquid-shadow);
-            display: none; z-index: 9999; transform: translateY(10px); opacity: 0; transition: all 0.3s;
+            display: none; z-index: 10001; transform: translateY(10px); opacity: 0; transition: all 0.3s;
         }
         .tooltip.show { transform: translateY(0); opacity: 1; display: block; }
         .tt-word { font-size: 22px; font-weight: 700; margin-bottom: 2px; }
@@ -455,7 +484,7 @@
             .search-box input { height: 44px; border-radius: 14px; font-size: 14px; padding-left: 40px; }
             .search-icon { left: 14px; width: 18px; height: 18px; }
 
-            /* 过滤栏变横向滚动胶囊 */
+            /* 过滤栏变横向滚动胶囊，修改自定义按钮样式 */
             .filter-bar { 
                 flex-direction: row; align-items: center; justify-content: flex-start;
                 flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch;
@@ -464,7 +493,9 @@
             .filter-bar::-webkit-scrollbar { display: none; }
             .filter-group { flex: 0 0 auto; flex-direction: row; align-items: center; gap: 0; }
             .filter-label { display: none; } /* 隐藏文字，节省空间 */
-            .filter-select { padding: 6px 28px 6px 12px; font-size: 13px; height: 34px; border-radius: 10px; background-position: right 10px top 50%; }
+            
+            .custom-filter-btn { padding: 6px 12px; height: 34px; font-size: 13px; border-radius: 10px; gap: 4px; }
+            .custom-filter-btn svg { width: 14px; height: 14px; }
             .filter-divider { display: none; }
 
             /* 分类横向滚动 (露出下一张卡片边缘 Peek Effect) */
@@ -567,7 +598,6 @@
                 <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
                 <span data-i18n="title_history">观看历史</span>
             </div>
-            <!-- 新增：Favorites 标签 -->
             <div class="nav-item" data-tab="favorites" data-title="Favorites">
                 <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                 <span data-i18n="title_favorites">我的收藏</span>
@@ -623,39 +653,33 @@
                 </div>
             </div>
 
-            <!-- 过滤栏 -->
+            <!-- 🍎 升级后的玻璃质感过滤栏 -->
             <div class="filter-bar" id="filterBar">
+                <!-- 难度选择 -->
                 <div class="filter-group">
                     <span class="filter-label" data-i18n="filter_difficulty">难度</span>
-                    <select class="filter-select" id="filterRating">
-                        <option value="all" data-i18n="filter_level_all">所有难度</option>
-                        <option value="5" data-i18n="filter_level_5">⭐⭐⭐⭐⭐ (困难)</option>
-                        <option value="4" data-i18n="filter_level_4">⭐⭐⭐⭐ (进阶)</option>
-                        <option value="3" data-i18n="filter_level_3">⭐⭐⭐ (中等)</option>
-                        <option value="2" data-i18n="filter_level_2">⭐⭐ (基础)</option>
-                        <option value="1" data-i18n="filter_level_1">⭐ (入门)</option>
-                    </select>
+                    <div class="custom-filter-btn" id="btnFilterRating">
+                        <span id="labelFilterRating" data-i18n="filter_level_all">所有难度</span>
+                        <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                    </div>
                 </div>
                 <div class="filter-divider"></div>
+                <!-- 场景选择 -->
                 <div class="filter-group">
                     <span class="filter-label" data-i18n="filter_scenario">场景</span>
-                    <select class="filter-select" id="filterTag">
-                        <option value="all" data-i18n="filter_topic_all">所有主题</option>
-                        <option value="Academic" data-i18n="filter_topic_acad">学术</option>
-                        <option value="Daily" data-i18n="filter_topic_daily">日常生活</option>
-                        <option value="Business" data-i18n="filter_topic_bus">商业</option>
-                        <option value="Entertainment" data-i18n="filter_topic_ent">娱乐</option>
-                    </select>
+                    <div class="custom-filter-btn" id="btnFilterTag">
+                        <span id="labelFilterTag" data-i18n="filter_topic_all">所有主题</span>
+                        <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                    </div>
                 </div>
                 <div class="filter-divider"></div>
+                <!-- 口音选择 -->
                 <div class="filter-group">
                     <span class="filter-label" data-i18n="filter_accent">口音</span>
-                    <select class="filter-select" id="filterAccent">
-                        <option value="all" data-i18n="filter_acc_all">所有口音</option>
-                        <option value="US" data-i18n="filter_acc_us">🇺🇸 美式英语</option>
-                        <option value="UK" data-i18n="filter_acc_uk">🇬🇧 英式英语</option>
-                        <option value="AU" data-i18n="filter_acc_au">🇦🇺 澳式英语</option>
-                    </select>
+                    <div class="custom-filter-btn" id="btnFilterAccent">
+                        <span id="labelFilterAccent" data-i18n="filter_acc_all">所有口音</span>
+                        <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                    </div>
                 </div>
             </div>
 
@@ -742,6 +766,38 @@
     </div>
 
     <button class="tt-btn" id="saveWordBtn" data-i18n="tt_add">加入生词本</button>
+</div>
+
+<!-- 🍎 悬浮玻璃菜单 HTML 结构 (必须挂载在 body 根级以防被裁剪) -->
+<!-- 难度选择 -->
+<div class="glass-modal" id="modalFilterRating">
+    <div class="glass-modal-content">
+        <div class="glass-option active" data-value="all" data-i18n="filter_level_all">所有难度</div>
+        <div class="glass-option" data-value="5" data-i18n="filter_level_5">⭐⭐⭐⭐⭐ (困难)</div>
+        <div class="glass-option" data-value="4" data-i18n="filter_level_4">⭐⭐⭐⭐ (进阶)</div>
+        <div class="glass-option" data-value="3" data-i18n="filter_level_3">⭐⭐⭐ (中等)</div>
+        <div class="glass-option" data-value="2" data-i18n="filter_level_2">⭐⭐ (基础)</div>
+        <div class="glass-option" data-value="1" data-i18n="filter_level_1">⭐ (入门)</div>
+    </div>
+</div>
+<!-- 场景选择 -->
+<div class="glass-modal" id="modalFilterTag">
+    <div class="glass-modal-content">
+        <div class="glass-option active" data-value="all" data-i18n="filter_topic_all">所有主题</div>
+        <div class="glass-option" data-value="Academic" data-i18n="filter_topic_acad">学术</div>
+        <div class="glass-option" data-value="Daily" data-i18n="filter_topic_daily">日常生活</div>
+        <div class="glass-option" data-value="Business" data-i18n="filter_topic_bus">商业</div>
+        <div class="glass-option" data-value="Entertainment" data-i18n="filter_topic_ent">娱乐</div>
+    </div>
+</div>
+<!-- 口音选择 -->
+<div class="glass-modal" id="modalFilterAccent">
+    <div class="glass-modal-content">
+        <div class="glass-option active" data-value="all" data-i18n="filter_acc_all">所有口音</div>
+        <div class="glass-option" data-value="US" data-i18n="filter_acc_us">🇺🇸 美式英语</div>
+        <div class="glass-option" data-value="UK" data-i18n="filter_acc_uk">🇬🇧 英式英语</div>
+        <div class="glass-option" data-value="AU" data-i18n="filter_acc_au">🇦🇺 澳式英语</div>
+    </div>
 </div>
 
 <script>
@@ -946,9 +1002,6 @@ const dom = {
     pageTitle: document.getElementById('pageTitle'),
     searchInput: document.getElementById('searchInput'),
     filterBar: document.getElementById('filterBar'),
-    filterRating: document.getElementById('filterRating'),
-    filterTag: document.getElementById('filterTag'),
-    filterAccent: document.getElementById('filterAccent'),
     mainContentArea: document.getElementById('mainContentArea'),
 
     btnLocalVideo: document.getElementById('btnLocalVideo'), 
@@ -960,6 +1013,56 @@ const dom = {
     localSubInput: document.getElementById('localSubInput'),
     langToggleBtn: document.getElementById('langToggleBtn'),
 };
+
+// ==========================================
+// 🍎 玻璃质感悬浮菜单控制器 (Glass Modal Controller)
+// ==========================================
+function initCustomFilter(btnId, modalId, labelId, filterKey) {
+    const btn = document.getElementById(btnId);
+    const modal = document.getElementById(modalId);
+    const label = document.getElementById(labelId);
+    
+    if(!btn || !modal) return;
+    
+    // 打开弹窗
+    btn.onclick = () => modal.classList.add('active');
+    
+    // 弹窗内部交互
+    modal.addEventListener('click', (e) => {
+        // 点击遮罩层关闭
+        if (e.target === modal) {
+            modal.classList.remove('active');
+        } 
+        // 点击选项
+        else if (e.target.classList.contains('glass-option')) {
+            // 更新 UI 激活状态
+            modal.querySelectorAll('.glass-option').forEach(el => el.classList.remove('active'));
+            e.target.classList.add('active');
+            
+            // 更新业务状态
+            state.filters[filterKey] = e.target.dataset.value;
+            
+            // i18n 支持，同步文本
+            const i18nKey = e.target.getAttribute('data-i18n');
+            if (i18nKey) {
+                label.setAttribute('data-i18n', i18nKey);
+                label.innerText = i18n[state.lang][i18nKey];
+            } else {
+                label.innerText = e.target.innerText;
+            }
+            
+            // 关闭并刷新
+            modal.classList.remove('active');
+            renderGrid();
+        }
+    });
+}
+
+// 初始化三大筛选器
+initCustomFilter('btnFilterRating', 'modalFilterRating', 'labelFilterRating', 'rating');
+initCustomFilter('btnFilterTag', 'modalFilterTag', 'labelFilterTag', 'tag');
+initCustomFilter('btnFilterAccent', 'modalFilterAccent', 'labelFilterAccent', 'accent');
+
 
 // ==========================================
 // 🍎 UI 渲染核心 (Apple TV / Netflix 风格)
@@ -985,7 +1088,7 @@ const renderVideoCard = (v, dict) => `
         </div>
 
         <div class="card-top" style="background-image: url('${v.coverUrl}')">
-            <div class="card-creator">${v.creator} ${v.flag}</div>
+            <div class="card-creator">${v.creator}</div>
             <div class="card-duration">${v.duration}</div>
         </div>
         <div class="card-middle">
@@ -995,7 +1098,7 @@ const renderVideoCard = (v, dict) => `
         <div class="card-bottom">
             <div class="card-tags">${v.tags.map(t => `<span class="card-tag">${t}</span>`).join('')}</div>
             <div class="card-meta">
-                <div class="card-accent">${dict.card_accent} ${v.flag} ${v.accent}</div>
+                <div class="card-accent">${dict.card_accent} ${v.accent}</div>
                 <div class="card-date">${v.date}</div>
             </div>
         </div>
@@ -1030,7 +1133,7 @@ function renderGrid() {
         filtered = filtered.filter(v => v.favorite === true);
     }
 
-    // 3. 下拉框過濾 (僅限 All 標籤)
+    // 3. 悬浮菜单下拉框過濾 (僅限 All 標籤)
     let isFiltering = false;
     if (state.currentTab === 'all') {
         if (state.filters.rating !== 'all') { filtered = filtered.filter(v => v.rating === parseInt(state.filters.rating)); isFiltering = true; }
@@ -1116,11 +1219,28 @@ if(dom.sidebarNav) {
                 dom.filterBar.style.display = state.currentTab === 'all' ? 'flex' : 'none';
             }
             
+            // 重置所有过滤器
             if(state.currentTab !== 'all') {
                 state.filters = { rating: 'all', tag: 'all', accent: 'all' };
-                if(dom.filterRating) dom.filterRating.value = 'all'; 
-                if(dom.filterTag) dom.filterTag.value = 'all'; 
-                if(dom.filterAccent) dom.filterAccent.value = 'all';
+                
+                // 辅助函数：重置单个玻璃菜单
+                const resetFilter = (modalId, labelId, defaultI18nKey) => {
+                    const modal = document.getElementById(modalId);
+                    const label = document.getElementById(labelId);
+                    if(!modal || !label) return;
+                    
+                    modal.querySelectorAll('.glass-option').forEach(el => el.classList.remove('active'));
+                    const defaultOpt = modal.querySelector(`[data-value="all"]`);
+                    if(defaultOpt) defaultOpt.classList.add('active');
+                    
+                    label.setAttribute('data-i18n', defaultI18nKey);
+                    label.innerText = i18n[state.lang][defaultI18nKey];
+                };
+                
+                resetFilter('modalFilterRating', 'labelFilterRating', 'filter_level_all');
+                resetFilter('modalFilterTag', 'labelFilterTag', 'filter_topic_all');
+                resetFilter('modalFilterAccent', 'labelFilterAccent', 'filter_acc_all');
+
                 state.searchText = ''; dom.searchInput.value = '';
             }
             renderGrid();
@@ -1128,17 +1248,6 @@ if(dom.sidebarNav) {
     });
 }
 
-[dom.filterRating, dom.filterTag, dom.filterAccent].forEach(select => {
-    if (select) {
-        select.addEventListener('change', (e) => {
-            const id = e.target.id;
-            if (id === 'filterRating') state.filters.rating = e.target.value;
-            if (id === 'filterTag') state.filters.tag = e.target.value;
-            if (id === 'filterAccent') state.filters.accent = e.target.value;
-            renderGrid();
-        });
-    }
-});
 
 // ==========================================
 // 🍎 视频加载与播放器逻辑 (增加進度恢復與倍速還原)
@@ -1254,7 +1363,6 @@ function updateLanguageUI() {
     renderVocab();
 }
 
-// ... 高亮與排版邏輯保持不變
 function applyLocalHighlights(text, highlights) {
     if (!highlights || !Array.isArray(highlights) || highlights.length === 0) return text;
     let res = text; let placeholders = [];
@@ -1337,7 +1445,12 @@ dom.speedToggleBtn.onclick = (e) => {
     dom.speedMenu.classList.add('show');
 };
 
-document.addEventListener('click', e => { if (!dom.speedMenu.contains(e.target) && e.target !== dom.speedToggleBtn) dom.speedMenu.classList.remove('show'); });
+// 全局点击处理：关闭速度菜单、提示框、玻璃选择菜单
+document.addEventListener('click', e => { 
+    if (!dom.speedMenu.contains(e.target) && e.target !== dom.speedToggleBtn) dom.speedMenu.classList.remove('show'); 
+    if (!dom.tooltip.contains(e.target)) dom.tooltip.classList.remove('show');
+});
+
 document.querySelectorAll('.sp-item').forEach(item => {
     item.onclick = () => {
         const speed = parseFloat(item.dataset.speed); 
@@ -1547,10 +1660,10 @@ async function handleSelection() {
 }
 
 const closeOverlays = (e) => {
-    if (!dom.tooltip.contains(e.target)) dom.tooltip.classList.remove('show');
+    // 关闭移动端生词本
     if (window.innerWidth <= 1024 && !dom.vocabContainer.contains(e.target) && !dom.mobileVocabToggle.contains(e.target)) { dom.vocabContainer.classList.remove('open'); }
 };
-document.addEventListener('mousedown', closeOverlays); document.addEventListener('touchstart', closeOverlays, {passive: true});
+document.addEventListener('touchstart', closeOverlays, {passive: true});
 
 dom.saveWordBtn.onclick = () => {
     if (!state.currentWord) return;
@@ -1606,7 +1719,7 @@ document.body.addEventListener('drop', e => { if(!dom.homeScreen.classList.conta
 loadVideosFromSupabase(); // 首先嘗試恢復存儲的進度並加載
 updateLanguageUI();
 
-// 恢復初始倍速 UI
+// 恢复初始倍速 UI
 const initialRate = localStorage.getItem('playbackRate') || 1;
 dom.speedToggleBtn.innerText = `${parseFloat(initialRate).toFixed(1)}x`;
 document.querySelectorAll('.sp-item').forEach(i => {
