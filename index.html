@@ -8,7 +8,7 @@
         /* 🍎 极简配色系统与液态玻璃变量 */
         :root {
             --bg: #F5F5F7;
-            --surface: rgba(255, 255, 255, 0.45); /* Glass surface */
+            --surface: rgba(255, 255, 255, 0.45);
             --glass-border: rgba(255, 255, 255, 0.6);
             --glass-blur: blur(28px);
             --text-main: #1D1D1F;
@@ -67,7 +67,7 @@
             justify-content: center;
         }
 
-        /* --- 🍎 新增：温暖 Mesh Gradient 与 呼吸气泡 --- */
+        /* --- 🍎 背景：温暖 Mesh Gradient 与 呼吸气泡 --- */
         .mesh-bg {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
             background-color: #fdfbfb;
@@ -102,89 +102,185 @@
             90% { opacity: 1; }
             100% { transform: translateY(-110vh) rotate(15deg) scale(1.1); opacity: 0; }
         }
-        /* ------------------------------------------- */
 
         /* =========================================
-           🍎 首页：视频库与本地上传 (Home Screen)
+           🍎 首页：高级视频库 (Home Screen)
            ========================================= */
         .home-screen {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            display: flex; flex-direction: column;
-            z-index: 100; background: transparent; /* 改为透明以显示底部 Mesh */
+            display: flex; flex-direction: row; 
+            z-index: 100; background: transparent; 
             transition: opacity 0.5s ease, visibility 0.5s ease, transform 0.5s ease;
-            padding: 60px 40px; overflow-y: auto;
+            overflow: hidden;
         }
         .home-screen.hidden { opacity: 0; visibility: hidden; transform: scale(0.98); }
         
-        .home-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; max-width: 1200px; margin-left: auto; margin-right: auto; width: 100%; }
-        .home-title { font-size: 36px; font-weight: 700; letter-spacing: -1px; }
+        /* 左侧菜单栏 (Sidebar) */
+        .app-sidebar {
+            width: 260px; flex-shrink: 0;
+            background: var(--surface);
+            backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+            border-right: 1px solid var(--glass-border);
+            display: flex; flex-direction: column;
+            padding: 40px 20px; z-index: 10;
+        }
+        .app-brand { display: flex; align-items: center; gap: 12px; font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 40px; padding: 0 12px; }
+        .app-brand svg { width: 28px; height: 28px; fill: var(--blue); }
         
-        .section-container { max-width: 1200px; margin: 0 auto 40px auto; width: 100%; }
-        .section-title { font-size: 20px; font-weight: 600; color: var(--text-main); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
-        .section-title svg { width: 22px; height: 22px; fill: var(--blue); }
+        .app-nav { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+        .nav-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 16px; border-radius: 16px;
+            font-size: 15px; font-weight: 600; color: var(--text-sub);
+            cursor: pointer; transition: 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+        .nav-item svg { width: 20px; height: 20px; fill: currentColor; }
+        .nav-item:hover { background: rgba(0,0,0,0.04); color: var(--text-main); }
+        .dark-theme .nav-item:hover { background: rgba(255,255,255,0.08); }
+        .nav-item.active { background: rgba(0, 122, 255, 0.1); color: var(--blue); }
+        .dark-theme .nav-item.active { background: rgba(10, 132, 255, 0.15); color: var(--blue); }
+        
+        .sidebar-bottom { margin-top: auto; border-top: 1px solid var(--border); padding-top: 16px; }
 
-        /* 视频网格 */
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 32px; }
+        /* 主内容区 */
+        .home-main {
+            flex: 1; overflow-y: auto; scroll-behavior: smooth;
+            padding: 60px 40px; display: flex; flex-direction: column; align-items: center;
+        }
+        
+        .home-content-wrapper { max-width: 1200px; width: 100%; display: flex; flex-direction: column; gap: 32px; }
+
+        .home-header { display: flex; justify-content: space-between; align-items: flex-end; width: 100%; border-bottom: 1px solid var(--border); padding-bottom: 20px;}
+        .header-left { display: flex; flex-direction: column; gap: 16px; }
+        .home-title { font-size: 40px; font-weight: 800; letter-spacing: -1.5px; line-height: 1; }
+        
+        .mobile-theme-btn { display: none; }
+
+        /* 过滤栏 Filters */
+        .filter-bar { 
+            display: flex; gap: 16px; flex-wrap: wrap; 
+            background: var(--surface); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+            padding: 16px; border-radius: 20px; border: 1px solid var(--glass-border); box-shadow: var(--shadow);
+            transition: all 0.3s;
+        }
+        .filter-group { display: flex; align-items: center; gap: 12px; }
+        .filter-label { font-size: 13px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; }
+        .filter-select {
+            appearance: none; background: rgba(0,0,0,0.04); border: 1px solid transparent; 
+            padding: 8px 32px 8px 16px; border-radius: 12px; font-size: 14px; font-weight: 600; color: var(--text-main);
+            cursor: pointer; outline: none; transition: 0.2s;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2386868B%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat; background-position: right 12px top 50%; background-size: 10px auto;
+        }
+        .dark-theme .filter-select { background-color: rgba(255,255,255,0.08); background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%238E8E93%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E"); }
+        .filter-select:hover { background-color: rgba(0,0,0,0.08); }
+        .dark-theme .filter-select:hover { background-color: rgba(255,255,255,0.15); }
+        .filter-divider { width: 1px; height: 24px; background: var(--border); margin: 0 8px; }
+
+        /* --- 🍎 标准化视频卡片 UI --- */
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 32px; width: 100%; }
+        
         .video-card {
             background: var(--surface); border: 1px solid var(--glass-border); border-radius: 24px;
             backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
             overflow: hidden; cursor: pointer; transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
-            box-shadow: var(--shadow); position: relative;
+            box-shadow: var(--shadow); position: relative; display: flex; flex-direction: column;
         }
-        .video-card:hover { transform: translateY(-8px); box-shadow: 0 16px 48px rgba(0,0,0,0.08); border-color: var(--blue); }
+        .video-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.12); border-color: var(--blue); }
         .video-card:active { transform: translateY(-2px) scale(0.98); }
-        .card-cover { 
-            height: 160px; background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); 
-            background-size: cover; background-position: center; position: relative;
+        
+        /* 1. 顶部：媒体区域 (占比大) */
+        .card-top { 
+            position: relative; aspect-ratio: 16/9; background: #e0e0e0; 
+            background-size: cover; background-position: center; border-bottom: 1px solid var(--border);
+        }
+        .card-creator {
+            position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.6);
+            color: #fff; font-size: 13px; font-weight: 600; padding: 6px 10px; border-radius: 12px;
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); display: flex; align-items: center; gap: 6px;
         }
         .card-duration {
-            position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,0.65);
-            color: #fff; font-size: 12px; font-weight: 600; padding: 4px 8px; border-radius: 6px;
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,0.7);
+            color: #fff; font-size: 12px; font-weight: 700; padding: 4px 8px; border-radius: 8px;
+            backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); letter-spacing: 0.5px;
         }
-        .card-info { padding: 16px; }
-        .card-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; line-height: 1.4; }
-        .card-desc { font-size: 13px; color: var(--text-sub); }
-        .card-loading-overlay {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(255,255,255,0.8); backdrop-filter: blur(4px);
+
+        /* 2. 中部：标题与评分 */
+        .card-middle { 
+            display: flex; justify-content: space-between; align-items: flex-start; 
+            padding: 20px 20px 12px 20px; gap: 12px;
+        }
+        .card-ep-group { display: flex; flex-direction: column; gap: 4px; }
+        .card-ep { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; color: var(--text-main); line-height: 1.1; }
+        .card-title { font-size: 14px; font-weight: 500; color: var(--text-sub); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+        .card-rating { display: flex; gap: 2px; align-items: center; }
+        .star { width: 18px; height: 18px; }
+        .star.filled { fill: var(--orange); }
+        .star.empty { fill: var(--border); }
+        .dark-theme .star.empty { fill: rgba(255,255,255,0.2); }
+
+        /* 3. 底部：元数据标签 */
+        .card-bottom { padding: 0 20px 20px 20px; display: flex; flex-direction: column; gap: 16px; }
+        .card-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+        .card-tag { 
+            padding: 6px 12px; background: rgba(0, 122, 255, 0.08); color: var(--blue); 
+            border-radius: 99px; font-size: 13px; font-weight: 600; 
+        }
+        .dark-theme .card-tag { background: rgba(10, 132, 255, 0.15); }
+        
+        .card-meta { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border); padding-top: 12px; }
+        .card-accent { font-size: 13px; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 4px;}
+        .card-date { font-size: 12px; color: var(--text-sub); }
+
+        .card-progress {
+            position: absolute; bottom: 0; left: 0; height: 4px; background: var(--green);
+            border-radius: 0 0 0 24px; transition: width 0.3s;
+        }
+
+        /* 状态覆盖层 */
+        .card-overlay {
+            position: absolute; inset: 0; background: rgba(255,255,255,0.8); backdrop-filter: blur(4px);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             opacity: 0; pointer-events: none; transition: 0.3s; z-index: 10;
         }
-        .dark-theme .card-loading-overlay { background: rgba(0,0,0,0.7); }
-        .video-card.loading .card-loading-overlay { opacity: 1; pointer-events: all; }
+        .dark-theme .card-overlay { background: rgba(0,0,0,0.7); }
+        .video-card.loading .card-overlay { opacity: 1; pointer-events: all; }
         .spinner {
-            width: 24px; height: 24px; border: 3px solid var(--border); border-top-color: var(--blue);
+            width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--blue);
             border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 8px;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* 本地上传区域 */
-        .upload-actions { display: flex; gap: 16px; flex-wrap: wrap; }
-        .btn-large {
-            background: var(--surface); border: 1px solid var(--glass-border); padding: 16px 24px;
-            backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-            border-radius: 16px; font-size: 15px; font-weight: 600; color: var(--text-main);
-            cursor: pointer; box-shadow: var(--shadow); transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
-            display: flex; align-items: center; gap: 10px; flex: 1; min-width: 200px;
+        /* 侧边栏本地上传区域 */
+        .sidebar-upload {
+            display: flex; flex-direction: column; gap: 4px; padding-top: 24px; margin-top: 24px;
+            border-top: 1px solid var(--border);
         }
-        .btn-large:hover { border-color: var(--text-main); }
-        .btn-large:active { transform: scale(0.97); }
-        .btn-large.ready { border-color: var(--green); color: var(--green); background: rgba(52, 199, 89, 0.05); }
-        .btn-large svg { width: 20px; height: 20px; fill: currentColor; }
+        .upload-label { font-size: 11px; font-weight: 700; color: var(--text-sub); letter-spacing: 0.5px; padding-left: 12px; margin-bottom: 8px; }
+        .upload-item { position: relative; }
+        .upload-item.ready { color: var(--green); background: rgba(52, 199, 89, 0.1); }
+        .dark-theme .upload-item.ready { background: rgba(52, 199, 89, 0.15); }
+        .upload-item.ready svg { fill: var(--green); }
+        .truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
         
         .launch-btn {
-            background: var(--blue); color: #fff; border: none; padding: 16px 32px;
-            border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer;
-            box-shadow: 0 8px 24px rgba(0, 122, 255, 0.3); transition: 0.3s;
-            opacity: 0.5; pointer-events: none;
+            background: var(--text-main); color: var(--bg); border: none; padding: 12px 24px;
+            border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.3s;
+            opacity: 0.4; pointer-events: none; width: 100%; margin-top: 8px; text-align: center;
         }
         .launch-btn.active { opacity: 1; pointer-events: auto; }
-        .launch-btn.active:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0, 122, 255, 0.4); }
-        .launch-btn.active:active { transform: scale(0.96); }
+        .launch-btn.active:hover { transform: translateY(-2px); }
+
+        /* 空状态 */
+        .empty-state {
+            grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 80px 20px; text-align: center; color: var(--text-sub);
+        }
+        .empty-state svg { width: 48px; height: 48px; fill: var(--border); margin-bottom: 16px; }
+        .empty-state h3 { font-size: 18px; color: var(--text-main); margin-bottom: 8px; }
 
         /* =========================================
-           🍎 主工作区 (Workspace)
+           🍎 主工作区 (Workspace - 保持原有设计)
            ========================================= */
         .workspace {
             display: flex; width: 100%; max-width: 1600px; height: 100dvh;
@@ -218,134 +314,65 @@
             position: relative; display: flex; flex-direction: column; box-shadow: var(--shadow); overflow: hidden;
         }
 
-        /* 🍎 悬浮岛工具栏 (液态玻璃形态) */
+        /* 工具栏 */
         .toolbar-floating {
-            position: absolute; top: 24px; left: 50%; 
-            transform: translateX(-50%) scale(1);
-            
-            background: var(--liquid-bg); 
-            backdrop-filter: blur(50px) saturate(200%); 
-            -webkit-backdrop-filter: blur(50px) saturate(200%);
-            border: 1px solid var(--liquid-border); 
-            box-shadow: var(--liquid-shadow);
-            
-            border-radius: 99px; padding: 6px 8px;
-            display: flex; gap: 4px; z-index: 50; 
-            
-            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1.1);
+            position: absolute; top: 24px; left: 50%; transform: translateX(-50%) scale(1);
+            background: var(--liquid-bg); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%);
+            border: 1px solid var(--liquid-border); box-shadow: var(--liquid-shadow);
+            border-radius: 99px; padding: 6px 8px; display: flex; gap: 4px; z-index: 50; transition: all 0.4s;
         }
-        
-        .toolbar-floating:has(.icon-btn:active),
-        .toolbar-floating:has(.speed-btn-txt:active) {
-            transform: translateX(-50%) scale(0.96);
-            border-radius: 40px; 
-            background: var(--liquid-bg);
-            filter: brightness(0.95);
-        }
-
         .icon-btn {
             width: 38px; height: 38px; border-radius: 50%; border: none; background: transparent;
-            color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+            color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.25s;
         }
         .icon-btn:active { transform: scale(0.85); background: var(--hover-bg); }
         .icon-btn:hover { background: var(--hover-bg); }
         .icon-btn.active { background: var(--text-main); color: var(--bg); }
         .icon-btn svg { width: 18px; height: 18px; fill: currentColor; }
-        
         .speed-btn-txt {
             padding: 0 16px; height: 38px; border-radius: 99px; border: none; background: transparent;
-            color: var(--text-main); font-size: 14px; font-weight: 600; cursor: pointer; 
-            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+            color: var(--text-main); font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.25s;
         }
-        .speed-btn-txt:active { transform: scale(0.9); background: var(--hover-bg); }
+        .speed-btn-txt:active { background: var(--hover-bg); }
         .divider { width: 1px; height: 20px; background: var(--border); margin: auto 4px; }
 
-        /* 🍎 沉浸式排版 */
-        .transcript-flow {
-            flex: 1; overflow-y: auto; 
-            padding: 80px 10% 120px 10%; 
-            scroll-behavior: smooth;
-        }
+        /* 排版与克漏字 */
+        .transcript-flow { flex: 1; overflow-y: auto; padding: 80px 10% 120px 10%; scroll-behavior: smooth; }
         .transcript-flow::-webkit-scrollbar { display: none; }
-        
-        .lyric-line {
-            margin-bottom: 24px; cursor: pointer; opacity: 0.35; transform: scale(0.98);
-            transform-origin: left center; transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-            border-left: 3px solid transparent; padding-left: 16px;
-        }
+        .lyric-line { margin-bottom: 24px; cursor: pointer; opacity: 0.35; transform: scale(0.98); transform-origin: left center; transition: all 0.4s; border-left: 3px solid transparent; padding-left: 16px; }
         .lyric-line:active { opacity: 0.8; }
         .lyric-line.active { opacity: 1; transform: scale(1.02); border-left-color: var(--blue); }
         .lyric-line.looping { border-left-color: var(--green); }
-        
         .lyric-en { font-size: 24px; font-weight: 700; line-height: 1.4; letter-spacing: -0.5px; user-select: text; -webkit-user-select: text; }
         .lyric-zh { font-size: 15px; font-weight: 500; color: var(--text-sub); margin-top: 8px; line-height: 1.5; transition: opacity 0.3s; }
         .lyric-zh.hidden { display: none; }
-        
         .hl-word { background: rgba(52, 199, 89, 0.15); color: var(--green); border-radius: 6px; padding: 2px 4px; }
         .hl-phrase { background: rgba(255, 149, 0, 0.15); color: var(--orange); border-radius: 6px; padding: 2px 4px; }
 
-        /* 🍎 克漏字測驗模式 (Cloze Inputs) */
         .cloze-input {
-            background: rgba(0, 0, 0, 0.05);
-            border: 2px solid transparent;
-            border-bottom: 2px solid var(--text-sub);
-            border-radius: 6px;
-            padding: 0 6px;
-            font-size: inherit;
-            font-family: inherit;
-            font-weight: 700;
-            color: var(--text-main);
-            text-align: center;
-            outline: none;
-            transition: 0.3s;
-            margin: 0 4px;
-            max-width: 100%;
+            background: rgba(0, 0, 0, 0.05); border: 2px solid transparent; border-bottom: 2px solid var(--text-sub);
+            border-radius: 6px; padding: 0 6px; font-size: inherit; font-family: inherit; font-weight: 700;
+            color: var(--text-main); text-align: center; outline: none; transition: 0.3s; margin: 0 4px; max-width: 100%;
         }
         .dark-theme .cloze-input { background: rgba(255, 255, 255, 0.1); border-bottom-color: var(--text-sub); }
-        .cloze-input:focus { 
-            border-color: transparent;
-            border-bottom-color: var(--blue); 
-            background: rgba(0, 122, 255, 0.1); 
-        }
-        .cloze-input.correct {
-            background: rgba(52, 199, 89, 0.15);
-            border-color: transparent;
-            border-bottom-color: var(--green);
-            color: var(--green);
-            pointer-events: none; /* 答對後鎖定輸入框 */
-        }
-        .cloze-input.incorrect {
-            background: rgba(255, 59, 48, 0.15);
-            border-color: transparent;
-            border-bottom-color: #ff3b30;
-            color: #ff3b30;
-            animation: shake 0.4s ease-in-out;
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-4px); }
-            40%, 80% { transform: translateX(4px); }
-        }
+        .cloze-input:focus { border-color: transparent; border-bottom-color: var(--blue); background: rgba(0, 122, 255, 0.1); }
+        .cloze-input.correct { background: rgba(52, 199, 89, 0.15); border-color: transparent; border-bottom-color: var(--green); color: var(--green); pointer-events: none; }
+        .cloze-input.incorrect { background: rgba(255, 59, 48, 0.15); border-color: transparent; border-bottom-color: #ff3b30; color: #ff3b30; animation: shake 0.4s ease-in-out; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
 
-        /* 🍎 极简弹窗与菜单 */
+        /* 弹窗与菜单 */
         .tooltip {
             position: fixed; width: 280px; padding: 20px; border-radius: 20px;
             background: var(--liquid-bg); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%);
             border: 1px solid var(--liquid-border); box-shadow: var(--liquid-shadow);
-            display: none; z-index: 9999; transform: translateY(10px); opacity: 0;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: none; z-index: 9999; transform: translateY(10px); opacity: 0; transition: all 0.3s;
         }
         .tooltip.show { transform: translateY(0); opacity: 1; display: block; }
         .tt-word { font-size: 22px; font-weight: 700; margin-bottom: 2px; }
         .tt-phonetic { font-size: 13px; font-family: monospace; color: var(--text-sub); margin-bottom: 12px; }
         .tt-def { font-size: 14px; line-height: 1.5; margin-bottom: 16px; max-height: 120px; overflow-y: auto;}
-        .tt-btn {
-            width: 100%; background: var(--text-main); color: var(--bg); border: none; padding: 12px;
-            border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s;
-        }
-        .tt-btn:active { transform: scale(0.96); }
-
+        .tt-btn { width: 100%; background: var(--text-main); color: var(--bg); border: none; padding: 12px; border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s; }
+        
         .speed-menu {
             position: fixed; width: 100px; 
             background: var(--liquid-bg); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%);
@@ -356,127 +383,208 @@
         .sp-item { padding: 10px; border-radius: 10px; text-align: center; font-size: 14px; font-weight: 500; cursor: pointer; }
         .sp-item.active { background: var(--text-main); color: var(--bg); }
 
-        /* --- 📱 移动端极致原生适配 --- */
+        /* 📱 移动端适配 */
         #mobileVocabToggle { display: none; }
         .vocab-close-mobile { display: none; font-size: 24px; cursor: pointer; color: var(--text-sub); font-weight: 300; }
 
         @media (max-width: 1024px) {
-            .home-screen { padding: 40px 20px; }
-            .home-title { font-size: 28px; }
-            body { align-items: flex-start; }
+            .home-screen { flex-direction: column; }
+            .home-main { padding: 40px 20px 120px 20px; }
+            .app-sidebar {
+                width: 100%; border-right: none;
+                position: fixed; bottom: 0; left: 0;
+                flex-direction: row; justify-content: space-around;
+                padding: 12px 20px calc(12px + var(--safe-bottom)) 20px;
+                border-top: 1px solid var(--liquid-border);
+                border-radius: 32px 32px 0 0;
+                background: var(--liquid-bg);
+                box-shadow: var(--liquid-shadow);
+                z-index: 99;
+                /* 新增橫向捲動以容納所有項目 */
+                overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch;
+                justify-content: flex-start; gap: 16px;
+            }
+            .app-sidebar::-webkit-scrollbar { display: none; }
+            .app-brand, .sidebar-bottom { display: none; }
+            .app-nav { flex-direction: row; width: auto; justify-content: flex-start; gap: 12px; flex: 0 0 auto; }
+            .nav-item { flex-direction: column; gap: 6px; font-size: 11px; padding: 8px 12px; min-width: 60px; }
             
+            /* 側邊欄上傳區在手機端變成導覽列一部分 */
+            .sidebar-upload {
+                flex-direction: row; border-top: none; padding-top: 0; margin-top: 0;
+                border-left: 1px solid var(--border); padding-left: 16px; margin-left: 0;
+                flex: 0 0 auto; gap: 12px; align-items: center;
+            }
+            .upload-label { display: none; }
+            .sidebar-upload .truncate { display: none; }
+            .sidebar-upload .nav-item { min-width: auto; }
+            .sidebar-upload .launch-btn { width: auto; margin-top: 0; padding: 10px 16px; font-size: 13px; }
+
+            .mobile-theme-btn { display: flex; }
+            
+            .home-title { font-size: 32px; }
+            .filter-bar { flex-direction: column; align-items: stretch; }
+            .filter-divider { display: none; }
+            .video-grid { grid-template-columns: 1fr; }
+            
+            body { align-items: flex-start; }
             .workspace { flex-direction: column; padding: 0; gap: 0; }
             .sidebar { width: 100%; max-width: none; min-width: 0; gap: 0; }
-            
             .video-container { border-radius: 0; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; background: #000; }
             video { max-height: 35dvh; }
-            
             .main-content { border-radius: 0; border: none; box-shadow: none; flex: 1; min-height: 0; background: transparent; }
-            
             .transcript-flow { padding: 24px 20px calc(90px + var(--safe-bottom)) 20px; }
             .lyric-en { font-size: 20px; }
             .lyric-zh { font-size: 14px; }
             .lyric-line { padding-left: 12px; margin-bottom: 20px; }
             
-            .toolbar-floating {
-                top: auto;
-                bottom: calc(24px + var(--safe-bottom));
-                width: auto; padding: 8px; gap: 4px;
-            }
-            .icon-btn { width: 42px; height: 42px; }
-            .speed-btn-txt { height: 42px; }
-
+            .toolbar-floating { top: auto; bottom: calc(24px + var(--safe-bottom)); width: auto; padding: 8px; gap: 4px; }
+            
             #mobileVocabToggle { display: flex; }
             .vocab-close-mobile { display: block; }
-            .word-del { opacity: 1; } 
-            .upload-actions { flex-direction: column; }
-            
             .vocab-container {
                 position: fixed; bottom: 0; left: 0; width: 100%; height: 75dvh;
-                border-radius: 36px 36px 0 0; z-index: 9999;
-                transform: translateY(100%); transition: 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-                
-                background: var(--liquid-bg);
-                backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%);
+                border-radius: 36px 36px 0 0; z-index: 9999; transform: translateY(100%); transition: 0.5s;
+                background: var(--liquid-bg); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%);
                 border: 1px solid var(--liquid-border); box-shadow: var(--liquid-shadow);
             }
-            .vocab-header { border-bottom: 1px solid rgba(120,120,128, 0.2); }
             .vocab-container.open { transform: translateY(0); }
-
-            .tooltip {
-                top: auto !important; bottom: 0 !important; left: 0 !important; width: 100% !important;
-                border-radius: 36px 36px 0 0; transform: translateY(100%);
-                padding: 24px 24px calc(24px + var(--safe-bottom)) 24px;
-            }
+            .tooltip { top: auto !important; bottom: 0 !important; left: 0 !important; width: 100% !important; border-radius: 36px 36px 0 0; transform: translateY(100%); padding: 24px 24px calc(24px + var(--safe-bottom)) 24px; }
             .tooltip.show { transform: translateY(0); }
         }
     </style>
 </head>
 <body>
 
-<!-- 🍎 温暖 Mesh Gradient 背景 -->
 <div class="mesh-bg"></div>
-
-<!-- 🍎 沉浸式气泡微交互 -->
 <div class="bubbles-container">
     <div class="bubble" style="left: 15%; animation-duration: 25s; animation-delay: 0s;">Listen</div>
     <div class="bubble" style="left: 35%; animation-duration: 22s; animation-delay: 5s;">Learn</div>
     <div class="bubble" style="left: 65%; animation-duration: 28s; animation-delay: 2s;">Grow</div>
     <div class="bubble" style="left: 80%; animation-duration: 24s; animation-delay: 8s;">Focus</div>
-    <div class="bubble" style="left: 50%; animation-duration: 30s; animation-delay: 12s;">Speak</div>
 </div>
 
-<!-- 🍎 视频库 / 首页 -->
+<!-- 🍎 首页：多功能视频库 -->
 <div class="home-screen" id="homeScreen">
-    <div class="home-header">
-        <div class="home-title">Studio Library</div>
-        <button class="icon-btn" id="homeThemeBtn" title="Toggle Theme" style="background:var(--surface); border:1px solid var(--border)">
-            <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
-        </button>
-    </div>
-
-    <!-- 精选视频专区 -->
-    <div class="section-container">
-        <div class="section-title">
+    
+    <!-- 左侧菜单栏 -->
+    <aside class="app-sidebar">
+        <div class="app-brand">
             <svg viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11z"/><circle cx="17.5" cy="17.5" r="4.5"/><path d="M3 13.5h8v8H3z"/></svg>
-            精选课程 (Featured)
+            <span>Studio Pro</span>
         </div>
-        <div class="video-grid" id="featuredGrid">
-            <!-- 卡片由 JS 动态生成 -->
-        </div>
-    </div>
-
-    <!-- 本地上传专区 -->
-    <div class="section-container" style="margin-top: 60px;">
-        <div class="section-title">
-            <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.36 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
-            本地工作区 (Local Files)
-        </div>
-        <div class="upload-actions">
-            <label class="btn-large" id="btnLocalVideo">
+        
+        <nav class="app-nav" id="sidebarNav">
+            <div class="nav-item active" data-tab="all" data-title="Library">
+                <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+                <span data-i18n="title_all">Library</span>
+            </div>
+            <div class="nav-item" data-tab="history" data-title="History">
+                <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                <span data-i18n="title_history">History</span>
+            </div>
+            <div class="nav-item" data-tab="completed" data-title="Completed">
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span data-i18n="title_completed">Completed</span>
+            </div>
+        </nav>
+        
+        <!-- 上傳區移至側邊欄 -->
+        <div class="sidebar-upload">
+            <div class="upload-label" data-i18n="sidebar_local">LOCAL FILES</div>
+            <label class="nav-item upload-item" id="btnLocalVideo">
                 <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-                <span id="txtLocalVideo">选择本地视频 (MP4)</span>
+                <span id="txtLocalVideo" class="truncate" data-i18n="sidebar_video">Video (MP4)</span>
                 <input type="file" id="localVideoInput" accept="video/mp4,video/webm" hidden>
             </label>
-            <label class="btn-large" id="btnLocalSub">
+            <label class="nav-item upload-item" id="btnLocalSub">
                 <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-                <span id="txtLocalSub">选择本地字幕 (SRT/JSON)</span>
+                <span id="txtLocalSub" class="truncate" data-i18n="sidebar_sub">Subtitles (SRT)</span>
                 <input type="file" id="localSubInput" accept=".srt,.json" hidden>
             </label>
-            <button class="launch-btn" id="btnLaunchLocal">进入学习舱 →</button>
+            <button class="launch-btn" id="btnLaunchLocal" data-i18n="sidebar_launch">Launch</button>
         </div>
-    </div>
+
+        <div class="sidebar-bottom">
+            <div class="nav-item" id="sidebarThemeBtn">
+                <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+                <span data-i18n="sidebar_theme">Theme</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="home-main">
+        <div class="home-content-wrapper">
+            
+            <!-- 头部与导航 -->
+            <div class="home-header">
+                <div class="header-left">
+                    <div class="home-title" id="pageTitle" data-i18n="title_all">Library</div>
+                </div>
+                <!-- 移动端保留的主题切换按钮及多语言切换 -->
+                <div class="header-actions" style="display: flex; gap: 12px; align-items: center;">
+                    <button class="icon-btn" id="langToggleBtn" title="Toggle Language" style="background:var(--surface); border:1px solid var(--border); font-size: 14px; font-weight: 700; font-family: inherit;">中</button>
+                    <button class="icon-btn mobile-theme-btn" id="homeThemeBtn" title="Toggle Theme" style="background:var(--surface); border:1px solid var(--border)">
+                        <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 过滤栏 -->
+            <div class="filter-bar" id="filterBar">
+                <div class="filter-group">
+                    <span class="filter-label" data-i18n="filter_difficulty">Difficulty</span>
+                    <select class="filter-select" id="filterRating">
+                        <option value="all" data-i18n="filter_level_all">All Levels</option>
+                        <option value="5" data-i18n="filter_level_5">⭐⭐⭐⭐⭐ (Hard)</option>
+                        <option value="4" data-i18n="filter_level_4">⭐⭐⭐⭐ (Advanced)</option>
+                        <option value="3" data-i18n="filter_level_3">⭐⭐⭐ (Intermediate)</option>
+                        <option value="2" data-i18n="filter_level_2">⭐⭐ (Basic)</option>
+                        <option value="1" data-i18n="filter_level_1">⭐ (Beginner)</option>
+                    </select>
+                </div>
+                <div class="filter-divider"></div>
+                <div class="filter-group">
+                    <span class="filter-label" data-i18n="filter_scenario">Scenario</span>
+                    <select class="filter-select" id="filterTag">
+                        <option value="all" data-i18n="filter_topic_all">All Topics</option>
+                        <option value="Academic" data-i18n="filter_topic_acad">Academic</option>
+                        <option value="Daily" data-i18n="filter_topic_daily">Daily Life</option>
+                        <option value="Business" data-i18n="filter_topic_bus">Business</option>
+                        <option value="Entertainment" data-i18n="filter_topic_ent">Entertainment</option>
+                    </select>
+                </div>
+                <div class="filter-divider"></div>
+                <div class="filter-group">
+                    <span class="filter-label" data-i18n="filter_accent">Accent</span>
+                    <select class="filter-select" id="filterAccent">
+                        <option value="all" data-i18n="filter_acc_all">All Accents</option>
+                        <option value="US" data-i18n="filter_acc_us">🇺🇸 US English</option>
+                        <option value="UK" data-i18n="filter_acc_uk">🇬🇧 UK English</option>
+                        <option value="AU" data-i18n="filter_acc_au">🇦🇺 AU English</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 视频网格容器 -->
+            <div class="video-grid" id="mainGrid">
+                <!-- 动态生成 -->
+            </div>
+
+        </div>
+    </main>
 </div>
 
 <!-- 🍎 主工作区 -->
 <div class="workspace" id="workspace">
     <div class="sidebar">
         <div class="video-container">
-            <video id="player" controls playsinline="true" webkit-playsinline="true" x5-playsinline="true" x5-video-player-type="h5" x5-video-player-fullscreen="false" x-webkit-airplay="allow"></video>
+            <video id="player" controls playsinline="true" webkit-playsinline="true" x5-playsinline="true"></video>
         </div>
         <div class="vocab-container" id="vocabContainer">
             <div class="vocab-header">
-                <span>Vocabulary <span id="vocabCount" style="color:var(--text-sub); font-weight:normal; margin-left:6px;">0</span></span>
+                <span><span data-i18n="vocab_title">Vocabulary</span> <span id="vocabCount" style="color:var(--text-sub); font-weight:normal; margin-left:6px;">0</span></span>
                 <span class="vocab-close-mobile" id="closeVocabBtn">✕</span>
             </div>
             <div class="vocab-list" id="vocabList"></div>
@@ -496,12 +604,9 @@
             <button class="icon-btn active" id="translateBtn" title="Translation">
                 <svg viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
             </button>
-            
-            <!-- 恢復：克漏字（挖空）模式按鈕 -->
             <button class="icon-btn" id="clozeBtn" title="Fill-in-the-blank Mode">
                 <svg viewBox="0 0 24 24"><path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11z"/></svg>
             </button>
-
             <button class="icon-btn" id="dictationBtn" title="Dictation Mode">
                 <svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
             </button>
@@ -511,7 +616,6 @@
             <div class="divider"></div>
             <button class="speed-btn-txt" id="speedToggleBtn">1.0x</button>
         </div>
-
         <div class="transcript-flow" id="transcript"></div>
     </div>
 </div>
@@ -528,33 +632,173 @@
     <div class="tt-word" id="tooltipWord"></div>
     <div class="tt-phonetic" id="tooltipPhonetic"></div>
     <div class="tt-def" id="tooltipDef"></div>
-    <button class="tt-btn" id="saveWordBtn">Add to Vocab</button>
+    <button class="tt-btn" id="saveWordBtn" data-i18n="tt_add">Add to Vocab</button>
 </div>
 
 <script>
-// 🍎 Supabase 配置 (請到 Supabase Dashboard -> Project Settings -> API Keys 獲取)
+// ==========================================
+// 🍎 数据层：丰富的模拟视频数据库
+// ==========================================
 const SUPABASE_URL = 'https://revbsrjaeoldhhifibdx.supabase.co'; 
 const SUPABASE_ANON_KEY = 'sb_publishable_fo8RtO0BL9fBr1uPH8cu1Q_wy5bj5GI'; 
 
-// 🍎 数据驱动的精选视频配置
-const featuredVideos = [
+// 状态：new (未看), history (观看中), completed (已完成)
+let videoDatabase = [
     {
         id: 'seed_video_001',
-        title: 'Study Motivation',
-        desc: 'Academic Listening • B2 Level',
-        coverUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=80', 
+        title: 'Study Motivation for Final Exams',
+        episode: '第 15 期',
+        rating: 4,
+        tags: ['Academic', 'Daily'],
+        accent: 'US',
+        creator: 'TED-Ed',
+        flag: '🇺🇸',
+        coverUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80', 
         duration: '03:45',
+        date: 'Updated Oct 24, 2023',
+        status: 'new',
+        progress: 0,
         videoUrl: 'https://revbsrjaeoldhhifibdx.supabase.co/storage/v1/object/public/videos/study.mp4'
+    },
+    {
+        id: 'mock_002',
+        title: 'How to order coffee in London',
+        episode: '第 16 期',
+        rating: 3,
+        tags: ['Daily', 'Travel'],
+        accent: 'UK',
+        creator: 'English with Lucy',
+        flag: '🇬🇧',
+        coverUrl: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&w=800&q=80', 
+        duration: '05:20',
+        date: 'Updated Nov 02, 2023',
+        status: 'history',
+        progress: 45, // 45% watched
+        videoUrl: '' // Mock
+    },
+    {
+        id: 'mock_003',
+        title: 'Aussie Slang Masterclass',
+        episode: '第 17 期',
+        rating: 5,
+        tags: ['Entertainment'],
+        accent: 'AU',
+        creator: 'Ozzie English',
+        flag: '🇦🇺',
+        coverUrl: 'https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?auto=format&fit=crop&w=800&q=80', 
+        duration: '08:15',
+        date: 'Updated Nov 10, 2023',
+        status: 'new',
+        progress: 0,
+        videoUrl: ''
+    },
+    {
+        id: 'mock_004',
+        title: 'Tech Interview Preparation',
+        episode: '第 12 期',
+        rating: 4,
+        tags: ['Business', 'Academic'],
+        accent: 'US',
+        creator: 'TechLead',
+        flag: '🇺🇸',
+        coverUrl: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=800&q=80', 
+        duration: '12:30',
+        date: 'Updated Sep 15, 2023',
+        status: 'completed',
+        progress: 100,
+        videoUrl: ''
     }
 ];
 
+// ==========================================
+// 🍎 状态管理 (包含 i18n 字典)
+// ==========================================
+const i18n = {
+    en: {
+        title_all: "Library",
+        title_history: "History",
+        title_completed: "Completed",
+        sidebar_theme: "Theme",
+        sidebar_local: "LOCAL FILES",
+        sidebar_video: "Video (MP4)",
+        sidebar_sub: "Subtitles (SRT)",
+        sidebar_launch: "Launch",
+        filter_difficulty: "Difficulty",
+        filter_level_all: "All Levels",
+        filter_level_5: "⭐⭐⭐⭐⭐ (Hard)",
+        filter_level_4: "⭐⭐⭐⭐ (Advanced)",
+        filter_level_3: "⭐⭐⭐ (Intermediate)",
+        filter_level_2: "⭐⭐ (Basic)",
+        filter_level_1: "⭐ (Beginner)",
+        filter_scenario: "Scenario",
+        filter_topic_all: "All Topics",
+        filter_topic_acad: "Academic",
+        filter_topic_daily: "Daily Life",
+        filter_topic_bus: "Business",
+        filter_topic_ent: "Entertainment",
+        filter_accent: "Accent",
+        filter_acc_all: "All Accents",
+        filter_acc_us: "🇺🇸 US English",
+        filter_acc_uk: "🇬🇧 UK English",
+        filter_acc_au: "🇦🇺 AU English",
+        empty_title: "No videos found",
+        empty_desc: "Try adjusting your filters or check back later.",
+        vocab_title: "Vocabulary",
+        tt_add: "Add to Vocab",
+        tt_analyzing: "Analyzing...",
+        word_remove: "Remove",
+        loading: "Loading...",
+        card_accent: "Accent:"
+    },
+    zh: {
+        title_all: "视频库",
+        title_history: "观看历史",
+        title_completed: "已学完",
+        sidebar_theme: "外观主题",
+        sidebar_local: "本地文件",
+        sidebar_video: "选择视频 (MP4)",
+        sidebar_sub: "选择字幕 (SRT)",
+        sidebar_launch: "进入学习舱",
+        filter_difficulty: "难度",
+        filter_level_all: "所有难度",
+        filter_level_5: "⭐⭐⭐⭐⭐ (困难)",
+        filter_level_4: "⭐⭐⭐⭐ (进阶)",
+        filter_level_3: "⭐⭐⭐ (中等)",
+        filter_level_2: "⭐⭐ (基础)",
+        filter_level_1: "⭐ (入门)",
+        filter_scenario: "场景",
+        filter_topic_all: "所有主题",
+        filter_topic_acad: "学术",
+        filter_topic_daily: "日常生活",
+        filter_topic_bus: "商业",
+        filter_topic_ent: "娱乐",
+        filter_accent: "口音",
+        filter_acc_all: "所有口音",
+        filter_acc_us: "🇺🇸 美式英语",
+        filter_acc_uk: "🇬🇧 英式英语",
+        filter_acc_au: "🇦🇺 澳式英语",
+        empty_title: "未找到视频",
+        empty_desc: "请尝试调整筛选条件或稍后重试。",
+        vocab_title: "生词本",
+        tt_add: "加入生词本",
+        tt_analyzing: "分析中...",
+        word_remove: "移除",
+        loading: "加载中...",
+        card_accent: "口音:"
+    }
+};
+
 const state = { 
+    lang: 'en',
+    currentTab: 'all', // all, history, completed
+    filters: { rating: 'all', tag: 'all', accent: 'all' },
+    
     subtitles: [], 
     currentLoopIndex: null, 
     currentActiveIndex: -1, 
     dictationMode: false, 
     translationVisible: true, 
-    isClozeMode: false, // 恢復：追蹤克漏字模式是否開啟
+    isClozeMode: false,
     currentWord: null,
     videoObjectURL: null,
     localReady: { v: false, s: false }
@@ -567,7 +811,7 @@ const dom = {
     themeBtn: document.getElementById('themeBtn'), 
     homeThemeBtn: document.getElementById('homeThemeBtn'),
     translateBtn: document.getElementById('translateBtn'), 
-    clozeBtn: document.getElementById('clozeBtn'), // 恢復：克漏字按鈕
+    clozeBtn: document.getElementById('clozeBtn'),
     dictationBtn: document.getElementById('dictationBtn'), 
     saveWordBtn: document.getElementById('saveWordBtn'), 
     vocabList: document.getElementById('vocabList'), 
@@ -580,6 +824,15 @@ const dom = {
     speedMenu: document.getElementById('speedMenu'), 
     backToHomeBtn: document.getElementById('backToHomeBtn'), 
     
+    sidebarNav: document.getElementById('sidebarNav'),
+    sidebarThemeBtn: document.getElementById('sidebarThemeBtn'),
+    pageTitle: document.getElementById('pageTitle'),
+    filterBar: document.getElementById('filterBar'),
+    filterRating: document.getElementById('filterRating'),
+    filterTag: document.getElementById('filterTag'),
+    filterAccent: document.getElementById('filterAccent'),
+    mainGrid: document.getElementById('mainGrid'),
+
     btnLocalVideo: document.getElementById('btnLocalVideo'), 
     btnLocalSub: document.getElementById('btnLocalSub'),
     txtLocalVideo: document.getElementById('txtLocalVideo'),
@@ -587,67 +840,187 @@ const dom = {
     btnLaunchLocal: document.getElementById('btnLaunchLocal'),
     localVideoInput: document.getElementById('localVideoInput'),
     localSubInput: document.getElementById('localSubInput'),
-    
-    featuredGrid: document.getElementById('featuredGrid')
+    langToggleBtn: document.getElementById('langToggleBtn'),
 };
 
-function renderLibrary() {
-    dom.featuredGrid.innerHTML = featuredVideos.map(v => `
-        <div class="video-card" id="card-${v.id}" onclick="loadFeaturedVideo('${v.id}')">
-            <div class="card-loading-overlay"><div class="spinner"></div><span style="font-size:13px; font-weight:500;">加載字幕中...</span></div>
-            <div class="card-cover" style="background-image: url('${v.coverUrl}')">
+// ==========================================
+// 🍎 UI 渲染核心 (Library / Filters / Grid)
+// ==========================================
+
+// 辅助：生成星星SVG
+const getStarsHtml = (rating) => {
+    let html = '';
+    for(let i=1; i<=5; i++) {
+        const cls = i <= rating ? 'filled' : 'empty';
+        html += `<svg class="star ${cls}" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`;
+    }
+    return html;
+};
+
+function renderGrid() {
+    let filtered = videoDatabase;
+
+    // 1. 根据 Tab 过滤状态
+    if (state.currentTab === 'history') {
+        filtered = filtered.filter(v => v.status === 'history');
+    } else if (state.currentTab === 'completed') {
+        filtered = filtered.filter(v => v.status === 'completed');
+    }
+
+    // 2. 仅在 "Library(All)" 下应用下拉框过滤
+    if (state.currentTab === 'all') {
+        if (state.filters.rating !== 'all') {
+            filtered = filtered.filter(v => v.rating === parseInt(state.filters.rating));
+        }
+        if (state.filters.tag !== 'all') {
+            filtered = filtered.filter(v => v.tags.includes(state.filters.tag));
+        }
+        if (state.filters.accent !== 'all') {
+            filtered = filtered.filter(v => v.accent === state.filters.accent);
+        }
+    }
+
+    const dict = i18n[state.lang];
+
+    if (filtered.length === 0) {
+        dom.mainGrid.innerHTML = `
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                <h3>${dict.empty_title}</h3>
+                <p>${dict.empty_desc}</p>
+            </div>
+        `;
+        return;
+    }
+
+    dom.mainGrid.innerHTML = filtered.map(v => `
+        <div class="video-card" id="card-${v.id}" onclick="loadVideo('${v.id}')">
+            <div class="card-overlay"><div class="spinner"></div><span style="font-size:13px; font-weight:600;">${dict.loading}</span></div>
+            
+            <!-- 1. 顶部：缩略图/时长/创作者 -->
+            <div class="card-top" style="background-image: url('${v.coverUrl}')">
+                <div class="card-creator">${v.creator} ${v.flag}</div>
                 <div class="card-duration">${v.duration}</div>
             </div>
-            <div class="card-info">
-                <div class="card-title">${v.title}</div>
-                <div class="card-desc">${v.desc}</div>
+            
+            <!-- 2. 中部：期数、标题与评分 -->
+            <div class="card-middle">
+                <div class="card-ep-group">
+                    <div class="card-ep">${v.episode}</div>
+                    <div class="card-title">${v.title}</div>
+                </div>
+                <div class="card-rating">${getStarsHtml(v.rating)}</div>
             </div>
+            
+            <!-- 3. 底部：分类、口音、日期 -->
+            <div class="card-bottom">
+                <div class="card-tags">
+                    ${v.tags.map(t => `<span class="card-tag">${t}</span>`).join('')}
+                </div>
+                <div class="card-meta">
+                    <div class="card-accent">${dict.card_accent} ${v.flag} ${v.accent}</div>
+                    <div class="card-date">${v.date}</div>
+                </div>
+            </div>
+            
+            ${(v.status === 'history' || v.status === 'completed') ? `<div class="card-progress" style="width: ${v.progress}%"></div>` : ''}
         </div>
     `).join('');
 }
 
-async function loadFeaturedVideo(id) {
-    const videoData = featuredVideos.find(v => v.id === id);
+// 绑定侧边栏切换事件
+if(dom.sidebarNav) {
+    dom.sidebarNav.addEventListener('click', (e) => {
+        const item = e.target.closest('.nav-item');
+        if (item) {
+            document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
+            item.classList.add('active');
+            state.currentTab = item.dataset.tab;
+            
+            // 更新页面大标题并适配翻译
+            if (dom.pageTitle) {
+                dom.pageTitle.setAttribute('data-i18n', `title_${state.currentTab}`);
+                dom.pageTitle.innerText = i18n[state.lang][`title_${state.currentTab}`];
+            }
+            
+            // 只有在 All 下显示过滤栏
+            if(dom.filterBar) {
+                dom.filterBar.style.display = state.currentTab === 'all' ? 'flex' : 'none';
+            }
+            
+            // 如果切换走，重置过滤器 (可选)
+            if(state.currentTab !== 'all') {
+                state.filters = { rating: 'all', tag: 'all', accent: 'all' };
+                if(dom.filterRating) dom.filterRating.value = 'all'; 
+                if(dom.filterTag) dom.filterTag.value = 'all'; 
+                if(dom.filterAccent) dom.filterAccent.value = 'all';
+            }
+            renderGrid();
+        }
+    });
+}
+
+// 绑定过滤器事件
+[dom.filterRating, dom.filterTag, dom.filterAccent].forEach(select => {
+    if (select) { // 增加安全檢查，防止 DOM 未加載時報錯
+        select.addEventListener('change', (e) => {
+            const id = e.target.id;
+            if (id === 'filterRating') state.filters.rating = e.target.value;
+            if (id === 'filterTag') state.filters.tag = e.target.value;
+            if (id === 'filterAccent') state.filters.accent = e.target.value;
+            renderGrid();
+        });
+    }
+});
+
+// ==========================================
+// 🍎 视频加载与播放器逻辑
+// ==========================================
+async function loadVideo(id) {
+    const videoData = videoDatabase.find(v => v.id === id);
     if (!videoData) return;
+    
+    // 如果是 mock 没有真实视频源，给个提示
+    if (!videoData.videoUrl) {
+        alert("This is a mock card. Only the first video 'Study Motivation' is fully connected to the database. Loading the first video instead.");
+        return loadVideo('seed_video_001');
+    }
 
     const card = document.getElementById(`card-${id}`);
-    card.classList.add('loading');
+    if(card) card.classList.add('loading');
 
     try {
         if(state.videoObjectURL) { URL.revokeObjectURL(state.videoObjectURL); state.videoObjectURL = null; }
         dom.player.src = videoData.videoUrl;
         
         const queryUrl = `${SUPABASE_URL}/rest/v1/video_subtitles?select=content&video_id=eq.${id}&track_type=eq.annotated&language=eq.en-zh`;
-        
         const res = await fetch(queryUrl, {
-            headers: {
-                'apikey': SUPABASE_ANON_KEY,
-                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-            }
+            headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
         });
         
-        if (!res.ok) throw new Error("Supabase 請求失敗");
+        if (!res.ok) throw new Error("Supabase Fetch Failed");
         const data = await res.json();
         
         if (data && data.length > 0 && data[0].content) {
             state.subtitles = data[0].content;
         } else {
-            console.warn("⚠️ 警告：Supabase 中未找到該影片的字幕", data);
+            console.warn("No subtitles found in Supabase.");
             state.subtitles = [];
         }
 
-        if (!Array.isArray(state.subtitles)) {
-            state.subtitles = [];
-        }
+        if (!Array.isArray(state.subtitles)) state.subtitles = [];
+
+        // 模拟：点击加载后，状态变为 history
+        if(videoData.status === 'new') videoData.status = 'history';
 
         renderTranscript();
         enterWorkspace();
         
     } catch (err) {
-        console.error("加载字幕失败:", err);
-        alert(`無法獲取字幕，請確認 Supabase URL 和 Key 是否設定正確。`);
+        console.error("Failed:", err);
+        alert(`Failed to load subtitles.`);
     } finally {
-        card.classList.remove('loading');
+        if(card) card.classList.remove('loading');
     }
 }
 
@@ -659,28 +1032,52 @@ function enterWorkspace() {
 dom.backToHomeBtn.onclick = () => {
     dom.workspace.classList.remove('active');
     dom.player.pause();
-    setTimeout(() => { dom.homeScreen.classList.remove('hidden'); }, 300);
+    setTimeout(() => { 
+        dom.homeScreen.classList.remove('hidden'); 
+        renderGrid(); // 返回时重新渲染，更新进度条或状态
+    }, 300);
 };
 
+// ==========================================
+// 🍎 交互功能：主题、高亮、克漏字、字典等
+// ==========================================
 const toggleTheme = () => {
     document.body.classList.toggle('dark-theme'); 
     const isDark = document.body.classList.contains('dark-theme');
-    if(isDark) {
-        dom.themeBtn.classList.add('active');
-        dom.homeThemeBtn.classList.add('active');
-    } else {
-        dom.themeBtn.classList.remove('active');
-        dom.homeThemeBtn.classList.remove('active');
+    if(isDark) { 
+        dom.themeBtn.classList.add('active'); 
+        dom.homeThemeBtn.classList.add('active'); 
+        if(dom.sidebarThemeBtn) dom.sidebarThemeBtn.classList.add('active');
+    } else { 
+        dom.themeBtn.classList.remove('active'); 
+        dom.homeThemeBtn.classList.remove('active'); 
+        if(dom.sidebarThemeBtn) dom.sidebarThemeBtn.classList.remove('active');
     }
 };
-dom.themeBtn.onclick = toggleTheme;
+dom.themeBtn.onclick = toggleTheme; 
 dom.homeThemeBtn.onclick = toggleTheme;
+if(dom.sidebarThemeBtn) dom.sidebarThemeBtn.onclick = toggleTheme;
 
-// 🍎 恢復：核心更新：支援「克漏字模式」的高亮引擎
+const toggleLang = () => {
+    state.lang = state.lang === 'en' ? 'zh' : 'en';
+    if(dom.langToggleBtn) dom.langToggleBtn.innerText = state.lang === 'en' ? '中' : 'EN';
+    updateLanguageUI();
+};
+if(dom.langToggleBtn) dom.langToggleBtn.onclick = toggleLang;
+
+function updateLanguageUI() {
+    const dict = i18n[state.lang];
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) el.innerText = dict[key];
+    });
+    renderGrid();
+    renderVocab();
+}
+
 function applyLocalHighlights(text, highlights) {
     if (!highlights || !Array.isArray(highlights) || highlights.length === 0) return text;
-    let res = text;
-    let placeholders = [];
+    let res = text; let placeholders = [];
     const sortedHighlights = [...highlights].sort((a, b) => b.text.length - a.text.length);
     
     sortedHighlights.forEach(hl => {
@@ -688,11 +1085,9 @@ function applyLocalHighlights(text, highlights) {
         const regex = new RegExp(`\\b${escapeRegExp(hl.text)}\\b`, 'gi');
         res = res.replace(regex, match => {
             if (state.isClozeMode) {
-                // 若開啟挖空模式，渲染文字輸入框，動態計算寬度 (每字元約 14px + 額外 Padding)
                 const width = Math.max(match.length * 14 + 16, 40); 
                 placeholders.push(`<input type="text" class="cloze-input" data-answer="${match.toLowerCase()}" data-original="${match}" style="width: ${width}px;" autocomplete="off" spellcheck="false" />`);
             } else {
-                // 預設渲染高亮文字
                 const className = hl.type === 'phrase' ? 'hl-phrase' : 'hl-word';
                 placeholders.push(`<span class="${className}">${match}</span>`);
             }
@@ -711,15 +1106,9 @@ dom.translateBtn.onclick = () => {
     document.querySelectorAll('.lyric-zh').forEach(el => el.classList.toggle('hidden', !state.translationVisible)); 
 };
 
-// 🍎 恢復：點擊「克漏字」按鈕的行為
 dom.clozeBtn.onclick = () => {
-    state.isClozeMode = !state.isClozeMode;
-    dom.clozeBtn.classList.toggle('active', state.isClozeMode);
-    
-    // 重新渲染整個字幕面板來生成輸入框
+    state.isClozeMode = !state.isClozeMode; dom.clozeBtn.classList.toggle('active', state.isClozeMode);
     renderTranscript(); 
-    
-    // 嘗試恢復播放器當前進度的高亮滾動
     if (state.currentActiveIndex !== -1 && lyricNodes[state.currentActiveIndex]) {
         lyricNodes[state.currentActiveIndex].classList.add('active');
         const offset = window.innerWidth <= 1024 ? 140 : dom.transcript.clientHeight / 2;
@@ -732,33 +1121,23 @@ dom.dictationBtn.onclick = () => { state.dictationMode = !state.dictationMode; d
 dom.speedToggleBtn.onclick = (e) => {
     e.stopPropagation();
     if (dom.speedMenu.classList.contains('show')) { dom.speedMenu.classList.remove('show'); return; }
-    
     const rect = dom.speedToggleBtn.getBoundingClientRect();
     if (window.innerWidth <= 1024) {
-        dom.speedMenu.style.top = 'auto';
-        dom.speedMenu.style.bottom = `${window.innerHeight - rect.top + 12}px`;
+        dom.speedMenu.style.top = 'auto'; dom.speedMenu.style.bottom = `${window.innerHeight - rect.top + 12}px`;
     } else {
-        dom.speedMenu.style.bottom = 'auto';
-        dom.speedMenu.style.top = `${rect.bottom + 12}px`;
+        dom.speedMenu.style.bottom = 'auto'; dom.speedMenu.style.top = `${rect.bottom + 12}px`;
     }
     dom.speedMenu.style.left = `${rect.left + (rect.width/2) - 50}px`;
     dom.speedMenu.classList.add('show');
 };
 
-document.addEventListener('click', e => { 
-    if (!dom.speedMenu.contains(e.target) && e.target !== dom.speedToggleBtn) {
-        dom.speedMenu.classList.remove('show'); 
-    }
-});
-
+document.addEventListener('click', e => { if (!dom.speedMenu.contains(e.target) && e.target !== dom.speedToggleBtn) dom.speedMenu.classList.remove('show'); });
 document.querySelectorAll('.sp-item').forEach(item => {
     item.onclick = () => {
-        const speed = parseFloat(item.dataset.speed);
-        dom.player.playbackRate = speed;
+        const speed = parseFloat(item.dataset.speed); dom.player.playbackRate = speed;
         dom.speedToggleBtn.innerText = `${speed.toFixed(1)}x`;
         document.querySelectorAll('.sp-item').forEach(i => i.classList.remove('active'));
-        item.classList.add('active');
-        dom.speedMenu.classList.remove('show');
+        item.classList.add('active'); dom.speedMenu.classList.remove('show');
     };
 });
 
@@ -767,24 +1146,17 @@ dom.closeVocabBtn.onclick = () => dom.vocabContainer.classList.remove('open');
 
 function parseSRT(data) {
     const subtitleRegex = /(\d{2}:\d{2}:\d{2}[,.]\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}[,.]\d{3})(?:\s+[^\n]*)?\n([\s\S]*?)(?=\n{2,}|\n\d+\n\d{2}:|$)/g;
-    const subtitles = [];
-    let match;
-    const timeToSec = (t) => {
-        const [hrs, mins, secs] = t.replace(',', '.').split(':');
-        return (+hrs * 3600) + (+mins * 60) + parseFloat(secs);
-    };
+    const subtitles = []; let match;
+    const timeToSec = (t) => { const [hrs, mins, secs] = t.replace(',', '.').split(':'); return (+hrs * 3600) + (+mins * 60) + parseFloat(secs); };
     while ((match = subtitleRegex.exec(data.replace(/\r\n/g, '\n'))) !== null) {
-        const start = timeToSec(match[1]);
-        const end = timeToSec(match[2]);
-        const text = match[3].replace(/<[^>]+>/g, '').trim();
-        const cleanText = text.replace(/\n/g, ' '); 
+        const start = timeToSec(match[1]); const end = timeToSec(match[2]);
+        const text = match[3].replace(/<[^>]+>/g, '').trim(); const cleanText = text.replace(/\n/g, ' '); 
         if (cleanText) subtitles.push({ start, end, en: cleanText, zh: "", highlights: [] });
     }
     return subtitles;
 }
 
 let lyricNodes = [];
-
 function renderTranscript() {
     dom.transcript.innerHTML = state.subtitles.map((item, i) => `
         <div class="lyric-line" data-index="${i}">
@@ -794,58 +1166,33 @@ function renderTranscript() {
     `).join('');
     
     lyricNodes = Array.from(document.querySelectorAll('.lyric-line'));
-    
     lyricNodes.forEach((node, i) => {
-        // 恢復：更新點擊邏輯：如果是點到輸入框，就不會觸發影片跳轉，防止干擾打字
-        node.onclick = (e) => { 
-            if (e.target.tagName === 'INPUT') return;
-            dom.player.currentTime = state.subtitles[i].start; dom.player.play(); 
-        };
-        node.ondblclick = (e) => {
-            if (e.target.tagName === 'INPUT') return;
-            toggleLoop(i, node);
-        };
+        node.onclick = (e) => { if (e.target.tagName === 'INPUT') return; dom.player.currentTime = state.subtitles[i].start; dom.player.play(); };
+        node.ondblclick = (e) => { if (e.target.tagName === 'INPUT') return; toggleLoop(i, node); };
     });
 }
 
-// 🍎 恢復：克漏字輸入框即時驗證邏輯
 dom.transcript.addEventListener('input', (e) => {
     if (e.target.classList.contains('cloze-input')) {
-        const answer = e.target.dataset.answer; // 已經是小寫
-        const value = e.target.value.toLowerCase().trim();
-
+        const answer = e.target.dataset.answer; const value = e.target.value.toLowerCase().trim();
         if (value === answer) {
-            e.target.classList.add('correct');
-            e.target.classList.remove('incorrect');
-            e.target.value = e.target.dataset.original; // 答對後自動恢復正確大小寫
-            e.target.blur(); // 答對自動移出焦點
-        } else {
-            e.target.classList.remove('correct');
-            // 輸入中不立刻顯示紅色，避免壓力過大
+            e.target.classList.add('correct'); e.target.classList.remove('incorrect');
+            e.target.value = e.target.dataset.original; e.target.blur();
         }
     }
 });
-
-// 🍎 恢復：離開輸入框時的驗證 (如果打錯字則變紅)
 dom.transcript.addEventListener('focusout', (e) => {
     if (e.target.classList.contains('cloze-input')) {
-        const answer = e.target.dataset.answer;
-        const value = e.target.value.toLowerCase().trim();
-        if (value !== answer && value.length > 0) {
-            e.target.classList.add('incorrect');
-        } else {
-            e.target.classList.remove('incorrect');
-        }
+        const answer = e.target.dataset.answer; const value = e.target.value.toLowerCase().trim();
+        if (value !== answer && value.length > 0) e.target.classList.add('incorrect');
+        else e.target.classList.remove('incorrect');
     }
 });
 
 function toggleLoop(index, node) {
-    if (state.currentLoopIndex === index) {
-        state.currentLoopIndex = null; node.classList.remove('looping');
-    } else {
-        if(state.currentLoopIndex !== null && lyricNodes[state.currentLoopIndex]) {
-            lyricNodes[state.currentLoopIndex].classList.remove('looping');
-        }
+    if (state.currentLoopIndex === index) { state.currentLoopIndex = null; node.classList.remove('looping'); } 
+    else {
+        if(state.currentLoopIndex !== null && lyricNodes[state.currentLoopIndex]) lyricNodes[state.currentLoopIndex].classList.remove('looping');
         state.currentLoopIndex = index; node.classList.add('looping');
         dom.player.currentTime = state.subtitles[index].start; dom.player.play();
     }
@@ -854,12 +1201,9 @@ function toggleLoop(index, node) {
 let isThrottled = false;
 dom.player.addEventListener('timeupdate', () => {
     if (isThrottled || !state.subtitles.length || !lyricNodes.length) return;
-    
     isThrottled = true;
     requestAnimationFrame(() => {
-        const now = dom.player.currentTime;
-        let activeIdx = -1;
-        
+        const now = dom.player.currentTime; let activeIdx = -1;
         let l = 0, r = state.subtitles.length - 1;
         while(l <= r) {
             const m = Math.floor((l+r)/2);
@@ -868,9 +1212,7 @@ dom.player.addEventListener('timeupdate', () => {
         }
 
         if (activeIdx !== state.currentActiveIndex) {
-            if (state.currentActiveIndex !== -1 && lyricNodes[state.currentActiveIndex]) {
-                lyricNodes[state.currentActiveIndex].classList.remove('active');
-            }
+            if (state.currentActiveIndex !== -1 && lyricNodes[state.currentActiveIndex]) lyricNodes[state.currentActiveIndex].classList.remove('active');
             if (activeIdx !== -1 && lyricNodes[activeIdx]) {
                 lyricNodes[activeIdx].classList.add('active');
                 const offset = window.innerWidth <= 1024 ? 140 : dom.transcript.clientHeight / 2;
@@ -889,7 +1231,6 @@ dom.player.addEventListener('timeupdate', () => {
 });
 
 document.addEventListener('selectionchange', () => setTimeout(handleSelection, 300));
-
 async function handleSelection() {
     const text = window.getSelection().toString().trim();
     if (text && /^[a-zA-Z\s'-]{2,60}$/.test(text)) {
@@ -903,14 +1244,12 @@ async function handleSelection() {
             dom.tooltip.style.left = `${leftPos}px`; dom.tooltip.style.top = `${topPos}px`;
         }
         
-        dom.tooltip.classList.add('show');
-        document.getElementById('tooltipWord').innerText = text.toLowerCase();
-        document.getElementById('tooltipPhonetic').innerText = "Analyzing...";
-        document.getElementById('tooltipDef').innerHTML = "";
+        const dict = i18n[state.lang];
+        dom.tooltip.classList.add('show'); document.getElementById('tooltipWord').innerText = text.toLowerCase();
+        document.getElementById('tooltipPhonetic').innerText = dict.tt_analyzing; document.getElementById('tooltipDef').innerHTML = "";
         dom.saveWordBtn.disabled = true;
 
         const isPhrase = text.includes(' ');
-
         try {
             if (isPhrase) {
                 document.getElementById('tooltipPhonetic').innerText = "[Idea Unit / Phrase]";
@@ -936,86 +1275,57 @@ async function handleSelection() {
 
 const closeOverlays = (e) => {
     if (!dom.tooltip.contains(e.target)) dom.tooltip.classList.remove('show');
-    if (window.innerWidth <= 1024 && !dom.vocabContainer.contains(e.target) && !dom.mobileVocabToggle.contains(e.target)) {
-        dom.vocabContainer.classList.remove('open');
-    }
+    if (window.innerWidth <= 1024 && !dom.vocabContainer.contains(e.target) && !dom.mobileVocabToggle.contains(e.target)) { dom.vocabContainer.classList.remove('open'); }
 };
-document.addEventListener('mousedown', closeOverlays);
-document.addEventListener('touchstart', closeOverlays, {passive: true});
+document.addEventListener('mousedown', closeOverlays); document.addEventListener('touchstart', closeOverlays, {passive: true});
 
 dom.saveWordBtn.onclick = () => {
     if (!state.currentWord) return;
     let words = getVocab();
-    if (!words.some(w => w.word === state.currentWord.word)) { 
-        words.unshift(state.currentWord); 
-        saveVocab(words); 
-        renderVocab(); 
-    }
+    if (!words.some(w => w.word === state.currentWord.word)) { words.unshift(state.currentWord); saveVocab(words); renderVocab(); }
     dom.tooltip.classList.remove('show');
 };
 
 function renderVocab() {
     const words = getVocab();
+    const dict = i18n[state.lang] || i18n.en;
     document.getElementById('vocabCount').innerText = words.length;
     dom.vocabList.innerHTML = words.map((w, i) => `
         <div class="word-item">
-            <div class="word-head"><div class="word-text">${w.word}</div><div class="word-del" onclick="deleteWord(${i})">Remove</div></div>
+            <div class="word-head"><div class="word-text">${w.word}</div><div class="word-del" onclick="deleteWord(${i})">${dict.word_remove}</div></div>
             <div class="word-def">${w.definition}</div>
         </div>
     `).join('');
 }
 window.deleteWord = i => { let words = getVocab(); words.splice(i, 1); saveVocab(words); renderVocab(); };
 
-function checkLocalReady() {
-    if (state.localReady.v && state.localReady.s) {
-        dom.btnLaunchLocal.classList.add('active');
-    }
-}
-
+function checkLocalReady() { if (state.localReady.v && state.localReady.s) dom.btnLaunchLocal.classList.add('active'); }
 function handleLocalFiles(files) {
     Array.from(files).forEach(f => {
         if (f.type.includes('video') || f.name.endsWith('.mp4') || f.name.endsWith('.webm')) {
             if(state.videoObjectURL) URL.revokeObjectURL(state.videoObjectURL);
-            state.videoObjectURL = URL.createObjectURL(f);
-            dom.player.src = state.videoObjectURL;
-            
-            dom.btnLocalVideo.classList.add('ready'); 
-            dom.txtLocalVideo.innerText = f.name;
-            state.localReady.v = true;
+            state.videoObjectURL = URL.createObjectURL(f); dom.player.src = state.videoObjectURL;
+            dom.btnLocalVideo.classList.add('ready'); dom.txtLocalVideo.innerText = f.name; state.localReady.v = true;
         } else if (f.name.endsWith('.srt') || f.name.endsWith('.json')) {
             const r = new FileReader();
             r.onload = () => {
                 state.subtitles = f.name.endsWith('.json') ? JSON.parse(r.result) : parseSRT(r.result);
-                dom.btnLocalSub.classList.add('ready'); 
-                dom.txtLocalSub.innerText = f.name;
-                state.localReady.s = true;
-                checkLocalReady();
+                dom.btnLocalSub.classList.add('ready'); dom.txtLocalSub.innerText = f.name; state.localReady.s = true; checkLocalReady();
             };
             r.readAsText(f);
         }
     });
     checkLocalReady();
 }
-
 dom.localVideoInput.addEventListener('change', e => handleLocalFiles(e.target.files));
 dom.localSubInput.addEventListener('change', e => handleLocalFiles(e.target.files));
-dom.btnLaunchLocal.onclick = () => {
-    if (state.localReady.v && state.localReady.s) {
-        renderTranscript();
-        enterWorkspace();
-    }
-};
+dom.btnLaunchLocal.onclick = () => { if (state.localReady.v && state.localReady.s) { renderTranscript(); enterWorkspace(); } };
 
 document.body.addEventListener('dragover', e => e.preventDefault());
-document.body.addEventListener('drop', e => { 
-    if(!dom.homeScreen.classList.contains('hidden')) {
-        e.preventDefault(); handleLocalFiles(e.dataTransfer.files); 
-    }
-});
+document.body.addEventListener('drop', e => { if(!dom.homeScreen.classList.contains('hidden')) { e.preventDefault(); handleLocalFiles(e.dataTransfer.files); } });
 
 // 初始化
-renderLibrary();
-renderVocab();
+updateLanguageUI();
 </script>
 </body>
 </html>
