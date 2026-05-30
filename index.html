@@ -1284,18 +1284,20 @@ async function loadVideo(id) {
             dom.player.removeEventListener('loadedmetadata', onLoaded);
         });
         
+        // 【核心修改位置】：使用關聯查詢 (Join) 一次性拉取字幕和高亮單字
         const { data, error } = await supabaseClient
-            .from('video_subtitles')
-            .select('content')
+            .from('subtitles')
+            .select('*, highlights:subtitle_highlights(*)') // 將高亮表關聯並重命名為 highlights
             .eq('video_id', id)
-            .single();
+            .order('start', { ascending: true }); // 確保字幕按時間軸順序排列
 
         if(error) {
-            console.error(error);
+            console.error('獲取字幕失敗:', error);
             return;
         }
 
-        state.subtitles = data.content || [];
+        // 資料庫回傳的結構現在完美符合 state.subtitles 期待的格式
+        state.subtitles = data || [];
 
         renderTranscript();
         enterWorkspace();
@@ -1306,23 +1308,7 @@ async function loadVideo(id) {
     } finally {
         if(card) card.classList.remove('loading');
     }
-}
-
-function enterWorkspace() {
-    dom.homeScreen.classList.add('hidden');
-    setTimeout(() => dom.workspace.classList.add('active'), 300);
-}
-
-dom.backToHomeBtn.onclick = () => {
-    dom.workspace.classList.remove('active');
-    dom.player.pause();
-    setTimeout(() => { 
-        dom.homeScreen.classList.remove('hidden'); 
-        state.currentVideoId = null;
-        renderGrid(); // 更新進度條
-    }, 300);
 };
-
 // ==========================================
 // 🍎 交互功能：主题、高亮、克漏字、倍速
 // ==========================================
