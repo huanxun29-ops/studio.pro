@@ -242,7 +242,6 @@
             overflow: hidden; cursor: pointer; transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
             box-shadow: var(--shadow); position: relative; display: flex; flex-direction: column;
         }
-        /* 提升：VisionOS 风格边缘高光 */
         .dark-theme .video-card::before {
             content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
             background: linear-gradient(180deg, rgba(255,255,255,0.08), transparent 25%);
@@ -252,7 +251,6 @@
         .video-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.12); border-color: var(--blue); }
         .video-card:active { transform: translateY(-2px) scale(0.98); }
         
-        /* 新增：收藏按钮 */
         .favorite-btn {
             position: absolute; top: 12px; left: 12px; width: 36px; height: 36px; border-radius: 50%;
             background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
@@ -263,7 +261,6 @@
         .favorite-btn:hover { background: rgba(0,0,0,0.6); transform: scale(1.1); }
         .favorite-btn.active svg { fill: var(--red); stroke: var(--red); }
 
-        /* 1. 顶部：媒体区域 (占比大) */
         .card-top { 
             position: relative; aspect-ratio: 16/9; background: #e0e0e0; 
             background-size: cover; background-position: center; border-bottom: 1px solid var(--border);
@@ -280,7 +277,6 @@
             backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); letter-spacing: 0.5px;
         }
 
-        /* 2. 中部：标题与评分 */
         .card-middle { 
             display: flex; justify-content: space-between; align-items: flex-start; 
             padding: 20px 20px 12px 20px; gap: 12px; z-index: 1;
@@ -294,7 +290,6 @@
         .star.empty { fill: var(--border); }
         .dark-theme .star.empty { fill: rgba(255,255,255,0.2); }
 
-        /* 3. 底部：元数据标签 */
         .card-bottom { padding: 0 20px 20px 20px; display: flex; flex-direction: column; gap: 16px; z-index: 1; }
         .card-tags { display: flex; gap: 8px; flex-wrap: wrap; }
         .card-tag { 
@@ -312,7 +307,6 @@
             border-radius: 0 0 0 24px; transition: width 0.3s; z-index: 3;
         }
 
-        /* 状态覆盖层 */
         .card-overlay {
             position: absolute; inset: 0; background: rgba(255,255,255,0.8); backdrop-filter: blur(4px);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -326,7 +320,6 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* 侧边栏本地上传区域 */
         .sidebar-upload {
             display: flex; flex-direction: column; gap: 4px; padding-top: 24px; margin-top: 24px;
             border-top: 1px solid var(--border);
@@ -346,13 +339,14 @@
         .launch-btn.active { opacity: 1; pointer-events: auto; }
         .launch-btn.active:hover { transform: translateY(-2px); }
 
-        /* 空状态 */
         .empty-state {
             grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center;
             padding: 80px 20px; text-align: center; color: var(--text-sub);
         }
         .empty-state svg { width: 48px; height: 48px; fill: var(--border); margin-bottom: 16px; }
         .empty-state h3 { font-size: 18px; color: var(--text-main); margin-bottom: 8px; }
+        .error-card { background: rgba(255,59,48,0.1); border: 1px solid rgba(255,59,48,0.3); border-radius: 16px; padding: 20px; text-align: left; max-width: 600px; margin-top: 20px; }
+        .error-card code { display: block; background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px; margin-top: 10px; font-family: monospace; font-size: 13px; color: var(--text-main); word-break: break-all;}
 
         /* =========================================
            🍎 主工作区 (Workspace)
@@ -362,7 +356,7 @@
             padding: 32px; gap: 32px; opacity: 0; visibility: hidden; position: absolute;
             transform: translateY(20px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .workspace.active { opacity: 1; visibility: visible; transform: translateY(0); position: relative; }
+        .workspace.active { opacity: 1; visibility: visible; transform: translateY(0); position: relative; z-index: 200; }
 
         .sidebar { width: 45%; min-width: 400px; max-width: 720px; flex-shrink: 0; display: flex; flex-direction: column; gap: 32px; }
         .video-container { border-radius: 24px; overflow: hidden; background: #000; box-shadow: var(--shadow); transform: translateZ(0); }
@@ -391,7 +385,6 @@
             position: relative; display: flex; flex-direction: column; box-shadow: var(--shadow); overflow: hidden;
         }
 
-        /* 工具栏 */
         .toolbar-floating {
             position: absolute; top: 24px; left: 50%; transform: translateX(-50%) scale(1);
             background: var(--liquid-bg); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%);
@@ -413,7 +406,6 @@
         .speed-btn-txt:active { background: var(--hover-bg); }
         .divider { width: 1px; height: 20px; background: var(--border); margin: auto 4px; }
 
-        /* 排版与克漏字 */
         .transcript-flow { flex: 1; overflow-y: auto; padding: 80px 10% 120px 10%; scroll-behavior: smooth; }
         .transcript-flow::-webkit-scrollbar { display: none; }
         .lyric-line { margin-bottom: 24px; cursor: pointer; opacity: 0.35; transform: scale(0.98); transform-origin: left center; transition: all 0.4s; border-left: 3px solid transparent; padding-left: 16px; }
@@ -437,7 +429,6 @@
         .cloze-input.incorrect { background: rgba(255, 59, 48, 0.15); border-color: transparent; border-bottom-color: #ff3b30; color: #ff3b30; animation: shake 0.4s ease-in-out; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
 
-        /* 弹窗与菜单 (AI 词汇解析升级) */
         .tooltip {
             position: fixed; width: 320px; padding: 20px; border-radius: 20px;
             background: var(--liquid-bg); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%);
@@ -475,7 +466,6 @@
             .home-screen { flex-direction: column; }
             .home-main { padding: 20px 16px 120px 16px; }
             
-            /* 头部与搜索框适配 */
             .home-header { flex-direction: column; align-items: stretch; position: relative; padding-bottom: 16px; border-bottom: none; }
             .header-left { gap: 12px; }
             .home-title { font-size: 28px; }
@@ -484,7 +474,6 @@
             .search-box input { height: 44px; border-radius: 14px; font-size: 14px; padding-left: 40px; }
             .search-icon { left: 14px; width: 18px; height: 18px; }
 
-            /* 过滤栏变横向滚动胶囊，修改自定义按钮样式 */
             .filter-bar { 
                 flex-direction: row; align-items: center; justify-content: flex-start;
                 flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch;
@@ -492,19 +481,17 @@
             }
             .filter-bar::-webkit-scrollbar { display: none; }
             .filter-group { flex: 0 0 auto; flex-direction: row; align-items: center; gap: 0; }
-            .filter-label { display: none; } /* 隐藏文字，节省空间 */
+            .filter-label { display: none; }
             
             .custom-filter-btn { padding: 6px 12px; height: 34px; font-size: 13px; border-radius: 10px; gap: 4px; }
             .custom-filter-btn svg { width: 14px; height: 14px; }
             .filter-divider { display: none; }
 
-            /* 分类横向滚动 (露出下一张卡片边缘 Peek Effect) */
             .category-header { font-size: 18px; margin-bottom: 12px; }
             .row-scroll { gap: 16px; padding-bottom: 16px; margin-bottom: -4px; }
             .row-scroll .video-card { flex: 0 0 82vw; max-width: 320px; }
             .video-grid { grid-template-columns: 1fr; gap: 20px; }
 
-            /* 底部导航重构 */
             .app-sidebar {
                 width: 100%; border-right: none; position: fixed; bottom: 0; left: 0;
                 flex-direction: row; align-items: center;
@@ -521,7 +508,6 @@
             .nav-item { flex-direction: column; gap: 4px; font-size: 10px; padding: 6px 8px; min-width: 54px; border-radius: 12px; }
             .nav-item svg { width: 22px; height: 22px; }
             
-            /* 本地上传移至横向滚动末尾 */
             .sidebar-upload {
                 flex-direction: row; border-top: none; padding-top: 0; margin-top: 0;
                 border-left: 2px solid var(--border); padding-left: 12px; margin-left: 0;
@@ -533,7 +519,6 @@
 
             .mobile-theme-btn { display: flex; }
             
-            /* 工作区与字幕优化 */
             body { align-items: flex-start; }
             .workspace { flex-direction: column; padding: 0; gap: 0; }
             .sidebar { width: 100%; max-width: none; min-width: 0; gap: 0; }
@@ -550,7 +535,6 @@
             .icon-btn { width: 36px; height: 36px; }
             .speed-btn-txt { height: 36px; padding: 0 12px; font-size: 13px; }
             
-            /* 生词本与词典底部弹窗 */
             #mobileVocabToggle { display: flex; }
             .vocab-close-mobile { display: block; }
             .vocab-container {
@@ -617,7 +601,7 @@
             </label>
             <label class="nav-item upload-item" id="btnLocalSub">
                 <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-                <span id="txtLocalSub" class="truncate" data-i18n="sidebar_sub">选择字幕 (SRT/VTT)</span>
+                <span id="txtLocalSub" class="truncate" data-i18n="sidebar_sub">选择字幕 (SRT)</span>
                 <input type="file" id="localSubInput" accept=".srt,.json,.vtt,.ass" hidden>
             </label>
             <button class="launch-btn" id="btnLaunchLocal" data-i18n="sidebar_launch">进入学习舱</button>
@@ -683,9 +667,13 @@
                 </div>
             </div>
 
-            <!-- 视频网格容器 (动态插入网格或横向分类滚轴) -->
+            <!-- 视频网格容器 -->
             <div id="mainContentArea">
-                <!-- 由 JS 渲染 -->
+                <!-- 加载状态指示器 -->
+                <div class="empty-state">
+                    <div class="spinner"></div>
+                    <h3 data-i18n="loading">加载中...</h3>
+                </div>
             </div>
 
         </div>
@@ -768,8 +756,7 @@
     <button class="tt-btn" id="saveWordBtn" data-i18n="tt_add">加入生词本</button>
 </div>
 
-<!-- 🍎 悬浮玻璃菜单 HTML 结构 (必须挂载在 body 根级以防被裁剪) -->
-<!-- 难度选择 -->
+<!-- 🍎 悬浮玻璃菜单 HTML 结构 -->
 <div class="glass-modal" id="modalFilterRating">
     <div class="glass-modal-content">
         <div class="glass-option active" data-value="all" data-i18n="filter_level_all">所有难度</div>
@@ -780,7 +767,6 @@
         <div class="glass-option" data-value="1" data-i18n="filter_level_1">⭐ (入门)</div>
     </div>
 </div>
-<!-- 场景选择 -->
 <div class="glass-modal" id="modalFilterTag">
     <div class="glass-modal-content">
         <div class="glass-option active" data-value="all" data-i18n="filter_topic_all">所有主题</div>
@@ -790,7 +776,6 @@
         <div class="glass-option" data-value="Entertainment" data-i18n="filter_topic_ent">娱乐</div>
     </div>
 </div>
-<!-- 口音选择 -->
 <div class="glass-modal" id="modalFilterAccent">
     <div class="glass-modal-content">
         <div class="glass-option active" data-value="all" data-i18n="filter_acc_all">所有口音</div>
@@ -802,50 +787,60 @@
 
 <script>
 // ==========================================
-// 🍎 数据层：丰富的模拟视频数据库
+// 🍎 数据层：连接 Supabase
 // ==========================================
-// ② 替换你当前配置
 const SUPABASE_URL = "https://revbsrjaeoldhhifibdx.supabase.co"; 
 const SUPABASE_ANON_KEY = "sb_publishable_fo8RtO0BL9fBr1uPH8cu1Q_wy5bj5GI"; 
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// 状态：new (未看), history (观看中), completed (已完成)
 let videoDatabase = [];
 
 // ==========================================
-// 🍎 异步加载真实数据架构 (预留给 Supabase)
+// 🍎 【修复核心 1】：优化获取与错误展示逻辑
 // ==========================================
-// ③ 替换 loadVideosFromSupabase()
 async function loadVideosFromSupabase() {
+    const dict = i18n[state.lang];
     try {
+        // 请求数据
         const { data, error } = await supabaseClient
             .from('videos')
             .select('*')
             .order('created_at', { ascending: false });
 
         if(error) {
-            console.error(error);
-            return;
+            // 直接抛出错误，交给下方的 catch 渲染给用户看
+            throw error;
         }
 
-        videoDatabase = data.map(v => ({
-            id: v.id,
-            title: v.title,
-            episode: v.episode || '',
-            rating: v.rating || 5,
-            tags: v.tags || [],
-            accent: v.accent || 'US',
-            creator: v.creator || '',
-            coverUrl: v.cover_url,
-            videoUrl: v.video_url,
-            progress: 0,
-            favorite: false,
-            status: 'new',
-            duration: '--:--',
-            date: 'Cloud'
-        }));
+        // 数据容错处理
+        videoDatabase = data.map(v => {
+            // 安全处理 tags：可能是字符串 "Daily,Academic"，也可能是 JSON 数组
+            let safeTags = [];
+            if (Array.isArray(v.tags)) {
+                safeTags = v.tags;
+            } else if (typeof v.tags === 'string') {
+                safeTags = v.tags.split(',').map(t => t.trim());
+            }
+            
+            return {
+                id: v.id,
+                title: v.title || 'Untitled Video',
+                episode: v.episode || '',
+                rating: v.rating || 5,
+                tags: safeTags,
+                accent: v.accent || 'US',
+                creator: v.creator || 'Creator',
+                coverUrl: v.cover_url || 'https://via.placeholder.com/640x360?text=No+Cover',
+                videoUrl: v.video_url,
+                progress: 0,
+                favorite: false,
+                status: 'new',
+                duration: v.duration || '--:--',
+                date: 'Cloud'
+            };
+        });
 
-        // 恢复所有视频保存的进度
+        // 恢复进度
         videoDatabase.forEach(v => {
             const savedPct = localStorage.getItem(`prog_pct_${v.id}`);
             if(savedPct) {
@@ -855,8 +850,25 @@ async function loadVideosFromSupabase() {
         });
 
         renderGrid();
-    } catch(e){
-        console.error(e);
+
+    } catch(e) {
+        console.error("Supabase Error Details: ", e);
+        // 【关键修复】在 UI 上直接反馈数据库报错，方便你查错
+        dom.mainContentArea.innerHTML = `
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" style="fill: var(--red); width:64px; height:64px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                <h3 style="color:var(--red)">数据库连接错误 (Connection Error)</h3>
+                <div class="error-card">
+                    <p style="font-weight:600; font-size:14px; margin-bottom:8px;">错误详情：</p>
+                    <code>${e.message || "未知错误"}</code>
+                    <ul style="font-size:13px; color:var(--text-sub); margin-top:16px; padding-left:20px; line-height:1.6;">
+                        <li>请检查 Supabase 中是否真的建了名为 <b>videos</b> 的表。</li>
+                        <li>请检查该表是否开启了 <b>Row Level Security (RLS)</b>，如果开启了，必须添加允许匿名读取 (Select) 的 Policy。</li>
+                        <li>请检查提供的 API Key 和 URL 是否正确。</li>
+                    </ul>
+                </div>
+            </div>
+        `;
     }
 }
 
@@ -894,7 +906,7 @@ const i18n = {
         filter_acc_uk: "🇬🇧 UK English",
         filter_acc_au: "🇦🇺 AU English",
         empty_title: "No videos found",
-        empty_desc: "Try adjusting your filters or check back later.",
+        empty_desc: "Try adjusting your filters, or ensure your Supabase database has data.",
         vocab_title: "Vocabulary",
         btn_export: "Export CSV",
         tt_add: "Add to Vocab",
@@ -940,7 +952,7 @@ const i18n = {
         filter_acc_uk: "🇬🇧 英式英语",
         filter_acc_au: "🇦🇺 澳式英语",
         empty_title: "未找到视频",
-        empty_desc: "请尝试调整筛选条件或稍后重试。",
+        empty_desc: "请尝试调整筛选条件，或者确认 Supabase 数据库中有数据插入。",
         vocab_title: "生词本",
         btn_export: "导出 CSV",
         tt_add: "加入生词本",
@@ -960,7 +972,7 @@ const i18n = {
 
 const state = { 
     lang: 'zh',
-    currentTab: 'all', // all, history, completed, favorites
+    currentTab: 'all',
     searchText: '',
     filters: { rating: 'all', tag: 'all', accent: 'all' },
     
@@ -1015,7 +1027,7 @@ const dom = {
 };
 
 // ==========================================
-// 🍎 玻璃质感悬浮菜单控制器 (Glass Modal Controller)
+// 🍎 玻璃质感悬浮菜单控制器
 // ==========================================
 function initCustomFilter(btnId, modalId, labelId, filterKey) {
     const btn = document.getElementById(btnId);
@@ -1023,26 +1035,18 @@ function initCustomFilter(btnId, modalId, labelId, filterKey) {
     const label = document.getElementById(labelId);
     
     if(!btn || !modal) return;
-    
-    // 打开弹窗
     btn.onclick = () => modal.classList.add('active');
     
-    // 弹窗内部交互
     modal.addEventListener('click', (e) => {
-        // 点击遮罩层关闭
         if (e.target === modal) {
             modal.classList.remove('active');
         } 
-        // 点击选项
         else if (e.target.classList.contains('glass-option')) {
-            // 更新 UI 激活状态
             modal.querySelectorAll('.glass-option').forEach(el => el.classList.remove('active'));
             e.target.classList.add('active');
             
-            // 更新业务状态
             state.filters[filterKey] = e.target.dataset.value;
             
-            // i18n 支持，同步文本
             const i18nKey = e.target.getAttribute('data-i18n');
             if (i18nKey) {
                 label.setAttribute('data-i18n', i18nKey);
@@ -1051,23 +1055,19 @@ function initCustomFilter(btnId, modalId, labelId, filterKey) {
                 label.innerText = e.target.innerText;
             }
             
-            // 关闭并刷新
             modal.classList.remove('active');
             renderGrid();
         }
     });
 }
 
-// 初始化三大筛选器
 initCustomFilter('btnFilterRating', 'modalFilterRating', 'labelFilterRating', 'rating');
 initCustomFilter('btnFilterTag', 'modalFilterTag', 'labelFilterTag', 'tag');
 initCustomFilter('btnFilterAccent', 'modalFilterAccent', 'labelFilterAccent', 'accent');
 
-
 // ==========================================
 // 🍎 UI 渲染核心 (Apple TV / Netflix 风格)
 // ==========================================
-
 const getStarsHtml = (rating) => {
     let html = '';
     for(let i=1; i<=5; i++) {
@@ -1077,12 +1077,10 @@ const getStarsHtml = (rating) => {
     return html;
 };
 
-// 抽出：單一卡片渲染邏輯
 const renderVideoCard = (v, dict) => `
     <div class="video-card" id="card-${v.id}" onclick="loadVideo('${v.id}')">
         <div class="card-overlay"><div class="spinner"></div><span style="font-size:13px; font-weight:600;">${dict.loading}</span></div>
         
-        <!-- 收藏按鈕 -->
         <div class="favorite-btn ${v.favorite ? 'active' : ''}" onclick="toggleFavorite(event, '${v.id}')" title="Toggle Favorite">
             <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
         </div>
@@ -1096,7 +1094,7 @@ const renderVideoCard = (v, dict) => `
             <div class="card-rating">${getStarsHtml(v.rating)}</div>
         </div>
         <div class="card-bottom">
-            <div class="card-tags">${v.tags.map(t => `<span class="card-tag">${t}</span>`).join('')}</div>
+            <div class="card-tags">${(v.tags || []).map(t => `<span class="card-tag">${t}</span>`).join('')}</div>
             <div class="card-meta">
                 <div class="card-accent">${dict.card_accent} ${v.accent}</div>
                 <div class="card-date">${v.date}</div>
@@ -1107,11 +1105,11 @@ const renderVideoCard = (v, dict) => `
 `;
 
 window.toggleFavorite = (e, id) => {
-    e.stopPropagation(); // 阻止卡片點擊事件
+    e.stopPropagation(); 
     const video = videoDatabase.find(v => v.id === id);
     if(video) {
         video.favorite = !video.favorite;
-        renderGrid(); // 重新渲染更新愛心狀態
+        renderGrid(); 
     }
 };
 
@@ -1119,12 +1117,10 @@ function renderGrid() {
     let filtered = videoDatabase;
     const dict = i18n[state.lang];
 
-    // 1. 搜尋過濾
     if (state.searchText) {
         filtered = filtered.filter(v => v.title.toLowerCase().includes(state.searchText.toLowerCase()));
     }
 
-    // 2. Tab 過濾
     if (state.currentTab === 'history') {
         filtered = filtered.filter(v => v.status === 'history' || v.progress > 0 && v.progress < 99);
     } else if (state.currentTab === 'completed') {
@@ -1133,15 +1129,13 @@ function renderGrid() {
         filtered = filtered.filter(v => v.favorite === true);
     }
 
-    // 3. 悬浮菜单下拉框過濾 (僅限 All 標籤)
     let isFiltering = false;
     if (state.currentTab === 'all') {
         if (state.filters.rating !== 'all') { filtered = filtered.filter(v => v.rating === parseInt(state.filters.rating)); isFiltering = true; }
-        if (state.filters.tag !== 'all') { filtered = filtered.filter(v => v.tags.includes(state.filters.tag)); isFiltering = true; }
+        if (state.filters.tag !== 'all') { filtered = filtered.filter(v => v.tags && v.tags.includes(state.filters.tag)); isFiltering = true; }
         if (state.filters.accent !== 'all') { filtered = filtered.filter(v => v.accent === state.filters.accent); isFiltering = true; }
     }
 
-    // 空狀態
     if (filtered.length === 0) {
         dom.mainContentArea.innerHTML = `
             <div class="empty-state" style="margin-top:40px;">
@@ -1153,47 +1147,45 @@ function renderGrid() {
         return;
     }
 
-    // 🍎 Apple TV 風格橫向佈局判斷：只有在首頁(All)且沒有進行任何搜尋、過濾時才顯示分類滾動
     if (state.currentTab === 'all' && !state.searchText && !isFiltering) {
         let html = '';
         
-        // 繼續觀看
         const continueWatching = filtered.filter(v => v.progress > 0 && v.progress < 99);
         if (continueWatching.length > 0) {
             html += `<div class="category-section"><div class="category-header">${dict.cat_continue}</div>
                      <div class="row-scroll">${continueWatching.map(v => renderVideoCard(v, dict)).join('')}</div></div>`;
         }
 
-        // 學術深度
-        const academic = filtered.filter(v => v.tags.includes('Academic'));
+        const academic = filtered.filter(v => v.tags && v.tags.includes('Academic'));
         if (academic.length > 0) {
             html += `<div class="category-section"><div class="category-header">${dict.cat_academic}</div>
                      <div class="row-scroll">${academic.map(v => renderVideoCard(v, dict)).join('')}</div></div>`;
         }
 
-        // 日常與娛樂
-        const daily = filtered.filter(v => v.tags.includes('Daily') || v.tags.includes('Entertainment'));
+        const daily = filtered.filter(v => v.tags && (v.tags.includes('Daily') || v.tags.includes('Entertainment')));
         if (daily.length > 0) {
             html += `<div class="category-section"><div class="category-header">${dict.cat_daily}</div>
                      <div class="row-scroll">${daily.map(v => renderVideoCard(v, dict)).join('')}</div></div>`;
         }
         
-        // 商業
-        const business = filtered.filter(v => v.tags.includes('Business'));
+        const business = filtered.filter(v => v.tags && v.tags.includes('Business'));
         if (business.length > 0) {
             html += `<div class="category-section"><div class="category-header">${dict.cat_business}</div>
                      <div class="row-scroll">${business.map(v => renderVideoCard(v, dict)).join('')}</div></div>`;
         }
-
+        
+        // 如果上面没有任何特定分类，显示完整的 Grid
+        if(html === '') {
+            html = `<div class="video-grid">${filtered.map(v => renderVideoCard(v, dict)).join('')}</div>`;
+        }
+        
         dom.mainContentArea.innerHTML = html;
     } 
-    // 標準網格視圖
     else {
         dom.mainContentArea.innerHTML = `<div class="video-grid">${filtered.map(v => renderVideoCard(v, dict)).join('')}</div>`;
     }
 }
 
-// 綁定搜尋輸入
 if(dom.searchInput) {
     dom.searchInput.addEventListener('input', (e) => {
         state.searchText = e.target.value;
@@ -1201,7 +1193,6 @@ if(dom.searchInput) {
     });
 }
 
-// 绑定侧边栏切换事件
 if(dom.sidebarNav) {
     dom.sidebarNav.addEventListener('click', (e) => {
         const item = e.target.closest('.nav-item');
@@ -1219,11 +1210,9 @@ if(dom.sidebarNav) {
                 dom.filterBar.style.display = state.currentTab === 'all' ? 'flex' : 'none';
             }
             
-            // 重置所有过滤器
             if(state.currentTab !== 'all') {
                 state.filters = { rating: 'all', tag: 'all', accent: 'all' };
                 
-                // 辅助函数：重置单个玻璃菜单
                 const resetFilter = (modalId, labelId, defaultI18nKey) => {
                     const modal = document.getElementById(modalId);
                     const label = document.getElementById(labelId);
@@ -1248,18 +1237,31 @@ if(dom.sidebarNav) {
     });
 }
 
+// ==========================================
+// 🍎 【修复核心 2】：定义缺失的 UI 切换函数
+// ==========================================
+function enterWorkspace() {
+    dom.homeScreen.classList.add('hidden');
+    dom.workspace.classList.add('active');
+}
+
+// 绑定返回按钮事件，返回主界面并暂停视频
+dom.backToHomeBtn.onclick = () => {
+    dom.workspace.classList.remove('active');
+    dom.homeScreen.classList.remove('hidden');
+    dom.player.pause();
+};
 
 // ==========================================
-// 🍎 视频加载与播放器逻辑 (增加進度恢復與倍速還原)
+// 🍎 【修复核心 3】：增强字慕查询的容错处理
 // ==========================================
-// ④ 替换 loadVideo()
 async function loadVideo(id) {
     const videoData = videoDatabase.find(v => v.id === id);
     if (!videoData) return;
     state.currentVideoId = id;
     
     if (!videoData.videoUrl) {
-        alert("This is a mock card. Please ensure the video URL is set in Supabase.");
+        alert("视频链接为空，请在 Supabase 里补全 video_url 字段。");
         return;
     }
 
@@ -1270,12 +1272,10 @@ async function loadVideo(id) {
         if(state.videoObjectURL) { URL.revokeObjectURL(state.videoObjectURL); state.videoObjectURL = null; }
         dom.player.src = videoData.videoUrl;
         
-        // 恢復倍速
         const savedRate = localStorage.getItem('playbackRate') || 1;
         dom.player.playbackRate = parseFloat(savedRate);
         dom.speedToggleBtn.innerText = `${parseFloat(savedRate).toFixed(1)}x`;
 
-        // 恢復播放進度
         dom.player.addEventListener('loadedmetadata', function onLoaded() {
             const savedProg = localStorage.getItem(`prog_time_${id}`);
             if(savedProg && parseFloat(savedProg) > 0) {
@@ -1284,33 +1284,51 @@ async function loadVideo(id) {
             dom.player.removeEventListener('loadedmetadata', onLoaded);
         });
         
-        // 【核心修改位置】：使用關聯查詢 (Join) 一次性拉取字幕和高亮單字
-        const { data, error } = await supabaseClient
+        // --- 对字幕做查询容错降级处理 ---
+        let finalSubtitles = [];
+        
+        // 尝试查询包含 highlights 外键关联的数据
+        const { data: joinData, error: joinError } = await supabaseClient
             .from('subtitles')
-            .select('*, highlights:subtitle_highlights(*)') // 將高亮表關聯並重命名為 highlights
+            .select('*, highlights:subtitle_highlights(*)')
             .eq('video_id', id)
-            .order('start', { ascending: true }); // 確保字幕按時間軸順序排列
+            .order('start', { ascending: true });
 
-        if(error) {
-            console.error('獲取字幕失敗:', error);
-            return;
+        if(joinError) {
+            console.warn("包含外键的关联查询失败，尝试基础查询 (这通常是因为还没建 subtitle_highlights 表): ", joinError.message);
+            // 降级：仅查询纯字幕
+            const { data: basicData, error: basicError } = await supabaseClient
+                .from('subtitles')
+                .select('*')
+                .eq('video_id', id)
+                .order('start', { ascending: true });
+            
+            if (basicError) {
+                console.error("基础字幕查询也失败:", basicError);
+            } else {
+                finalSubtitles = basicData || [];
+            }
+        } else {
+            finalSubtitles = joinData || [];
         }
 
-        // 資料庫回傳的結構現在完美符合 state.subtitles 期待的格式
-        state.subtitles = data || [];
+        state.subtitles = finalSubtitles;
 
         renderTranscript();
+        
+        // 调用补充完毕的页面切换函数
         enterWorkspace();
         
     } catch (err) {
-        console.error("Failed:", err);
-        alert(`Failed to load subtitles.`);
+        console.error("Failed to setup workspace:", err);
+        alert(`加载播放环境失败: ${err.message}`);
     } finally {
         if(card) card.classList.remove('loading');
     }
-};
+}
+
 // ==========================================
-// 🍎 交互功能：主题、高亮、克漏字、倍速
+// 🍎 交互功能：主题、翻译、克漏字、倍速等
 // ==========================================
 const toggleTheme = () => {
     document.body.classList.toggle('dark-theme'); 
@@ -1375,12 +1393,10 @@ function applyLocalHighlights(text, highlights) {
 const getVocab = () => JSON.parse(localStorage.getItem('vocabPro2')) || [];
 const saveVocab = words => { try { localStorage.setItem('vocabPro2', JSON.stringify(words)); } catch(e){} };
 
-// 導出 CSV
 dom.exportVocabBtn.onclick = () => {
     const words = getVocab();
     if(words.length === 0) return alert('No words to export.');
     
-    // 清理 HTML 標籤
     const stripHtml = (html) => {
        const tmp = document.createElement('DIV');
        tmp.innerHTML = html;
@@ -1395,7 +1411,7 @@ dom.exportVocabBtn.onclick = () => {
         csvContent += `"${w.word}","${cleanDef}","${cleanEx}","${cleanSyn}"\n`;
     });
 
-    const blob = new Blob(["\uFEFF"+csvContent], { type: 'text/csv;charset=utf-8;' }); // 加上 BOM 以支援 Excel 中文
+    const blob = new Blob(["\uFEFF"+csvContent], { type: 'text/csv;charset=utf-8;' }); 
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
     link.setAttribute("href", url);
@@ -1431,7 +1447,6 @@ dom.speedToggleBtn.onclick = (e) => {
     dom.speedMenu.classList.add('show');
 };
 
-// 全局点击处理：关闭速度菜单、提示框、玻璃选择菜单
 document.addEventListener('click', e => { 
     if (!dom.speedMenu.contains(e.target) && e.target !== dom.speedToggleBtn) dom.speedMenu.classList.remove('show'); 
     if (!dom.tooltip.contains(e.target)) dom.tooltip.classList.remove('show');
@@ -1441,7 +1456,7 @@ document.querySelectorAll('.sp-item').forEach(item => {
     item.onclick = () => {
         const speed = parseFloat(item.dataset.speed); 
         dom.player.playbackRate = speed;
-        localStorage.setItem('playbackRate', speed); // 保存倍速
+        localStorage.setItem('playbackRate', speed);
         dom.speedToggleBtn.innerText = `${speed.toFixed(1)}x`;
         document.querySelectorAll('.sp-item').forEach(i => i.classList.remove('active'));
         item.classList.add('active'); dom.speedMenu.classList.remove('show');
@@ -1451,11 +1466,8 @@ document.querySelectorAll('.sp-item').forEach(item => {
 dom.mobileVocabToggle.onclick = () => dom.vocabContainer.classList.add('open');
 dom.closeVocabBtn.onclick = () => dom.vocabContainer.classList.remove('open');
 
-// 支援 VTT 解析
 function parseSRT(data, isVtt = false) {
-    if(isVtt) data = data.replace(/^WEBVTT.*\n*/, ''); // 移除 VTT 頭部
-    
-    // 相容 . (VTT) 或 , (SRT)
+    if(isVtt) data = data.replace(/^WEBVTT.*\n*/, ''); 
     const subtitleRegex = /(\d{2}:\d{2}:\d{2}[,.]\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}[,.]\d{3})(?:\s+[^\n]*)?\n([\s\S]*?)(?=\n{2,}|\n\d+\n\d{2}:|$)/g;
     const subtitles = []; let match;
     const timeToSec = (t) => { const [hrs, mins, secs] = t.replace(',', '.').split(':'); return (+hrs * 3600) + (+mins * 60) + parseFloat(secs); };
@@ -1466,14 +1478,12 @@ function parseSRT(data, isVtt = false) {
     }
     return subtitles;
 }
-// 極簡 ASS 文字擷取 (預留)
 function parseASS(data) {
     const lines = data.split('\n'); const subtitles = [];
     lines.forEach(l => {
         if(l.startsWith('Dialogue:')) {
             const parts = l.split(',');
             if(parts.length > 9) {
-                // 非常基礎的擷取，忽略時間軸僅作展示
                 subtitles.push({ start: 0, end: 5, en: parts.slice(9).join(',').replace(/{[^}]+}/g, ''), zh: "", highlights: [] });
             }
         }
@@ -1497,7 +1507,6 @@ function renderTranscript() {
     });
 }
 
-// 播放進度自動保存邏輯
 let isThrottled = false;
 dom.player.addEventListener('timeupdate', () => {
     if (isThrottled) return;
@@ -1505,7 +1514,6 @@ dom.player.addEventListener('timeupdate', () => {
     requestAnimationFrame(() => {
         const now = dom.player.currentTime; 
         
-        // --- 字幕捲動 ---
         if(state.subtitles.length && lyricNodes.length) {
             let activeIdx = -1;
             let l = 0, r = state.subtitles.length - 1;
@@ -1535,7 +1543,6 @@ dom.player.addEventListener('timeupdate', () => {
     });
 });
 
-// ⑤ 自动保存观看进度
 setInterval(async () => {
     if(!state.currentVideoId) return;
     if(!dom.player.duration) return;
@@ -1545,7 +1552,6 @@ setInterval(async () => {
     localStorage.setItem(`prog_time_${state.currentVideoId}`, dom.player.currentTime);
     localStorage.setItem(`prog_pct_${state.currentVideoId}`, pct);
 
-    // 找到記憶體中的影片並更新
     const vid = videoDatabase.find(v => v.id === state.currentVideoId);
     if(vid) vid.progress = pct;
 
@@ -1559,9 +1565,8 @@ setInterval(async () => {
             progress_percent: pct
         });
     } catch(e) {
-        console.error("Progress save error:", e);
+        // 静默失败，避免打扰用户
     }
-
 }, 5000);
 
 document.addEventListener('selectionchange', () => setTimeout(handleSelection, 300));
@@ -1584,7 +1589,6 @@ async function handleSelection() {
         document.getElementById('tooltipPhonetic').innerText = dict.tt_analyzing; 
         document.getElementById('tooltipDef').innerHTML = "";
         
-        // 隱藏升級板塊
         document.getElementById('tooltipExSection').style.display = 'none';
         document.getElementById('tooltipSynSection').style.display = 'none';
         
@@ -1602,17 +1606,15 @@ async function handleSelection() {
                 if (!res.ok) throw new Error('Not found');
                 const data = await res.json();
                 
-                // 🍎 提取 AI 級解析資料：例句與同義詞
                 const defs = []; let synonyms = []; let example = "";
                 data[0].meanings.forEach(m => {
                     if(m.synonyms && m.synonyms.length > 0) synonyms.push(...m.synonyms);
                     m.definitions.forEach(d => {
-                        if(d.example && !example) example = d.example; // 取第一個例句
+                        if(d.example && !example) example = d.example; 
                         defs.push(`<strong>${m.partOfSpeech}</strong>: ${d.definition}`);
                     });
                 });
                 
-                // 去重同義詞並取前 5 個
                 synonyms = [...new Set(synonyms)].slice(0, 5);
                 const finalDef = defs.slice(0,2).join('<br><br>');
 
@@ -1646,7 +1648,6 @@ async function handleSelection() {
 }
 
 const closeOverlays = (e) => {
-    // 关闭移动端生词本
     if (window.innerWidth <= 1024 && !dom.vocabContainer.contains(e.target) && !dom.mobileVocabToggle.contains(e.target)) { dom.vocabContainer.classList.remove('open'); }
 };
 document.addEventListener('touchstart', closeOverlays, {passive: true});
@@ -1702,10 +1703,9 @@ document.body.addEventListener('dragover', e => e.preventDefault());
 document.body.addEventListener('drop', e => { if(!dom.homeScreen.classList.contains('hidden')) { e.preventDefault(); handleLocalFiles(e.dataTransfer.files); } });
 
 // 初始化
-loadVideosFromSupabase(); // 首先嘗試恢復存儲的進度並加載
+loadVideosFromSupabase();
 updateLanguageUI();
 
-// 恢复初始倍速 UI
 const initialRate = localStorage.getItem('playbackRate') || 1;
 dom.speedToggleBtn.innerText = `${parseFloat(initialRate).toFixed(1)}x`;
 document.querySelectorAll('.sp-item').forEach(i => {
