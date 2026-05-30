@@ -812,33 +812,22 @@ async function loadVideosFromSupabase() {
             throw error;
         }
 
-        // 数据容错处理
-        videoDatabase = data.map(v => {
-            // 安全处理 tags：可能是字符串 "Daily,Academic"，也可能是 JSON 数组
-            let safeTags = [];
-            if (Array.isArray(v.tags)) {
-                safeTags = v.tags;
-            } else if (typeof v.tags === 'string') {
-                safeTags = v.tags.split(',').map(t => t.trim());
-            }
-            
-            return {
-                id: v.id,
-                title: v.title || 'Untitled Video',
-                episode: v.episode || '',
-                rating: v.rating || 5,
-                tags: safeTags,
-                accent: v.accent || 'US',
-                creator: v.creator || 'Creator',
-                coverUrl: v.cover_url || 'https://via.placeholder.com/640x360?text=No+Cover',
-                videoUrl: v.video_url,
-                progress: 0,
-                favorite: false,
-                status: 'new',
-                duration: v.duration || '--:--',
-                date: 'Cloud'
-            };
-        });
+        videoDatabase = data.map(v => ({
+            id: v.id,
+            title: v.title,
+            episode: v.episode || '',
+            rating: v.rating || 5,
+            tags: v.tags || [],
+            accent: v.accent || 'US',
+            creator: v.creator || '',
+            coverUrl: v.cover_url,
+            videoUrl: v.video_url,
+            progress: 0,
+            favorite: false,
+            status: 'new',
+            duration: v.duration || '--:--', // <--- 优先读取数据库的值
+            date: 'Cloud'
+        }));
 
         // 恢复进度
         videoDatabase.forEach(v => {
