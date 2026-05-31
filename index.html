@@ -612,6 +612,41 @@
             .profile-settings-list { justify-content: center; width: 100%;}
             .local-upload-area { padding: 40px 20px; min-height: 300px; }
         }
+
+        /* 统计卡片 */
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; width: 100%; margin-bottom: 8px; }
+        @media (max-width: 1024px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+        .stat-card { background: var(--surface); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; box-shadow: var(--shadow); transition: transform 0.2s, box-shadow 0.2s; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: var(--liquid-shadow); }
+        .stat-icon { font-size: 28px; line-height: 1; }
+        .stat-value { font-size: 32px; font-weight: 800; color: var(--blue); letter-spacing: -1px; }
+        .stat-label { font-size: 12px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        /* 跟读模式指示器 */
+        .shadow-indicator { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: var(--purple); color: white; padding: 8px 20px; border-radius: 99px; font-size: 13px; font-weight: 700; z-index: 9000; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+        .shadow-indicator.show { opacity: 1; }
+        
+        /* 单词tooltip增强 */
+        .tt-review-info { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+        .tt-review-badge { background: rgba(0,122,255,0.1); color: var(--blue); padding: 3px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; }
+        
+        /* 导出按钮组 */
+        .export-btn-group { display: flex; gap: 8px; }
+        .export-btn { padding: 10px 20px; background: var(--surface); border: 1px solid var(--glass-border); border-radius: 12px; font-size: 13px; font-weight: 700; color: var(--text-main); cursor: pointer; transition: all 0.2s; backdrop-filter: var(--glass-blur); }
+        .export-btn:hover { background: var(--hover-bg); transform: translateY(-1px); }
+        
+        /* 单词卡片增强 */
+        .global-word-card { background: var(--surface); backdrop-filter: var(--glass-blur); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; transition: all 0.2s; }
+        .global-word-card:hover { transform: translateY(-2px); box-shadow: var(--liquid-shadow); }
+        .review-next { display: inline-flex; align-items: center; gap: 4px; margin-top: 8px; padding: 4px 10px; background: rgba(52,199,89,0.1); color: var(--green); border-radius: 8px; font-size: 11px; font-weight: 600; }
+        .review-overdue { background: rgba(255,59,48,0.1); color: var(--red); }
+        
+        /* 键盘快捷键提示 */
+        .kbd-hint { position: fixed; bottom: 100px; right: 20px; background: var(--liquid-bg); border: 1px solid var(--liquid-border); border-radius: 16px; padding: 12px 16px; font-size: 12px; color: var(--text-sub); z-index: 8999; opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(40px); }
+        .kbd-hint.show { opacity: 1; }
+        .kbd-hint kbd { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; font-family: monospace; font-size: 11px; color: var(--text-main); }
+        @media (max-width: 1024px) { .kbd-hint { display: none; } }
+
     </style>
 </head>
 <body>
@@ -716,7 +751,10 @@
                         <div class="header-left">
                             <div class="view-title" data-i18n="nav_vocab">单词本</div>
                         </div>
-                        <button class="export-btn" id="globalExportVocabBtn" data-i18n="btn_export">导出 CSV</button>
+                        <div class="export-btn-group">
+    <button class="export-btn" id="globalExportVocabBtn">导出 CSV</button>
+    <button class="export-btn" id="globalExportAnkiBtn">导出 Anki</button>
+</div>
                     </div>
                 </div>
                 <div class="global-vocab-container">
@@ -799,7 +837,29 @@
                     </div>
                 </div>
 
-                <div class="profile-tabs" id="profileTabs">
+                <div class="stats-row" id="statsRow">
+    <div class="stat-card">
+        <div class="stat-icon">⏱️</div>
+        <div class="stat-value" id="statTodayMin">0</div>
+        <div class="stat-label">今日学习(分钟)</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">📖</div>
+        <div class="stat-value" id="statNewWords">0</div>
+        <div class="stat-label">新学单词</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-value" id="statStreak">0</div>
+        <div class="stat-label">连续学习(天)</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">💎</div>
+        <div class="stat-value" id="statTotalWords">0</div>
+        <div class="stat-label">单词本总计</div>
+    </div>
+</div>
+<div class="profile-tabs" id="profileTabs">
                     <div class="profile-tab active" data-subtab="history" data-i18n="title_history">观看历史</div>
                     <div class="profile-tab" data-subtab="favorites" data-i18n="title_favorites">我的收藏</div>
                     <div class="profile-tab" data-subtab="completed" data-i18n="title_completed">已学完</div>
@@ -810,6 +870,17 @@
 
         </div>
     </main>
+</div>
+
+<div class="shadow-indicator" id="shadowIndicator">🎙 跟读模式 — 请跟读</div>
+<div class="kbd-hint" id="kbdHint">
+    <div style="margin-bottom:6px; font-weight:700; color:var(--text-main);">快捷键</div>
+    <div style="display:flex; flex-direction:column; gap:4px;">
+        <div><kbd>Space</kbd> 播放/暂停</div>
+        <div><kbd>←</kbd> 后退 5s</div>
+        <div><kbd>→</kbd> 前进 5s</div>
+        <div><kbd>↑</kbd> / <kbd>↓</kbd> 调速</div>
+    </div>
 </div>
 
 <!-- 主工作区 (学习舱) -->
@@ -850,6 +921,10 @@
             <button class="icon-btn" id="mobileVocabToggle" title="Vocabulary">
                 <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
             </button>
+            <button class="icon-btn" id="shadowModeBtn" title="跟读模式">
+                <svg viewBox="0 0 24 24"><path d="M9 11.5c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S7.448 10 8 10s1 .672 1 1.5zm7 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5.448-1.5 1-1.5 1 .672 1 1.5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><path d="M12 6c-1.5 0-3 .67-4 2l1.5 1c.6-.8 1.5-1.3 2.5-1.3s1.9.5 2.5 1.3L16 8c-1-1.33-2.5-2-4-2z"/></svg>
+                <span style="font-size:10px; margin-top:2px;" id="shadowText"></span>
+            </button>
             <div class="divider"></div>
             <button class="speed-btn-txt" id="speedToggleBtn">1.0x</button>
         </div>
@@ -860,10 +935,11 @@
 
 <div class="speed-menu" id="speedMenu">
     <div class="sp-item" data-speed="0.5">0.5x</div>
-    <div class="sp-item" data-speed="0.8">0.8x</div>
+    <div class="sp-item" data-speed="0.75">0.75x</div>
     <div class="sp-item active" data-speed="1">1.0x</div>
-    <div class="sp-item" data-speed="1.2">1.2x</div>
+    <div class="sp-item" data-speed="1.25">1.25x</div>
     <div class="sp-item" data-speed="1.5">1.5x</div>
+    <div class="sp-item" data-speed="2">2.0x</div>
 </div>
 
 <div class="tooltip" id="tooltip">
@@ -1529,15 +1605,7 @@ dom.saveWordBtn.onclick = () => {
     dom.tooltip.classList.remove('show'); showToast('已加入单词本');
 };
 
-const handleExport = () => {
-    const words = getVocab(); if(!words.length) return showToast('没有单词可导出');
-    const strip = h => { const t=document.createElement('DIV'); t.innerHTML=h; return t.textContent||''; };
-    let csv = "Word,Definition,Example\n";
-    words.forEach(w => csv += `"${w.word}","${strip(w.definition).replace(/"/g,'""')}","${(w.example||"").replace(/"/g,'""')}"\n`);
-    const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob(["\uFEFF"+csv], {type:'text/csv;charset=utf-8;'}));
-    link.download = "vocabulary.csv"; link.click();
-};
-dom.globalExportVocabBtn.onclick = handleExport;
+// CSV export handled by async version below
 
 // 本地文件上传逻辑
 function checkLocalReady() { if (state.localReady.v && state.localReady.s) dom.btnLaunchLocalView.classList.add('active'); }
@@ -1579,7 +1647,16 @@ document.querySelectorAll('.sp-item').forEach(item => item.onclick = () => { con
 document.addEventListener('click', e => { if (!dom.speedMenu.contains(e.target) && e.target !== dom.speedToggleBtn) dom.speedMenu.classList.remove('show'); if (!dom.tooltip.contains(e.target)) dom.tooltip.classList.remove('show'); });
 document.addEventListener('touchstart', e => { if (window.innerWidth <= 1024 && !dom.vocabContainer.contains(e.target) && !dom.mobileVocabToggle.contains(e.target)) dom.vocabContainer.classList.remove('open'); }, {passive: true});
 
-dom.btnSettingTheme.onclick = () => { document.body.classList.toggle('dark-theme'); document.documentElement.classList.toggle('dark-theme'); };
+dom.btnSettingTheme.onclick = () => { 
+    document.body.classList.toggle('dark-theme'); 
+    document.documentElement.classList.toggle('dark-theme'); 
+    localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+};
+// 恢复主题
+(function(){
+    const saved = localStorage.getItem('theme');
+    if(saved === 'dark') { document.body.classList.add('dark-theme'); document.documentElement.classList.add('dark-theme'); }
+})();
 dom.btnSettingLang.onclick = () => {
     state.lang = state.lang === 'en' ? 'zh' : 'en';
     updateLanguageUIInit();
@@ -1639,6 +1716,490 @@ function updateLanguageUIInit() {
     renderVocab();
 }
 updateLanguageUIInit();
+// ================================================================
+// 新增功能：IndexedDB 单词本
+// ================================================================
+const DB_NAME = 'StudioProDB';
+const DB_VERSION = 2;
+let db = null;
+
+function openDB() {
+    return new Promise((resolve, reject) => {
+        if (db) { resolve(db); return; }
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
+            const d = e.target.result;
+            if (!d.objectStoreNames.contains('vocab')) {
+                const store = d.createObjectStore('vocab', { keyPath: 'word' });
+                store.createIndex('addedAt', 'addedAt', { unique: false });
+            }
+            if (!d.objectStoreNames.contains('stats')) {
+                d.createObjectStore('stats', { keyPath: 'key' });
+            }
+        };
+        req.onsuccess = (e) => { db = e.target.result; resolve(db); };
+        req.onerror = () => {
+            console.warn('IndexedDB failed, falling back to localStorage');
+            resolve(null);
+        };
+    });
+}
+
+async function idbGetAllVocab() {
+    try {
+        const d = await openDB();
+        if (!d) return getVocabLS();
+        return new Promise((resolve) => {
+            const tx = d.transaction('vocab', 'readonly');
+            const req = tx.objectStore('vocab').index('addedAt').getAll();
+            req.onsuccess = () => resolve((req.result || []).reverse());
+            req.onerror = () => resolve(getVocabLS());
+        });
+    } catch { return getVocabLS(); }
+}
+
+async function idbSaveWord(word) {
+    try {
+        const d = await openDB();
+        if (!d) { saveWordLS(word); return; }
+        return new Promise((resolve) => {
+            const tx = d.transaction('vocab', 'readwrite');
+            tx.objectStore('vocab').put(word);
+            tx.oncomplete = resolve;
+            tx.onerror = () => saveWordLS(word);
+        });
+    } catch { saveWordLS(word); }
+}
+
+async function idbDeleteWord(wordKey) {
+    try {
+        const d = await openDB();
+        if (!d) { deleteWordLS(wordKey); return; }
+        return new Promise((resolve) => {
+            const tx = d.transaction('vocab', 'readwrite');
+            tx.objectStore('vocab').delete(wordKey);
+            tx.oncomplete = resolve;
+        });
+    } catch { deleteWordLS(wordKey); }
+}
+
+// 兼容性：如果IndexedDB失败，回退到localStorage
+const getVocabLS = () => JSON.parse(localStorage.getItem('vocabPro2')) || [];
+const saveWordLS = (w) => { const ws = getVocabLS(); if(!ws.some(x=>x.word===w.word)) { ws.unshift(w); localStorage.setItem('vocabPro2', JSON.stringify(ws)); } };
+const deleteWordLS = (key) => { let ws = getVocabLS(); ws = ws.filter(w => w.word !== key); localStorage.setItem('vocabPro2', JSON.stringify(ws)); };
+
+// 覆盖原来的 getVocab/saveVocab（兼容同步代码仍使用旧接口）
+// 保持 getVocab() 可用（从 localStorage 读）
+// 新增 async 版本
+
+// ================================================================
+// 新增功能：遗忘曲线 - 计算下次复习时间
+// ================================================================
+function getNextReviewDate(reviewCount) {
+    const intervals = [1, 3, 7, 14, 30, 60, 120]; // 天数
+    const days = intervals[Math.min(reviewCount, intervals.length - 1)];
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    return d.toISOString().split('T')[0];
+}
+
+function isReviewDue(nextReview) {
+    if (!nextReview) return false;
+    return nextReview <= new Date().toISOString().split('T')[0];
+}
+
+// ================================================================
+// 新增功能：学习统计
+// ================================================================
+const STATS_KEY = 'studyStats_v2';
+function getStudyStats() {
+    try { return JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch { return {}; }
+}
+function saveStudyStats(stats) {
+    try { localStorage.setItem(STATS_KEY, JSON.stringify(stats)); } catch {}
+}
+
+function recordStudyTime(seconds) {
+    const today = new Date().toISOString().split('T')[0];
+    const stats = getStudyStats();
+    if (!stats[today]) stats[today] = { minutes: 0, wordsAdded: 0 };
+    stats[today].minutes = Math.round((stats[today].minutes || 0) + seconds / 60 * 10) / 10;
+    saveStudyStats(stats);
+}
+
+function recordWordAdded() {
+    const today = new Date().toISOString().split('T')[0];
+    const stats = getStudyStats();
+    if (!stats[today]) stats[today] = { minutes: 0, wordsAdded: 0 };
+    stats[today].wordsAdded = (stats[today].wordsAdded || 0) + 1;
+    saveStudyStats(stats);
+}
+
+function getStreak() {
+    const stats = getStudyStats();
+    const today = new Date();
+    let streak = 0;
+    for (let i = 0; i < 365; i++) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        const key = d.toISOString().split('T')[0];
+        if (stats[key] && stats[key].minutes > 0) streak++;
+        else if (i > 0) break;
+    }
+    return streak;
+}
+
+async function updateStatsDisplay() {
+    const today = new Date().toISOString().split('T')[0];
+    const stats = getStudyStats();
+    const todayStats = stats[today] || { minutes: 0, wordsAdded: 0 };
+    const allWords = await idbGetAllVocab();
+    
+    const el1 = document.getElementById('statTodayMin');
+    const el2 = document.getElementById('statNewWords');
+    const el3 = document.getElementById('statStreak');
+    const el4 = document.getElementById('statTotalWords');
+    if (el1) el1.textContent = Math.round(todayStats.minutes || 0);
+    if (el2) el2.textContent = todayStats.wordsAdded || 0;
+    if (el3) el3.textContent = getStreak();
+    if (el4) el4.textContent = allWords.length;
+}
+
+// 每5秒记录学习时间
+let studyTimerInterval = null;
+function startStudyTimer() {
+    if (studyTimerInterval) return;
+    studyTimerInterval = setInterval(() => {
+        if (document.getElementById('workspace').classList.contains('active') && !dom.player.paused) {
+            recordStudyTime(5);
+        }
+    }, 5000);
+}
+startStudyTimer();
+
+// ================================================================
+// 新增功能：键盘快捷键
+// ================================================================
+let kbdHintTimer = null;
+function showKbdHint() {
+    const hint = document.getElementById('kbdHint');
+    if (!hint) return;
+    hint.classList.add('show');
+    clearTimeout(kbdHintTimer);
+    kbdHintTimer = setTimeout(() => hint.classList.remove('show'), 3000);
+}
+
+document.addEventListener('keydown', (e) => {
+    if (!document.getElementById('workspace').classList.contains('active')) return;
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    
+    switch (e.code) {
+        case 'Space':
+            e.preventDefault();
+            if (dom.player.paused) dom.player.play(); else dom.player.pause();
+            break;
+        case 'ArrowLeft':
+            e.preventDefault();
+            dom.player.currentTime = Math.max(0, dom.player.currentTime - 5);
+            showKbdHint();
+            break;
+        case 'ArrowRight':
+            e.preventDefault();
+            dom.player.currentTime = Math.min(dom.player.duration || 999, dom.player.currentTime + 5);
+            showKbdHint();
+            break;
+        case 'ArrowUp':
+            e.preventDefault();
+            { const rates = [0.5, 0.75, 1, 1.25, 1.5, 2]; const cur = dom.player.playbackRate; const idx = rates.indexOf(cur); if (idx < rates.length-1) { dom.player.playbackRate = rates[idx+1]; dom.speedToggleBtn.innerText = `${rates[idx+1].toFixed(2).replace('.00','').replace(/\.(\d)0/,'.$1')}x`; showKbdHint(); } }
+            break;
+        case 'ArrowDown':
+            e.preventDefault();
+            { const rates = [0.5, 0.75, 1, 1.25, 1.5, 2]; const cur = dom.player.playbackRate; const idx = rates.indexOf(cur); if (idx > 0) { dom.player.playbackRate = rates[idx-1]; dom.speedToggleBtn.innerText = `${rates[idx-1].toFixed(2).replace('.00','').replace(/\.(\d)0/,'.$1')}x`; showKbdHint(); } }
+            break;
+    }
+});
+
+// ================================================================
+// 新增功能：跟读模式（Shadow Mode）
+// ================================================================
+const shadowState = { active: false, timer: null, pauseAfter: true };
+
+const shadowBtn = document.getElementById('shadowModeBtn');
+const shadowIndicator = document.getElementById('shadowIndicator');
+
+function toggleShadowMode() {
+    shadowState.active = !shadowState.active;
+    shadowBtn.classList.toggle('active', shadowState.active);
+    document.getElementById('shadowText').innerText = shadowState.active ? '跟读' : '';
+    
+    if (shadowState.active) {
+        shadowIndicator.classList.add('show');
+        showToast('跟读模式：播完一句自动暂停 3 秒');
+        dom.player.addEventListener('timeupdate', handleShadowMode);
+    } else {
+        shadowIndicator.classList.remove('show');
+        showToast('已退出跟读模式');
+        dom.player.removeEventListener('timeupdate', handleShadowMode);
+        clearTimeout(shadowState.timer);
+        shadowState.lastPausedIdx = -1;
+    }
+}
+
+shadowState.lastPausedIdx = -1;
+function handleShadowMode() {
+    if (!shadowState.active) return;
+    const now = dom.player.currentTime;
+    const idx = state.currentActiveIndex;
+    if (idx < 0) return;
+    const sub = state.subtitles[idx];
+    if (!sub) return;
+    
+    // 在字幕末尾前0.1秒暂停
+    const endTime = sub.end - 0.1;
+    if (now >= endTime && shadowState.lastPausedIdx !== idx) {
+        shadowState.lastPausedIdx = idx;
+        dom.player.pause();
+        shadowIndicator.classList.add('show');
+        clearTimeout(shadowState.timer);
+        shadowState.timer = setTimeout(() => {
+            if (shadowState.active) {
+                dom.player.play();
+                setTimeout(() => {
+                    if (shadowState.active) shadowIndicator.classList.add('show');
+                    else shadowIndicator.classList.remove('show');
+                }, 100);
+            }
+        }, 3000);
+    }
+}
+
+if (shadowBtn) shadowBtn.onclick = toggleShadowMode;
+
+// ================================================================
+// 新增功能：IELTS词汇点击弹窗（不只依赖文字选中）
+// ================================================================
+document.addEventListener('click', (e) => {
+    const ieltsEl = e.target.closest('.ielts-word');
+    if (ieltsEl) {
+        e.stopPropagation();
+        const word = ieltsEl.textContent.trim().toLowerCase();
+        showWordTooltip(word, ieltsEl);
+        return;
+    }
+});
+
+async function showWordTooltip(word, targetEl) {
+    const rect = targetEl.getBoundingClientRect();
+    let topPos = rect.top - 220;
+    let leftPos = rect.left + rect.width / 2 - 160;
+    if (topPos < 20) topPos = rect.bottom + 10;
+    if (leftPos < 10) leftPos = 10;
+    if (leftPos + 320 > window.innerWidth) leftPos = window.innerWidth - 330;
+    
+    dom.tooltip.style.left = `${leftPos}px`;
+    dom.tooltip.style.top = `${topPos}px`;
+    dom.tooltip.classList.add('show');
+    
+    document.getElementById('tooltipWord').innerText = word;
+    document.getElementById('tooltipPhonetic').innerText = i18n[state.lang].tt_analyzing;
+    document.getElementById('tooltipDef').innerHTML = '';
+    document.getElementById('tooltipExSection').style.display = 'none';
+    document.getElementById('tooltipSynSection').style.display = 'none';
+    dom.saveWordBtn.disabled = true;
+    state.currentWord = null;
+    
+    try {
+        const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        const defs = []; let synonyms = []; let example = '';
+        data[0].meanings.forEach(m => {
+            if (m.synonyms) synonyms.push(...m.synonyms);
+            m.definitions.forEach(d => {
+                if (d.example && !example) example = d.example;
+                defs.push(`<strong>${m.partOfSpeech}</strong>: ${d.definition}`);
+            });
+        });
+        const finalDef = defs.slice(0, 2).join('<br><br>');
+        state.currentWord = { word, phonetic: data[0].phonetic || '', definition: finalDef, example, synonyms: [...new Set(synonyms)].slice(0, 5), addedAt: Date.now(), reviewCount: 0, nextReview: getNextReviewDate(0) };
+        
+        document.getElementById('tooltipPhonetic').innerText = state.currentWord.phonetic;
+        document.getElementById('tooltipDef').innerHTML = finalDef;
+        if (example) {
+            document.getElementById('tooltipExSection').style.display = 'block';
+            document.getElementById('tooltipExample').innerText = `"${example}"`;
+        }
+        if (state.currentWord.synonyms.length) {
+            document.getElementById('tooltipSynSection').style.display = 'block';
+            document.getElementById('tooltipSynonyms').innerHTML = state.currentWord.synonyms.map(s => `<span class="tt-synonym-tag">${s}</span>`).join('');
+        }
+        dom.saveWordBtn.disabled = false;
+    } catch {
+        document.getElementById('tooltipPhonetic').innerHTML = '<span style="color:#ff3b30">Not found in lexicon</span>';
+    }
+}
+
+// ================================================================
+// 升级：保存单词使用 IndexedDB + 记录统计
+// ================================================================
+const originalSaveWord = dom.saveWordBtn.onclick;
+dom.saveWordBtn.onclick = async () => {
+    if (!state.currentWord) return;
+    const wordObj = {
+        ...state.currentWord,
+        addedAt: state.currentWord.addedAt || Date.now(),
+        reviewCount: state.currentWord.reviewCount || 0,
+        nextReview: state.currentWord.nextReview || getNextReviewDate(0)
+    };
+    
+    // 同时保存到 IndexedDB 和 localStorage（双保险）
+    await idbSaveWord(wordObj);
+    // 更新localStorage兼容
+    let words = getVocabLS();
+    if (!words.some(w => w.word === wordObj.word)) {
+        words.unshift(wordObj);
+        saveVocab(words);
+    }
+    
+    recordWordAdded();
+    renderVocab();
+    renderGlobalVocabAsync();
+    updateStatsDisplay();
+    dom.tooltip.classList.remove('show');
+    showToast('✅ 已加入单词本');
+};
+
+// ================================================================
+// 升级：deleteWord 使用 IndexedDB
+// ================================================================
+window.deleteWord = async (wordKey) => {
+    await idbDeleteWord(wordKey);
+    // 同步删除 localStorage
+    let words = getVocabLS();
+    if (typeof wordKey === 'number') { words.splice(wordKey, 1); }
+    else { words = words.filter(w => w.word !== wordKey); }
+    saveVocab(words);
+    renderVocab();
+};
+
+window.deleteWordByKey = async (key) => {
+    await idbDeleteWord(key);
+    let words = getVocabLS().filter(w => w.word !== key);
+    saveVocab(words);
+    await renderGlobalVocabAsync();
+    updateStatsDisplay();
+};
+
+// ================================================================
+// 升级：renderGlobalVocab 显示遗忘曲线信息
+// ================================================================
+async function renderGlobalVocabAsync() {
+    const words = await idbGetAllVocab();
+    const dict = i18n[state.lang];
+    document.getElementById('globalVocabCount').innerText = words.length;
+    
+    const today = new Date().toISOString().split('T')[0];
+    dom.globalVocabList.innerHTML = words.map((w) => {
+        const isDue = w.nextReview && w.nextReview <= today;
+        const reviewBadge = w.nextReview ? 
+            `<span class="review-next ${isDue ? 'review-overdue' : ''}">
+                ${isDue ? '⚡ 待复习' : `📅 ${w.nextReview}`}
+            </span>` : '';
+        return `
+        <div class="global-word-card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <div>
+                    <h3 style="font-size:18px; margin-bottom:4px;">${w.word}</h3>
+                    <div style="font-size:13px; color:var(--text-sub); font-family:monospace;">${w.phonetic||''}</div>
+                </div>
+                <div style="color:var(--red); font-size:13px; cursor:pointer; font-weight:600;" onclick="deleteWordByKey('${w.word}')">移除</div>
+            </div>
+            <div style="margin-top:12px; font-size:14px; line-height:1.5;">${w.definition}</div>
+            ${w.example ? `<div style="margin-top:8px; font-size:13px; color:var(--text-sub); font-style:italic;">"${w.example}"</div>` : ''}
+            <div style="margin-top:10px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                ${reviewBadge}
+                ${w.reviewCount ? `<span style="font-size:11px; color:var(--text-sub);">已复习 ${w.reviewCount} 次</span>` : ''}
+            </div>
+        </div>`;
+    }).join('');
+    updateStatsDisplay();
+}
+
+// ================================================================
+// 升级：Anki 导出
+// ================================================================
+document.getElementById('globalExportAnkiBtn').onclick = async () => {
+    const words = await idbGetAllVocab();
+    if (!words.length) return showToast('没有单词可导出');
+    const strip = h => { const t = document.createElement('DIV'); t.innerHTML = h; return t.textContent || ''; };
+    // Anki txt格式: 正面	背面
+    let txt = '';
+    words.forEach(w => {
+        const front = w.word + (w.phonetic ? `\n${w.phonetic}` : '');
+        const back = strip(w.definition) + (w.example ? `\n\n"${w.example}"` : '');
+        txt += `${front}\t${back}\n`;
+    });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain;charset=utf-8;' }));
+    link.download = 'vocabulary_anki.txt';
+    link.click();
+    showToast('Anki 文件已导出（导入时选 Tab 分隔）');
+};
+
+// 覆盖原有的导出按钮使用async版本
+dom.globalExportVocabBtn.onclick = async () => {
+    const words = await idbGetAllVocab();
+    if (!words.length) return showToast('没有单词可导出');
+    const strip = h => { const t = document.createElement('DIV'); t.innerHTML = h; return t.textContent || ''; };
+    let csv = "Word,Phonetic,Definition,Example,ReviewCount,NextReview\n";
+    words.forEach(w => csv += `"${w.word}","${w.phonetic||''}","${strip(w.definition).replace(/"/g,'""')}","${(w.example||'').replace(/"/g,'""')}","${w.reviewCount||0}","${w.nextReview||''}"\n`);
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'}));
+    link.download = 'vocabulary.csv';
+    link.click();
+};
+
+// ================================================================
+// 初始化：迁移旧 localStorage 数据到 IndexedDB
+// ================================================================
+async function migrateOldVocab() {
+    const oldWords = getVocabLS();
+    if (!oldWords.length) return;
+    const d = await openDB();
+    if (!d) return;
+    const tx = d.transaction('vocab', 'readwrite');
+    const store = tx.objectStore('vocab');
+    oldWords.forEach(w => {
+        if (!w.addedAt) w.addedAt = Date.now();
+        if (!w.reviewCount) w.reviewCount = 0;
+        if (!w.nextReview) w.nextReview = getNextReviewDate(0);
+        store.put(w);
+    });
+    tx.oncomplete = () => console.log('Migration complete:', oldWords.length, 'words');
+}
+
+// ================================================================
+// 覆盖 renderCurrentView 以使单词本视图也用 async
+// ================================================================
+const origRenderCurrentView = renderCurrentView;
+function renderCurrentView() {
+    if (state.currentTab === 'library') renderGrid(dom.libraryContentArea, 'library');
+    else if (state.currentTab === 'profile') { renderGrid(dom.profileContentArea, state.profileSubTab); updateStatsDisplay(); }
+    else if (state.currentTab === 'vocabulary') renderGlobalVocabAsync();
+}
+
+// ================================================================
+// 初始化调用
+// ================================================================
+(async function init() {
+    await migrateOldVocab();
+    updateStatsDisplay();
+    
+    // 如果当前在单词本视图，重新渲染
+    if (state.currentTab === 'vocabulary') renderGlobalVocabAsync();
+})();
+
+
 </script>
 </body>
 </html>
