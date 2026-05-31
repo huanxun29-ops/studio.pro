@@ -238,7 +238,6 @@
             overflow: hidden; cursor: pointer; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             box-shadow: var(--shadow); position: relative; display: flex; flex-direction: column;
             transform: translateZ(0); /* Fix animation jitter */
-            -webkit-mask-image: -webkit-radial-gradient(white, black); /* Fix Safari border-radius clipping */
         }
         .dark-theme .video-card::before {
             content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
@@ -258,7 +257,7 @@
         .favorite-btn.active svg { fill: var(--red); stroke: var(--red); }
         .favorite-btn.active:hover svg { transform: scale(1.15); }
 
-        .card-top { position: relative; aspect-ratio: 16/9; background: #e0e0e0; background-size: cover; background-position: center; border-bottom: 1px solid var(--border); z-index: 1; }
+        .card-top { position: relative; aspect-ratio: 16/9; background: #e0e0e0; background-size: cover; background-position: center; border-bottom: 1px solid var(--border); z-index: 1; border-top-left-radius: 23px; border-top-right-radius: 23px; }
         .card-duration { position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,0.7); color: #fff; font-size: 12px; font-weight: 700; padding: 4px 8px; border-radius: 8px; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); letter-spacing: 0.5px; }
         .card-middle { display: flex; justify-content: space-between; align-items: flex-start; padding: 20px 20px 12px 20px; gap: 12px; z-index: 1; }
         .card-ep-group { display: flex; flex-direction: column; gap: 4px; }
@@ -269,11 +268,11 @@
         .card-tags { display: flex; gap: 8px; flex-wrap: wrap; }
         .card-tag { padding: 6px 12px; background: rgba(0, 122, 255, 0.08); color: var(--blue); border-radius: 99px; font-size: 13px; font-weight: 600; }
         .dark-theme .card-tag { background: rgba(10, 132, 255, 0.15); }
-        .card-progress { position: absolute; bottom: 0; left: 0; height: 4px; background: var(--green); transition: width 0.3s; z-index: 3; }
+        .card-progress { position: absolute; bottom: 0; left: 0; height: 4px; background: var(--green); transition: width 0.3s; z-index: 3; border-bottom-left-radius: 24px; }
         .card-overlay {
             position: absolute; inset: 0; background: rgba(255,255,255,0.8); backdrop-filter: blur(4px);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: 0.3s; z-index: 10;
+            opacity: 0; pointer-events: none; transition: 0.3s; z-index: 10; border-radius: inherit;
         }
         .dark-theme .card-overlay { background: rgba(0,0,0,0.7); }
         .video-card.loading .card-overlay { opacity: 1; pointer-events: all; }
