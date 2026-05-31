@@ -13,7 +13,7 @@
     <title>Studio Listening Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* 🍎 极简配色系统与液态玻璃变量 */
+        /* 🍎 極簡配色系統與液態玻璃變數 */
         :root {
             --bg: #F5F5F7;
             --surface: rgba(255, 255, 255, 0.45);
@@ -28,7 +28,7 @@
             --red: #FF3B30;
             --hover-bg: rgba(255, 255, 255, 0.5);
             
-            /* 液态玻璃 (浅色) */
+            /* 液態玻璃 (淺色) */
             --liquid-bg: rgba(255, 255, 255, 0.65);
             --liquid-border: rgba(255, 255, 255, 0.9);
             --liquid-shadow: 0 16px 40px rgba(0, 0, 0, 0.08), 
@@ -39,7 +39,7 @@
             --safe-bottom: env(safe-area-inset-bottom, 20px);
         }
 
-        /* 🍎 升级版 VisionOS 风格深色模式 */
+        /* 🍎 升級版 VisionOS 風格深色模式 */
         .dark-theme {
             --bg: #050505;
             --surface: rgba(22, 22, 24, 0.55);
@@ -64,30 +64,39 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        html, body {
-            width: 100vw;
-            height: 100dvh; /* 适配 Safari 动态高度 */
+        /* 🚀 核心修復：強制讓最底層的顏色與網格相同，避免任何灰色邊界露出 */
+        html {
+            background-color: #fdfbfb; 
+            transition: background-color 0.4s ease;
+        }
+        html.dark-theme {
+            background-color: #0d0f12; 
+        }
+
+        /* 🚀 核心修復：終極鎖定視口，徹底解決 Safari 底部灰色懸空問題 */
+        body {
+            position: fixed; 
+            top: 0; left: 0; right: 0; bottom: 0;
+            width: 100%; height: 100%;
             overflow: hidden;
-            overscroll-behavior: none; /* 禁用 Safari 弹性拉伸露出灰色背景 */
+            overscroll-behavior: none; 
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
+            background-color: transparent;
+            color: var(--text-main);
+            transition: color 0.4s ease;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* 確保所有滾動區域擁有原生滑順感 */
+        .home-main, .transcript-flow, .glass-modal-content, .vocab-list, .global-vocab-list {
             -webkit-overflow-scrolling: touch;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
-            transition: background-color 0.4s ease, color 0.4s ease;
-            -webkit-font-smoothing: antialiased;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* --- 🍎 背景：温暖 Mesh Gradient 与 呼吸气泡 --- */
+        /* --- 🍎 背景：溫暖 Mesh Gradient 與 呼吸氣泡 --- */
         .mesh-bg {
-            position: fixed; 
-            top: -5dvh; left: -5vw; 
-            width: 110vw; height: 110dvh; /* 故意放大以覆盖 Safari 滚动缩放时的所有死角 */
+            position: absolute; 
+            top: -10vh; left: -10vw; 
+            width: 120vw; height: 120vh; /* 故意放大以覆蓋 Safari 縮放時的所有死角 */
             z-index: -2;
             background-color: #fdfbfb;
             background-image: 
@@ -123,7 +132,7 @@
         }
 
         /* =========================================
-           🍎 首页及全局导航 (Home & Global Nav)
+           🍎 首頁及全域導航 (Home & Global Nav)
            ========================================= */
         .home-screen {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
@@ -134,7 +143,7 @@
         }
         .home-screen.hidden { opacity: 0; visibility: hidden; transform: scale(0.98); }
         
-        /* 🍎 统一侧边栏 (4个核心入口) */
+        /* 🍎 統一側邊欄 (4個核心入口) */
         .app-sidebar {
             width: 260px; flex-shrink: 0;
             background: var(--surface);
@@ -159,7 +168,7 @@
         .nav-item.active { background: rgba(0, 122, 255, 0.1); color: var(--blue); }
         .dark-theme .nav-item.active { background: rgba(10, 132, 255, 0.15); color: var(--blue); }
 
-        /* 主内容区及视图容器 */
+        /* 主內容區及視圖容器 */
         .home-main {
             flex: 1; overflow-y: auto; scroll-behavior: smooth;
             padding: 60px 40px; display: flex; flex-direction: column; align-items: center;
@@ -171,12 +180,12 @@
         .app-view.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 公共头部 */
+        /* 公共頭部 */
         .view-header { display: flex; justify-content: space-between; align-items: flex-end; width: 100%; border-bottom: 1px solid var(--border); padding-bottom: 20px;}
         .header-left { display: flex; flex-direction: column; gap: 16px; flex: 1; }
         .view-title { font-size: 40px; font-weight: 800; letter-spacing: -1.5px; line-height: 1; }
         
-        /* 保持电脑端宽度适中 */
+        /* 保持電腦端寬度適中 */
         .search-box { width: 100%; max-width: 320px; position: relative; margin-top: 8px; }
         .search-box input {
             width: 100%; height: 50px; border: 1px solid var(--glass-border); outline: none;
@@ -187,7 +196,7 @@
         .search-box input:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15); }
         .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; fill: var(--text-sub); }
 
-        /* 过滤栏 Filters */
+        /* 過濾欄 Filters */
         .filter-bar { 
             display: flex; gap: 16px; flex-wrap: wrap; 
             background: var(--surface); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
@@ -209,7 +218,7 @@
         .custom-filter-btn svg { width: 18px; height: 18px; fill: var(--text-sub); transition: 0.3s; }
         .filter-divider { width: 1px; height: 24px; background: var(--border); margin: 0 8px; }
 
-        /* 悬浮玻璃菜单 (Glass Modal for Selects) */
+        /* 懸浮玻璃選單 (Glass Modal for Selects) */
         .glass-modal {
             position: fixed; inset: 0; z-index: 10000;
             display: flex; align-items: center; justify-content: center;
@@ -233,7 +242,7 @@
         .glass-option:active { transform: scale(0.96); background: var(--hover-bg); }
         .glass-option.active { background: var(--text-main); color: var(--bg); }
 
-        /* --- 🍎 视频内容区样式 --- */
+        /* --- 🍎 影片內容區樣式 --- */
         .category-section { margin-bottom: 40px; }
         .category-header { font-size: 22px; font-weight: 700; color: var(--text-main); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end;}
         .row-scroll {
@@ -308,7 +317,7 @@
         .empty-state h3 { font-size: 18px; color: var(--text-main); margin-bottom: 8px; }
 
         /* =========================================
-           🍎 个人中心视图 (Profile View)
+           🍎 個人中心視圖 (Profile View)
            ========================================= */
         .profile-header-card {
             background: var(--surface); border: 1px solid var(--glass-border); border-radius: 24px;
@@ -350,7 +359,7 @@
         .dark-theme .profile-tab.active { color: var(--bg); background: var(--text-main); }
 
         /* =========================================
-           🍎 本地文件视图 (Local Files View)
+           🍎 本地文件視圖 (Local Files View)
            ========================================= */
         .local-upload-area {
             background: var(--surface); border: 2px dashed var(--glass-border); border-radius: 32px;
@@ -384,7 +393,7 @@
         .launch-btn.active:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(0,122,255,0.4); }
 
         /* =========================================
-           🍎 全局单词本视图 (Global Vocab View)
+           🍎 全域單字本視圖 (Global Vocab View)
            ========================================= */
         .global-vocab-container {
             background: var(--surface); border: 1px solid var(--glass-border); border-radius: 24px;
@@ -428,8 +437,13 @@
         .auth-toggle { text-align: center; font-size: 14px; color: var(--text-sub); }
         .auth-toggle a { color: var(--blue); text-decoration: none; font-weight: 600; }
 
-        .workspace { display: flex; width: 100%; max-width: 1600px; height: 100dvh; padding: 32px; gap: 32px; opacity: 0; visibility: hidden; position: absolute; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
-        .workspace.active { opacity: 1; visibility: visible; transform: translateY(0); position: relative; z-index: 200; }
+        .workspace { 
+            display: flex; width: 100%; max-width: 1600px; 
+            height: 100%; padding: 32px; gap: 32px; opacity: 0; visibility: hidden; 
+            position: absolute; left: 0; right: 0; top: 0; bottom: 0; margin: auto;
+            transform: translateY(20px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); 
+        }
+        .workspace.active { opacity: 1; visibility: visible; transform: translateY(0); z-index: 200; }
         .sidebar { width: 45%; min-width: 400px; max-width: 720px; flex-shrink: 0; display: flex; flex-direction: column; gap: 32px; }
         .video-container { border-radius: 24px; overflow: hidden; background: #000; box-shadow: var(--shadow); transform: translateZ(0); }
         video { width: 100%; display: block; outline: none; }
@@ -493,13 +507,13 @@
         @keyframes toastIn { to { opacity: 1; transform: translateY(0); } }
         @keyframes toastOut { to { opacity: 0; transform: translateY(-10px); } }
 
-        /* 📱 移动端适配 */
+        /* 📱 移動端適配 */
         #mobileVocabToggle { display: none; }
         .vocab-close-mobile { display: none; font-size: 24px; cursor: pointer; color: var(--text-sub); font-weight: 300; }
 
         @media (max-width: 1024px) {
             .home-screen { flex-direction: column; }
-            .home-main { padding: 20px 16px 120px 16px; }
+            .home-main { padding: 20px 16px calc(100px + env(safe-area-inset-bottom, 20px)) 16px; } /* 確保內容不會被導覽列遮擋 */
             
             .view-header { flex-direction: column; align-items: flex-start; border-bottom: none; gap: 16px;}
             .header-left { width: 100%; }
@@ -519,10 +533,12 @@
             .row-scroll .video-card { flex: 0 0 82vw; max-width: 320px; }
             .video-grid { grid-template-columns: 1fr; gap: 20px; }
 
+            /* 🚀 核心修復：改為 position: absolute，緊緊貼合在 home-screen 的最底部，不再懸空 */
             .app-sidebar {
-                width: 100%; border-right: none; position: fixed; bottom: 0; left: 0;
+                width: 100%; border-right: none; 
+                position: absolute; bottom: 0; left: 0;
                 flex-direction: row; align-items: center; justify-content: space-around;
-                padding: 8px 12px calc(8px + var(--safe-bottom)) 12px;
+                padding: 8px 12px calc(12px + env(safe-area-inset-bottom, 20px)) 12px;
                 border-top: 1px solid var(--liquid-border); border-radius: 24px 24px 0 0;
                 background: var(--liquid-bg); box-shadow: var(--liquid-shadow); z-index: 99;
             }
@@ -538,12 +554,12 @@
             video { max-height: 30dvh; object-fit: contain; }
             
             .main-content { border-radius: 0; border: none; box-shadow: none; flex: 1; min-height: 0; background: transparent; }
-            .transcript-flow { padding: 20px 16px calc(100px + var(--safe-bottom)) 16px; }
-            .toolbar-floating { top: auto; bottom: calc(24px + var(--safe-bottom)); width: auto; padding: 6px 8px; gap: 4px; border-radius: 30px; }
+            .transcript-flow { padding: 20px 16px calc(100px + env(safe-area-inset-bottom, 20px)) 16px; }
+            .toolbar-floating { top: auto; bottom: calc(24px + env(safe-area-inset-bottom, 20px)); width: auto; padding: 6px 8px; gap: 4px; border-radius: 30px; }
             
             #mobileVocabToggle { display: flex; }
             .vocab-close-mobile { display: block; }
-            .vocab-container { position: fixed; bottom: 0; left: 0; width: 100%; height: 75dvh; border-radius: 28px 28px 0 0; z-index: 9999; transform: translateY(100%); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); background: var(--liquid-bg); backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%); }
+            .vocab-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 75%; border-radius: 28px 28px 0 0; z-index: 9999; transform: translateY(100%); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); background: var(--liquid-bg); backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%); }
             .vocab-container.open { transform: translateY(0); }
             
             .profile-header-card { flex-direction: column; text-align: center; padding: 24px 16px; }
@@ -564,39 +580,38 @@
 
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- 🍎 登录/注册界面 -->
+<!-- 🍎 登入/註冊介面 -->
 <div class="auth-screen hidden" id="authScreen">
     <div class="auth-card">
-        <div class="auth-title" id="authTitle">欢迎回来</div>
+        <div class="auth-title" id="authTitle">歡迎回來</div>
         <form id="authForm" class="auth-form">
-            <input type="email" id="authEmail" class="auth-input" placeholder="邮箱" autocomplete="email" required />
-            <input type="password" id="authPassword" class="auth-input" placeholder="密码" autocomplete="current-password" required />
+            <input type="email" id="authEmail" class="auth-input" placeholder="信箱" autocomplete="email" required />
+            <input type="password" id="authPassword" class="auth-input" placeholder="密碼" autocomplete="current-password" required />
             
-            <!-- 新增注册时用的用户名与头像 -->
-            <input type="text" id="authUsername" class="auth-input" placeholder="用户名 (注册必填)" style="display: none;" autocomplete="off" />
+            <input type="text" id="authUsername" class="auth-input" placeholder="使用者名稱 (註冊必填)" style="display: none;" autocomplete="off" />
             <div class="auth-file-group" id="authAvatarGroup" style="display: none;">
-                <span style="flex-shrink: 0; margin-right: 8px;">上传头像</span>
+                <span style="flex-shrink: 0; margin-right: 8px;">上傳頭像</span>
                 <input type="file" id="authAvatar" accept="image/*" />
             </div>
 
-            <input type="text" id="authInviteCode" class="auth-input" placeholder="邀请码 (注册必填)" style="display: none;" autocomplete="off" />
+            <input type="text" id="authInviteCode" class="auth-input" placeholder="邀請碼 (註冊必填)" style="display: none;" autocomplete="off" />
             <div id="authErrorMsg" class="auth-error-msg"></div>
             <div class="auth-checkbox-group" id="authRememberGroup">
                 <input type="checkbox" id="authRemember" checked />
-                <label for="authRemember">记住邮箱</label>
+                <label for="authRemember">記住信箱</label>
             </div>
-            <button type="submit" class="auth-btn" id="authSubmitBtn">登录</button>
+            <button type="submit" class="auth-btn" id="authSubmitBtn">登入</button>
         </form>
         <div class="auth-toggle">
-            <span id="authToggleText">还没有账号？</span> <a href="#" id="authToggleLink">立即注册</a>
+            <span id="authToggleText">還沒有帳號？</span> <a href="#" id="authToggleLink">立即註冊</a>
         </div>
     </div>
 </div>
 
-<!-- 🍎 首页全局容器 -->
+<!-- 🍎 首頁全域容器 -->
 <div class="home-screen" id="homeScreen">
     
-    <!-- 🍎 统一的 4 Tab 导航栏 (侧边/底部) -->
+    <!-- 🍎 統一的 4 Tab 導航列 -->
     <aside class="app-sidebar">
         <div class="app-brand">
             <svg viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11z"/><circle cx="17.5" cy="17.5" r="4.5"/><path d="M3 13.5h8v8H3z"/></svg>
@@ -606,61 +621,61 @@
         <nav class="app-nav" id="sidebarNav">
             <div class="nav-item active" data-tab="library">
                 <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
-                <span data-i18n="nav_library">视频库</span>
+                <span data-i18n="nav_library">影片庫</span>
             </div>
             <div class="nav-item" data-tab="vocabulary">
                 <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                <span data-i18n="nav_vocab">单词本</span>
+                <span data-i18n="nav_vocab">單字本</span>
             </div>
             <div class="nav-item" data-tab="local">
                 <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
-                <span data-i18n="nav_local">本地文件</span>
+                <span data-i18n="nav_local">本地檔案</span>
             </div>
             <div class="nav-item" data-tab="profile">
                 <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                <span data-i18n="nav_profile">个人中心</span>
+                <span data-i18n="nav_profile">個人中心</span>
             </div>
         </nav>
     </aside>
 
-    <!-- 主内容区 -->
+    <!-- 主內容區 -->
     <main class="home-main">
         <div class="home-content-wrapper">
             
-            <!-- 👁️ 视图 1: 视频库 (Library) -->
+            <!-- 👁️ 視圖 1: 影片庫 (Library) -->
             <div id="view-library" class="app-view active">
                 <div class="view-header">
                     <div class="header-left">
-                        <div class="view-title" data-i18n="nav_library">视频库</div>
+                        <div class="view-title" data-i18n="nav_library">影片庫</div>
                         <div class="search-box">
                             <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                            <input type="text" id="searchInput" placeholder="搜索影片..." data-i18n-placeholder="search_placeholder">
+                            <input type="text" id="searchInput" placeholder="搜尋影片..." data-i18n-placeholder="search_placeholder">
                         </div>
                     </div>
                 </div>
 
                 <div class="filter-bar" id="filterBar">
-                    <div class="filter-group"><span class="filter-label" data-i18n="filter_difficulty">难度</span><div class="custom-filter-btn" id="btnFilterRating"><span id="labelFilterRating" data-i18n="filter_level_all">所有难度</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div><div class="filter-divider"></div>
-                    <div class="filter-group"><span class="filter-label" data-i18n="filter_scenario">场景</span><div class="custom-filter-btn" id="btnFilterTag"><span id="labelFilterTag" data-i18n="filter_topic_all">所有主题</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div><div class="filter-divider"></div>
+                    <div class="filter-group"><span class="filter-label" data-i18n="filter_difficulty">難度</span><div class="custom-filter-btn" id="btnFilterRating"><span id="labelFilterRating" data-i18n="filter_level_all">所有難度</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div><div class="filter-divider"></div>
+                    <div class="filter-group"><span class="filter-label" data-i18n="filter_scenario">場景</span><div class="custom-filter-btn" id="btnFilterTag"><span id="labelFilterTag" data-i18n="filter_topic_all">所有主題</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div><div class="filter-divider"></div>
                     <div class="filter-group"><span class="filter-label" data-i18n="filter_accent">口音</span><div class="custom-filter-btn" id="btnFilterAccent"><span id="labelFilterAccent" data-i18n="filter_acc_all">所有口音</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div>
                 </div>
 
                 <div id="libraryContentArea">
-                    <div class="empty-state"><div class="spinner"></div><h3 data-i18n="loading">加载中...</h3></div>
+                    <div class="empty-state"><div class="spinner"></div><h3 data-i18n="loading">載入中...</h3></div>
                 </div>
             </div>
 
-            <!-- 👁️ 视图 2: 单词本 (Vocabulary) -->
+            <!-- 👁️ 視圖 2: 單字本 (Vocabulary) -->
             <div id="view-vocabulary" class="app-view">
                 <div class="view-header">
                     <div class="header-left">
-                        <div class="view-title" data-i18n="nav_vocab">单词本</div>
+                        <div class="view-title" data-i18n="nav_vocab">單字本</div>
                     </div>
-                    <button class="export-btn" id="globalExportVocabBtn" data-i18n="btn_export">导出 CSV</button>
+                    <button class="export-btn" id="globalExportVocabBtn" data-i18n="btn_export">匯出 CSV</button>
                 </div>
                 <div class="global-vocab-container">
                     <div class="global-vocab-header">
-                        <span class="global-vocab-title"><span data-i18n="vocab_total">总计</span>: <span id="globalVocabCount">0</span></span>
+                        <span class="global-vocab-title"><span data-i18n="vocab_total">總計</span>: <span id="globalVocabCount">0</span></span>
                     </div>
                     <div class="global-vocab-list" id="globalVocabList">
                         <!-- Words injected here -->
@@ -668,61 +683,58 @@
                 </div>
             </div>
 
-            <!-- 👁️ 视图 3: 本地文件 (Local Files) -->
+            <!-- 👁️ 視圖 3: 本地檔案 (Local Files) -->
             <div id="view-local" class="app-view">
                 <div class="view-header">
                     <div class="header-left">
-                        <div class="view-title" data-i18n="nav_local">本地文件</div>
+                        <div class="view-title" data-i18n="nav_local">本地檔案</div>
                     </div>
                 </div>
                 
                 <div class="local-upload-area" id="localUploadDropzone">
                     <svg class="upload-icon" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
-                    <div class="upload-title" data-i18n="local_title">构建沉浸环境</div>
-                    <div class="upload-desc" data-i18n="local_desc">请选择一部 MP4 视频与对应的 SRT/VTT 字幕文件，我们将为您自动生成交互式学习舱。</div>
+                    <div class="upload-title" data-i18n="local_title">建構沉浸環境</div>
+                    <div class="upload-desc" data-i18n="local_desc">請選擇一部 MP4 影片與對應的 SRT/VTT 字幕檔，我們將為您自動生成互動式學習艙。</div>
                     
                     <div class="upload-buttons">
                         <label class="upload-btn" id="btnLocalVideoView">
                             <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-                            <span id="txtLocalVideoView" data-i18n="sidebar_video">选择视频 (MP4)</span>
+                            <span id="txtLocalVideoView" data-i18n="sidebar_video">選擇影片 (MP4)</span>
                             <input type="file" id="localVideoInputView" accept="video/mp4,video/webm">
                         </label>
                         
                         <label class="upload-btn" id="btnLocalSubView">
                             <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-                            <span id="txtLocalSubView" data-i18n="sidebar_sub">选择字幕 (SRT/VTT)</span>
+                            <span id="txtLocalSubView" data-i18n="sidebar_sub">選擇字幕 (SRT/VTT)</span>
                             <input type="file" id="localSubInputView" accept=".srt,.json,.vtt,.ass">
                         </label>
                     </div>
                     
-                    <button class="launch-btn" id="btnLaunchLocalView" data-i18n="sidebar_launch">进入学习舱</button>
+                    <button class="launch-btn" id="btnLaunchLocalView" data-i18n="sidebar_launch">進入學習艙</button>
                 </div>
             </div>
 
-            <!-- 👁️ 视图 4: 个人中心 (Profile / Settings) -->
+            <!-- 👁️ 視圖 4: 個人中心 (Profile / Settings) -->
             <div id="view-profile" class="app-view">
                 <div class="view-header">
                     <div class="header-left">
-                        <div class="view-title" data-i18n="nav_profile">个人中心</div>
+                        <div class="view-title" data-i18n="nav_profile">個人中心</div>
                     </div>
                 </div>
 
                 <div class="profile-header-card">
-                    <!-- 头像区域 (支持点击编辑) -->
                     <div class="profile-avatar-wrapper">
                         <img src="" class="profile-avatar-img" id="profileAvatarImg" />
                         <div class="profile-avatar" id="profileAvatarText">U</div>
-                        <button class="edit-avatar-btn" onclick="openEditProfile('avatar')" title="修改头像">✏️</button>
+                        <button class="edit-avatar-btn" onclick="openEditProfile('avatar')" title="修改頭像">✏️</button>
                     </div>
                     
-                    <!-- 信息区域 (支持点击编辑) -->
                     <div class="profile-info">
                         <div class="profile-username" id="profileUsernameDisplay">User <span class="edit-btn" onclick="openEditProfile('username')">✏️</span></div>
                         <div class="profile-email" id="profileEmailDisplay">user@example.com</div>
                         <div class="profile-status">Pro Member</div>
                     </div>
                     
-                    <!-- 设定按钮 -->
                     <div class="profile-settings-list">
                         <button class="setting-btn" id="btnSettingLang">
                             <svg viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
@@ -730,31 +742,29 @@
                         </button>
                         <button class="setting-btn" id="btnSettingTheme">
                             <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
-                            <span data-i18n="menu_theme">外观主题</span>
+                            <span data-i18n="menu_theme">外觀主題</span>
                         </button>
                         <button class="setting-btn danger" id="btnSettingLogout">
                             <svg viewBox="0 0 24 24"><path fill="currentColor" d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
-                            <span data-i18n="menu_logout">退出登录</span>
+                            <span data-i18n="menu_logout">登出</span>
                         </button>
                     </div>
                 </div>
 
                 <div class="profile-tabs" id="profileTabs">
-                    <div class="profile-tab active" data-subtab="history" data-i18n="title_history">观看历史</div>
+                    <div class="profile-tab active" data-subtab="history" data-i18n="title_history">觀看紀錄</div>
                     <div class="profile-tab" data-subtab="favorites" data-i18n="title_favorites">我的收藏</div>
-                    <div class="profile-tab" data-subtab="completed" data-i18n="title_completed">已学完</div>
+                    <div class="profile-tab" data-subtab="completed" data-i18n="title_completed">已學完</div>
                 </div>
 
-                <div id="profileContentArea">
-                    <!-- Specific lists rendered here -->
-                </div>
+                <div id="profileContentArea"></div>
             </div>
 
         </div>
     </main>
 </div>
 
-<!-- 🍎 主工作区 -->
+<!-- 🍎 主工作區 -->
 <div class="workspace" id="workspace">
     <div class="sidebar">
         <div class="video-container">
@@ -762,7 +772,7 @@
         </div>
         <div class="vocab-container" id="vocabContainer">
             <div class="vocab-header">
-                <span><span data-i18n="vocab_title">单词本</span> <span id="vocabCount" style="color:var(--text-sub); font-weight:normal; margin-left:6px;">0</span></span>
+                <span><span data-i18n="vocab_title">單字本</span> <span id="vocabCount" style="color:var(--text-sub); font-weight:normal; margin-left:6px;">0</span></span>
                 <span class="vocab-close-mobile" id="closeVocabBtn">✕</span>
             </div>
             <div class="vocab-list" id="vocabList"></div>
@@ -809,45 +819,44 @@
     <div class="tt-section" id="tooltipDefSection"><div class="tt-sec-title" data-i18n="tt_definition">Definition</div><div class="tt-def" id="tooltipDef"></div></div>
     <div class="tt-section" id="tooltipExSection" style="display:none;"><div class="tt-sec-title" data-i18n="tt_example">Example</div><div class="tt-example" id="tooltipExample"></div></div>
     <div class="tt-section" id="tooltipSynSection" style="display:none;"><div class="tt-sec-title" data-i18n="tt_synonyms">Synonyms</div><div class="tt-synonyms" id="tooltipSynonyms"></div></div>
-    <button class="tt-btn" id="saveWordBtn" data-i18n="tt_add">加入生词本</button>
+    <button class="tt-btn" id="saveWordBtn" data-i18n="tt_add">加入單字本</button>
 </div>
 
-<!-- 过滤菜单 Modals -->
+<!-- 過濾選單 Modals -->
 <div class="glass-modal" id="modalFilterRating">
     <div class="glass-modal-content">
-        <div class="glass-option active" data-value="all" data-i18n="filter_level_all">所有难度</div>
-        <div class="glass-option" data-value="5" data-i18n="filter_level_5">⭐⭐⭐⭐⭐ (困难)</div>
-        <div class="glass-option" data-value="4" data-i18n="filter_level_4">⭐⭐⭐⭐ (进阶)</div>
+        <div class="glass-option active" data-value="all" data-i18n="filter_level_all">所有難度</div>
+        <div class="glass-option" data-value="5" data-i18n="filter_level_5">⭐⭐⭐⭐⭐ (困難)</div>
+        <div class="glass-option" data-value="4" data-i18n="filter_level_4">⭐⭐⭐⭐ (進階)</div>
         <div class="glass-option" data-value="3" data-i18n="filter_level_3">⭐⭐⭐ (中等)</div>
-        <div class="glass-option" data-value="2" data-i18n="filter_level_2">⭐⭐ (基础)</div>
-        <div class="glass-option" data-value="1" data-i18n="filter_level_1">⭐ (入门)</div>
+        <div class="glass-option" data-value="2" data-i18n="filter_level_2">⭐⭐ (基礎)</div>
+        <div class="glass-option" data-value="1" data-i18n="filter_level_1">⭐ (入門)</div>
     </div>
 </div>
 <div class="glass-modal" id="modalFilterTag">
     <div class="glass-modal-content">
-        <div class="glass-option active" data-value="all" data-i18n="filter_topic_all">所有主题</div>
-        <div class="glass-option" data-value="Academic" data-i18n="filter_topic_acad">学术</div>
+        <div class="glass-option active" data-value="all" data-i18n="filter_topic_all">所有主題</div>
+        <div class="glass-option" data-value="Academic" data-i18n="filter_topic_acad">學術</div>
         <div class="glass-option" data-value="Daily" data-i18n="filter_topic_daily">日常生活</div>
-        <div class="glass-option" data-value="Business" data-i18n="filter_topic_bus">商业</div>
-        <div class="glass-option" data-value="Entertainment" data-i18n="filter_topic_ent">娱乐</div>
+        <div class="glass-option" data-value="Business" data-i18n="filter_topic_bus">商業</div>
+        <div class="glass-option" data-value="Entertainment" data-i18n="filter_topic_ent">娛樂</div>
     </div>
 </div>
 <div class="glass-modal" id="modalFilterAccent">
     <div class="glass-modal-content">
         <div class="glass-option active" data-value="all" data-i18n="filter_acc_all">所有口音</div>
-        <div class="glass-option" data-value="US" data-i18n="filter_acc_us">🇺🇸 美式英语</div>
-        <div class="glass-option" data-value="UK" data-i18n="filter_acc_uk">🇬🇧 英式英语</div>
-        <div class="glass-option" data-value="AU" data-i18n="filter_acc_au">🇦🇺 澳式英语</div>
+        <div class="glass-option" data-value="US" data-i18n="filter_acc_us">🇺🇸 美式英語</div>
+        <div class="glass-option" data-value="UK" data-i18n="filter_acc_uk">🇬🇧 英式英語</div>
+        <div class="glass-option" data-value="AU" data-i18n="filter_acc_au">🇦🇺 澳式英語</div>
     </div>
 </div>
 
-<!-- 🍎 新增：编辑个人资料 Modal -->
 <div class="glass-modal" id="editProfileModal">
     <div class="glass-modal-content">
-        <h3 id="editProfileTitle" style="margin-bottom: 16px; text-align: center; font-size: 20px; font-weight: 700;">修改信息</h3>
+        <h3 id="editProfileTitle" style="margin-bottom: 16px; text-align: center; font-size: 20px; font-weight: 700;">修改資訊</h3>
         <input type="text" id="editProfileInput" class="auth-input" style="margin-bottom: 16px; font-size: 14px;" />
         <div class="auth-file-group" id="editProfileFileGroup" style="display:none; margin-bottom: 16px;">
-            <span style="flex-shrink: 0; margin-right: 8px;">新头像图片</span>
+            <span style="flex-shrink: 0; margin-right: 8px;">新頭像圖片</span>
             <input type="file" id="editProfileFileInput" accept="image/*" />
         </div>
         <div style="display:flex; gap: 12px;">
@@ -864,7 +873,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 
 let videoDatabase = [];
 
-// 🍎 i18n 字典更新 (繁体 -> 简体)
 const i18n = {
     en: {
         nav_library: "Library", nav_vocab: "Vocabulary", nav_local: "Local Files", nav_profile: "Profile",
@@ -883,24 +891,23 @@ const i18n = {
         tt_ab: "A-B Repeat", tt_mode: "Subtitle Mode (Bilingual/English/Shadowing)"
     },
     zh: {
-        nav_library: "视频库", nav_vocab: "单词本", nav_local: "本地文件", nav_profile: "个人中心",
-        title_history: "观看历史", title_completed: "已学完", title_favorites: "我的收藏", search_placeholder: "搜索影片...",
-        filter_difficulty: "难度", filter_level_all: "所有难度", filter_level_5: "⭐⭐⭐⭐⭐ (困难)", filter_level_4: "⭐⭐⭐⭐ (进阶)", filter_level_3: "⭐⭐⭐ (中等)", filter_level_2: "⭐⭐ (基础)", filter_level_1: "⭐ (入门)",
-        filter_scenario: "场景", filter_topic_all: "所有主题", filter_topic_acad: "学术", filter_topic_daily: "日常生活", filter_topic_bus: "商业", filter_topic_ent: "娱乐",
+        nav_library: "影片庫", nav_vocab: "單字本", nav_local: "本地檔案", nav_profile: "個人中心",
+        title_history: "觀看紀錄", title_completed: "已學完", title_favorites: "我的收藏", search_placeholder: "搜尋影片...",
+        filter_difficulty: "難度", filter_level_all: "所有難度", filter_level_5: "⭐⭐⭐⭐⭐ (困難)", filter_level_4: "⭐⭐⭐⭐ (進階)", filter_level_3: "⭐⭐⭐ (中等)", filter_level_2: "⭐⭐ (基礎)", filter_level_1: "⭐ (入門)",
+        filter_scenario: "場景", filter_topic_all: "所有主題", filter_topic_acad: "學術", filter_topic_daily: "日常生活", filter_topic_bus: "商業", filter_topic_ent: "娛樂",
         filter_accent: "口音", filter_acc_all: "所有口音", filter_acc_us: "🇺🇸 美式", filter_acc_uk: "🇬🇧 英式", filter_acc_au: "🇦🇺 澳式",
-        empty_title: "未找到影片", empty_desc: "请尝试调整筛选条件，或等待数据加载。",
-        vocab_title: "单词本", vocab_total: "总计", btn_export: "导出 CSV",
-        tt_add: "加入生词本", tt_analyzing: "分析中...", tt_definition: "释义", tt_example: "例句", tt_synonyms: "同义词", word_remove: "移除",
-        loading: "加载中...", card_accent: "口音:",
-        cat_continue: "继续学习", cat_academic: "学术深研", cat_daily: "日常与旅行", cat_business: "商务英语",
-        menu_theme: "外观主题", menu_logout: "退出登录",
-        sidebar_video: "选择视频 (MP4)", sidebar_sub: "选择字幕 (SRT/VTT)", sidebar_launch: "进入学习舱",
-        local_title: "构建沉浸环境", local_desc: "请选择一部 MP4 视频与对应的 SRT/VTT 字幕文件，我们将为您自动生成交互式学习舱。",
-        tt_ab: "A-B 复读", tt_mode: "字幕模式 (双语/纯英文/跟读)"
+        empty_title: "未找到影片", empty_desc: "請嘗試調整篩選條件，或等待資料載入。",
+        vocab_title: "單字本", vocab_total: "總計", btn_export: "匯出 CSV",
+        tt_add: "加入單字本", tt_analyzing: "分析中...", tt_definition: "釋義", tt_example: "例句", tt_synonyms: "同義詞", word_remove: "移除",
+        loading: "載入中...", card_accent: "口音:",
+        cat_continue: "繼續學習", cat_academic: "學術深研", cat_daily: "日常與旅行", cat_business: "商務英語",
+        menu_theme: "外觀主題", menu_logout: "登出",
+        sidebar_video: "選擇影片 (MP4)", sidebar_sub: "選擇字幕 (SRT/VTT)", sidebar_launch: "進入學習艙",
+        local_title: "建構沉浸環境", local_desc: "請選擇一部 MP4 影片與對應的 SRT/VTT 字幕檔，我們將為您自動生成互動式學習艙。",
+        tt_ab: "A-B 複讀", tt_mode: "字幕模式 (雙語/純英文/跟讀)"
     }
 };
 
-// 🍎 补充雅思词汇正则库，防止渲染时抛出 ReferenceError 异常
 const ieltsRegex = /\b(abandon|abnormal|abolish|abrupt|absurd|abundance|academy|accelerate|accommodate|accompany|accomplish|accord|accumulate|accurate|accuse|accustom|achieve|acknowledge|acquire|adapt|adequate|adhere|adjacent|adjust|administer|adolescent|adopt|adverse|advocate|aesthetic|affiliate|aggravate|agressive|allocate|alter|alternate|ambiguous|ambitious|amend|ample|analogy|analyze|anonymous|anticipate|appall|apparatus|apparent|appeal|appetite|applaud|apply|appoint|appraise|appreciate|apprehend|approach|appropriate|approve|apt|arbitrary|arise|arouse|array|articulate|ascend|ascribe|aspect|assault|assemble|assert|assess|assign|assimilate|assist|associate|assume|assure|astonish|attach|attain|attempt|attend|attribute|authentic|authority|automatic|autonomous|available|avert|avoid|awkward)\b/gi;
 
 const state = { 
@@ -940,7 +947,6 @@ const dom = {
     localSubInputView: document.getElementById('localSubInputView'), localUploadDropzone: document.getElementById('localUploadDropzone')
 };
 
-// Custom Toast Notification System
 function showToast(message) {
     const container = document.getElementById('toastContainer');
     const toast = document.createElement('div');
@@ -950,7 +956,6 @@ function showToast(message) {
     setTimeout(() => { toast.style.animation = 'toastOut 0.3s forwards'; setTimeout(() => toast.remove(), 300); }, 3000);
 }
 
-// 🍎 图像压缩工具
 function resizeImageToBase64(file, maxWidth, maxHeight) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -973,7 +978,6 @@ function resizeImageToBase64(file, maxWidth, maxHeight) {
     });
 }
 
-// 🍎 Auth 逻辑
 const authState = { isLoginMode: true };
 const authScreen = document.getElementById('authScreen');
 const authForm = document.getElementById('authForm');
@@ -984,13 +988,12 @@ if (savedEmail) { authEmail.value = savedEmail; document.getElementById('authRem
 
 document.getElementById('authToggleLink').onclick = (e) => {
     e.preventDefault(); authState.isLoginMode = !authState.isLoginMode;
-    document.getElementById('authTitle').innerText = authState.isLoginMode ? '欢迎回来' : '创建账号';
-    document.getElementById('authSubmitBtn').innerText = authState.isLoginMode ? '登录' : '注册';
-    document.getElementById('authToggleText').innerText = authState.isLoginMode ? '还没有账号？' : '已经有账号了？';
-    e.target.innerText = authState.isLoginMode ? '立即注册' : '立即登录';
+    document.getElementById('authTitle').innerText = authState.isLoginMode ? '歡迎回來' : '創建帳號';
+    document.getElementById('authSubmitBtn').innerText = authState.isLoginMode ? '登入' : '註冊';
+    document.getElementById('authToggleText').innerText = authState.isLoginMode ? '還沒有帳號？' : '已經有帳號了？';
+    e.target.innerText = authState.isLoginMode ? '立即註冊' : '立即登入';
     document.getElementById('authErrorMsg').style.display = 'none';
     
-    // 切换表单字段的显示
     document.getElementById('authUsername').style.display = authState.isLoginMode ? 'none' : 'block';
     document.getElementById('authUsername').required = !authState.isLoginMode;
     document.getElementById('authAvatarGroup').style.display = authState.isLoginMode ? 'none' : 'flex';
@@ -1006,7 +1009,7 @@ authForm.onsubmit = async (e) => {
     const btn = document.getElementById('authSubmitBtn');
     
     try {
-        btn.disabled = true; btn.innerText = '请稍候...';
+        btn.disabled = true; btn.innerText = '請稍候...';
         if (authState.isLoginMode) {
             const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
             if (error) throw error;
@@ -1015,9 +1018,8 @@ authForm.onsubmit = async (e) => {
         } else {
             const ic = document.getElementById('authInviteCode').value.trim();
             const { data, error: ce } = await supabaseClient.from('invite_codes').select('*').eq('code', ic).maybeSingle();
-            if (ce || !data || data.is_used) throw new Error('邀请码无效或已被使用。');
+            if (ce || !data || data.is_used) throw new Error('邀請碼無效或已被使用。');
             
-            // 处理头像和用户名
             const username = document.getElementById('authUsername').value.trim();
             const avatarFile = document.getElementById('authAvatar').files[0];
             let avatarBase64 = null;
@@ -1030,12 +1032,12 @@ authForm.onsubmit = async (e) => {
             if (se) throw se;
             
             await supabaseClient.from('invite_codes').update({ is_used: true }).eq('code', ic);
-            showToast('注册成功！请登录。'); document.getElementById('authToggleLink').click();
+            showToast('註冊成功！請登入。'); document.getElementById('authToggleLink').click();
         }
     } catch (error) {
         err.innerText = error.message; err.style.display = 'block';
     } finally {
-        btn.disabled = false; btn.innerText = authState.isLoginMode ? '登录' : '注册';
+        btn.disabled = false; btn.innerText = authState.isLoginMode ? '登入' : '註冊';
     }
 };
 
@@ -1044,7 +1046,6 @@ function handleSession(session) {
         state.user = session.user;
         authScreen.classList.add('hidden');
         
-        // 解析并在个人资料里显示信息
         const meta = session.user.user_metadata || {};
         const username = meta.username || session.user.email.split('@')[0];
         const avatar = meta.avatar;
@@ -1070,7 +1071,6 @@ function handleSession(session) {
 }
 supabaseClient.auth.onAuthStateChange((_e, session) => handleSession(session));
 
-// 🍎 个人中心编辑逻辑
 window.openEditProfile = (type) => {
     state.editProfileType = type;
     const modal = document.getElementById('editProfileModal');
@@ -1080,12 +1080,12 @@ window.openEditProfile = (type) => {
     const fileInput = document.getElementById('editProfileFileInput');
     
     if (type === 'username') {
-        title.innerText = "修改用户名";
+        title.innerText = "修改使用者名稱";
         txtInput.style.display = 'block';
         fileGroup.style.display = 'none';
         txtInput.value = state.user.user_metadata?.username || state.user.email.split('@')[0];
     } else {
-        title.innerText = "修改头像";
+        title.innerText = "修改頭像";
         txtInput.style.display = 'none';
         fileGroup.style.display = 'flex';
         fileInput.value = '';
@@ -1105,11 +1105,11 @@ document.getElementById('saveProfileBtn').onclick = async () => {
         
         if (state.editProfileType === 'username') {
             const newName = document.getElementById('editProfileInput').value.trim();
-            if(!newName) throw new Error("用户名不能为空");
+            if(!newName) throw new Error("使用者名稱不能為空");
             updates.username = newName;
         } else {
             const file = document.getElementById('editProfileFileInput').files[0];
-            if(!file) throw new Error("请先选择一张图片");
+            if(!file) throw new Error("請先選擇一張圖片");
             updates.avatar = await resizeImageToBase64(file, 200, 200);
         }
         
@@ -1149,7 +1149,6 @@ async function loadVideosFromSupabase() {
     }
 }
 
-// 🍎 导航切换逻辑
 dom.sidebarNav.addEventListener('click', (e) => {
     const item = e.target.closest('.nav-item');
     if (item) {
@@ -1164,7 +1163,6 @@ dom.sidebarNav.addEventListener('click', (e) => {
     }
 });
 
-// 🍎 个人中心子标签切换
 dom.profileTabs.addEventListener('click', (e) => {
     if(e.target.classList.contains('profile-tab')) {
         document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
@@ -1250,7 +1248,6 @@ function renderGrid(container, context) {
     }
 }
 
-// 🍎 Filters Logic
 function initCustomFilter(btnId, modalId, labelId, filterKey) {
     const btn = document.getElementById(btnId); const modal = document.getElementById(modalId); const label = document.getElementById(labelId);
     if(!btn || !modal) return;
@@ -1333,10 +1330,9 @@ function renderTranscript() {
     });
 }
 
-// 🍎 体验优化：填空时自动暂停视频，答对后自动继续播放
 dom.transcript.addEventListener('focusin', (e) => {
     if (e.target.classList.contains('cloze-input')) {
-        dom.player.pause(); // 聚焦输入框时暂停视频
+        dom.player.pause();
     }
 });
 
@@ -1345,18 +1341,16 @@ dom.transcript.addEventListener('input', (e) => {
         const inputVal = e.target.value.toLowerCase().trim();
         const answer = e.target.dataset.answer.toLowerCase();
         
-        // 自动校验答案
         if (inputVal === answer) {
-            e.target.classList.add('correct'); // 添加正确样式 (变绿并防误触)
-            e.target.blur(); // 移除焦点
-            dom.player.play(); // 答对后自动继续播放
+            e.target.classList.add('correct');
+            e.target.blur();
+            dom.player.play();
         } else {
             e.target.classList.remove('correct');
         }
     }
 });
 
-// 播放器时间更新同步字幕
 let isThrottled = false;
 dom.player.addEventListener('timeupdate', () => {
     if (isThrottled) return; isThrottled = true;
@@ -1383,7 +1377,6 @@ dom.player.addEventListener('timeupdate', () => {
     });
 });
 
-// 保存进度
 setInterval(async () => {
     if(!state.currentVideoId || !dom.player.duration) return;
     const pct = Math.floor((dom.player.currentTime / dom.player.duration) * 100);
@@ -1468,11 +1461,11 @@ async function handleSelection() {
 dom.saveWordBtn.onclick = () => {
     if (!state.currentWord) return;
     let words = getVocab(); if (!words.some(w => w.word === state.currentWord.word)) { words.unshift(state.currentWord); saveVocab(words); renderVocab(); }
-    dom.tooltip.classList.remove('show'); showToast('已加入单词本');
+    dom.tooltip.classList.remove('show'); showToast('已加入單字本');
 };
 
 const handleExport = () => {
-    const words = getVocab(); if(!words.length) return showToast('没有单词可导出');
+    const words = getVocab(); if(!words.length) return showToast('沒有單字可匯出');
     const strip = h => { const t=document.createElement('DIV'); t.innerHTML=h; return t.textContent||''; };
     let csv = "Word,Definition,Example\n";
     words.forEach(w => csv += `"${w.word}","${strip(w.definition).replace(/"/g,'""')}","${(w.example||"").replace(/"/g,'""')}"\n`);
@@ -1481,7 +1474,6 @@ const handleExport = () => {
 };
 dom.globalExportVocabBtn.onclick = handleExport;
 
-// 🍎 本地文件处理 (集成在新 View 中)
 function checkLocalReady() { if (state.localReady.v && state.localReady.s) dom.btnLaunchLocalView.classList.add('active'); }
 function handleLocalFiles(files) {
     Array.from(files).forEach(f => {
@@ -1515,25 +1507,21 @@ dom.localUploadDropzone.addEventListener('dragleave', e => { e.preventDefault();
 dom.localUploadDropzone.addEventListener('drop', e => { e.preventDefault(); dom.localUploadDropzone.classList.remove('dragover'); handleLocalFiles(e.dataTransfer.files); });
 
 
-// Workspace tools
 dom.translateBtn.onclick = () => { state.translationVisible = !state.translationVisible; dom.translateBtn.classList.toggle('active'); document.querySelectorAll('.lyric-zh').forEach(el => el.classList.toggle('hidden', !state.translationVisible)); };
 dom.clozeBtn.onclick = () => { state.isClozeMode = !state.isClozeMode; dom.clozeBtn.classList.toggle('active', state.isClozeMode); renderTranscript(); };
 dom.dictationBtn.onclick = () => { state.dictationMode = !state.dictationMode; dom.dictationBtn.classList.toggle('active'); };
 dom.mobileVocabToggle.onclick = () => dom.vocabContainer.classList.add('open');
 dom.closeVocabBtn.onclick = () => dom.vocabContainer.classList.remove('open');
 
-// Player Speed
 dom.speedToggleBtn.onclick = (e) => { e.stopPropagation(); dom.speedMenu.classList.toggle('show'); const r=dom.speedToggleBtn.getBoundingClientRect(); dom.speedMenu.style.top = window.innerWidth>1024?`${r.bottom+12}px`:'auto'; dom.speedMenu.style.bottom = window.innerWidth<=1024?`${window.innerHeight-r.top+12}px`:'auto'; dom.speedMenu.style.left=`${r.left+(r.width/2)-50}px`; };
 document.querySelectorAll('.sp-item').forEach(item => item.onclick = () => { const s=parseFloat(item.dataset.speed); dom.player.playbackRate=s; localStorage.setItem('playbackRate',s); dom.speedToggleBtn.innerText=`${s.toFixed(1)}x`; document.querySelectorAll('.sp-item').forEach(i=>i.classList.remove('active')); item.classList.add('active'); dom.speedMenu.classList.remove('show'); });
 
-// Global interaction closes Modals
 document.addEventListener('click', e => { if (!dom.speedMenu.contains(e.target) && e.target !== dom.speedToggleBtn) dom.speedMenu.classList.remove('show'); if (!dom.tooltip.contains(e.target)) dom.tooltip.classList.remove('show'); });
 document.addEventListener('touchstart', e => { if (window.innerWidth <= 1024 && !dom.vocabContainer.contains(e.target) && !dom.mobileVocabToggle.contains(e.target)) dom.vocabContainer.classList.remove('open'); }, {passive: true});
 
-// Settings Handlers (in Profile View)
 const toggleTheme = () => { 
     document.body.classList.toggle('dark-theme'); 
-    // 同步更新 Safari 狀態列的 Theme Color 
+    document.documentElement.classList.toggle('dark-theme');
     const isDark = document.body.classList.contains('dark-theme');
     document.getElementById('themeColorMeta').content = isDark ? '#0d0f12' : '#fdfbfb';
 };
@@ -1541,7 +1529,7 @@ dom.btnSettingTheme.onclick = toggleTheme;
 
 const toggleLang = () => {
     state.lang = state.lang === 'en' ? 'zh' : 'en';
-    dom.txtSettingLang.innerText = state.lang === 'en' ? '切换为 中文' : 'Switch to English';
+    dom.txtSettingLang.innerText = state.lang === 'en' ? '切換為 中文' : 'Switch to English';
     const dict = i18n[state.lang];
     document.querySelectorAll('[data-i18n]').forEach(el => { if(dict[el.dataset.i18n]) el.innerText = dict[el.dataset.i18n]; });
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { if(dict[el.dataset.i18nPlaceholder]) el.placeholder = dict[el.dataset.i18nPlaceholder]; });
@@ -1550,10 +1538,9 @@ const toggleLang = () => {
 dom.btnSettingLang.onclick = toggleLang;
 dom.btnSettingLogout.onclick = async () => { await supabaseClient.auth.signOut(); window.location.reload(); };
 
-// Initialization execution
 updateLanguageUIInit();
 function updateLanguageUIInit() {
-    dom.txtSettingLang.innerText = state.lang === 'en' ? '切换为 中文' : 'Switch to English';
+    dom.txtSettingLang.innerText = state.lang === 'en' ? '切換為 中文' : 'Switch to English';
     const dict = i18n[state.lang];
     document.querySelectorAll('[data-i18n]').forEach(el => { if(dict[el.dataset.i18n]) el.innerText = dict[el.dataset.i18n]; });
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { if(dict[el.dataset.i18nPlaceholder]) el.placeholder = dict[el.dataset.i18nPlaceholder]; });
