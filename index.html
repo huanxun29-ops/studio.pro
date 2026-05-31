@@ -119,7 +119,7 @@
         }
         .home-screen.hidden { opacity: 0; visibility: hidden; transform: scale(0.98); }
         
-        /* 左侧菜单栏 (Sidebar) */
+        /* 🍎 左侧菜单栏 (Sidebar) - 極簡化 */
         .app-sidebar {
             width: 260px; flex-shrink: 0;
             background: var(--surface);
@@ -143,8 +143,6 @@
         .dark-theme .nav-item:hover { background: rgba(255,255,255,0.08); }
         .nav-item.active { background: rgba(0, 122, 255, 0.1); color: var(--blue); }
         .dark-theme .nav-item.active { background: rgba(10, 132, 255, 0.15); color: var(--blue); }
-        
-        .sidebar-bottom { margin-top: auto; border-top: 1px solid var(--border); padding-top: 16px; }
 
         /* 主内容区 */
         .home-main {
@@ -158,8 +156,6 @@
         .header-left { display: flex; flex-direction: column; gap: 16px; flex: 1; }
         .home-title { font-size: 40px; font-weight: 800; letter-spacing: -1.5px; line-height: 1; }
         
-        .mobile-theme-btn { display: none; }
-
         /* 新增：搜索框 */
         .search-box { width: 100%; max-width: 600px; position: relative; margin-top: 8px; }
         .search-box input {
@@ -171,7 +167,54 @@
         .search-box input:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15); }
         .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; fill: var(--text-sub); }
 
-        /* 过滤栏 Filters (升级为自定义玻璃按钮) */
+        /* 🍎 右上角按鈕群組與下拉選單 */
+        .header-actions { display: flex; gap: 16px; align-items: center; }
+        .action-wrapper { position: relative; } /* 為下拉選單定位使用 */
+
+        .header-icon-btn {
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--surface); border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.3s; color: var(--text-main);
+            box-shadow: var(--shadow); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+        }
+        .header-icon-btn:hover { background: var(--hover-bg); transform: scale(1.05); border-color: var(--blue); }
+        .header-icon-btn svg { width: 22px; height: 22px; fill: currentColor; }
+        
+        .glass-dropdown {
+            position: absolute; top: calc(100% + 12px); right: 0; width: 220px;
+            background: var(--liquid-bg); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%);
+            border: 1px solid var(--liquid-border); box-shadow: var(--liquid-shadow);
+            border-radius: 20px; padding: 8px; display: flex; flex-direction: column;
+            opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1000;
+        }
+        .glass-dropdown.show { opacity: 1; visibility: visible; transform: translateY(0); }
+        
+        .dropdown-header { padding: 12px 12px 4px 12px; font-size: 13px; color: var(--text-sub); font-weight: 600; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .dropdown-item {
+            display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 14px;
+            font-size: 14px; font-weight: 600; color: var(--text-main); cursor: pointer; transition: 0.2s;
+        }
+        .dropdown-item svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
+        .dropdown-item:hover { background: var(--hover-bg); transform: scale(0.98); }
+        
+        /* 特殊下拉選單項目樣式 */
+        .dropdown-item.danger { color: var(--red); }
+        .dropdown-item.danger:hover { background: rgba(255, 59, 48, 0.1); }
+        
+        .dropdown-item.ready { color: var(--green); background: rgba(52, 199, 89, 0.1); }
+        .dark-theme .dropdown-item.ready { background: rgba(52, 199, 89, 0.15); }
+        .dropdown-item.ready svg { fill: var(--green); }
+        
+        .dropdown-item.launch-btn-item { justify-content: center; background: var(--text-main); color: var(--bg); opacity: 0.4; pointer-events: none; margin-top: 4px; }
+        .dropdown-item.launch-btn-item.active { opacity: 1; pointer-events: auto; }
+        .dropdown-item.launch-btn-item.active:hover { transform: translateY(-2px) scale(1); }
+
+        .truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .filter-divider { width: 1px; height: 24px; background: var(--border); margin: 0 8px; }
+
+        /* 过滤栏 Filters */
         .filter-bar { 
             display: flex; gap: 16px; flex-wrap: wrap; 
             background: var(--surface); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
@@ -191,8 +234,6 @@
         .custom-filter-btn:hover { background: rgba(0,0,0,0.08); }
         .dark-theme .custom-filter-btn:hover { background: rgba(255,255,255,0.15); }
         .custom-filter-btn svg { width: 18px; height: 18px; fill: var(--text-sub); transition: 0.3s; }
-        
-        .filter-divider { width: 1px; height: 24px; background: var(--border); margin: 0 8px; }
 
         /* 悬浮玻璃菜单 (Glass Modal for Selects) */
         .glass-modal {
@@ -320,25 +361,6 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .sidebar-upload {
-            display: flex; flex-direction: column; gap: 4px; padding-top: 24px; margin-top: 24px;
-            border-top: 1px solid var(--border);
-        }
-        .upload-label { font-size: 11px; font-weight: 700; color: var(--text-sub); letter-spacing: 0.5px; padding-left: 12px; margin-bottom: 8px; }
-        .upload-item { position: relative; }
-        .upload-item.ready { color: var(--green); background: rgba(52, 199, 89, 0.1); }
-        .dark-theme .upload-item.ready { background: rgba(52, 199, 89, 0.15); }
-        .upload-item.ready svg { fill: var(--green); }
-        .truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
-        
-        .launch-btn {
-            background: var(--text-main); color: var(--bg); border: none; padding: 12px 24px;
-            border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.3s;
-            opacity: 0.4; pointer-events: none; width: 100%; margin-top: 8px; text-align: center;
-        }
-        .launch-btn.active { opacity: 1; pointer-events: auto; }
-        .launch-btn.active:hover { transform: translateY(-2px); }
-
         .empty-state {
             grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center;
             padding: 80px 20px; text-align: center; color: var(--text-sub);
@@ -347,6 +369,51 @@
         .empty-state h3 { font-size: 18px; color: var(--text-main); margin-bottom: 8px; }
         .error-card { background: rgba(255,59,48,0.1); border: 1px solid rgba(255,59,48,0.3); border-radius: 16px; padding: 20px; text-align: left; max-width: 600px; margin-top: 20px; }
         .error-card code { display: block; background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px; margin-top: 10px; font-family: monospace; font-size: 13px; color: var(--text-main); word-break: break-all;}
+
+        /* 🍎 Auth (登入/註冊) 介面 */
+        .auth-screen {
+            position: fixed; inset: 0; z-index: 100000;
+            background: var(--bg); display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.4s, visibility 0.4s;
+        }
+        .auth-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .auth-card {
+            background: var(--liquid-bg); border: 1px solid var(--liquid-border);
+            box-shadow: var(--liquid-shadow); border-radius: 32px; padding: 40px;
+            width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 20px;
+            backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+        }
+        .auth-title { font-size: 28px; font-weight: 800; text-align: center; color: var(--text-main); margin-bottom: 10px; }
+        
+        /* 表單排版 */
+        .auth-form { display: flex; flex-direction: column; gap: 20px; width: 100%; }
+        
+        .auth-input {
+            width: 100%; height: 50px; border: 1px solid var(--glass-border); outline: none;
+            border-radius: 16px; padding: 0 20px; font-size: 16px; font-weight: 500;
+            background: var(--surface); color: var(--text-main); transition: 0.3s;
+        }
+        .auth-input:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15); }
+        
+        /* 淺紅色錯誤提示樣式 */
+        .auth-error-msg {
+            color: var(--red); font-size: 13px; font-weight: 600;
+            margin-top: -10px; margin-bottom: -5px; padding-left: 8px;
+            display: none; animation: fadeIn 0.3s ease; white-space: pre-wrap;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .auth-checkbox-group { display: flex; align-items: center; gap: 8px; padding-left: 4px; }
+        .auth-checkbox-group input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--blue); }
+        .auth-checkbox-group label { font-size: 14px; color: var(--text-sub); cursor: pointer; user-select: none; }
+        
+        .auth-btn {
+            background: var(--blue); color: #fff; border: none; padding: 16px;
+            border-radius: 16px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s;
+        }
+        .auth-btn:hover { background: #0066cc; transform: translateY(-2px); }
+        .auth-toggle { text-align: center; font-size: 14px; color: var(--text-sub); }
+        .auth-toggle a { color: var(--blue); text-decoration: none; font-weight: 600; }
 
         /* =========================================
            🍎 主工作区 (Workspace)
@@ -469,7 +536,7 @@
             .home-header { flex-direction: column; align-items: stretch; position: relative; padding-bottom: 16px; border-bottom: none; }
             .header-left { gap: 12px; }
             .home-title { font-size: 28px; }
-            .header-actions { position: absolute; top: 0; right: 0; }
+            .header-actions { position: absolute; top: 0; right: 0; gap: 8px; }
             .search-box { margin-top: 0; }
             .search-box input { height: 44px; border-radius: 14px; font-size: 14px; padding-left: 40px; }
             .search-icon { left: 14px; width: 18px; height: 18px; }
@@ -492,32 +559,18 @@
             .row-scroll .video-card { flex: 0 0 82vw; max-width: 320px; }
             .video-grid { grid-template-columns: 1fr; gap: 20px; }
 
+            /* 手機版純淨 Tab Bar 導航 */
             .app-sidebar {
                 width: 100%; border-right: none; position: fixed; bottom: 0; left: 0;
-                flex-direction: row; align-items: center;
+                flex-direction: row; align-items: center; justify-content: space-around;
                 padding: 8px 12px calc(8px + var(--safe-bottom)) 12px;
                 border-top: 1px solid var(--liquid-border); border-radius: 24px 24px 0 0;
                 background: var(--liquid-bg); box-shadow: var(--liquid-shadow); z-index: 99;
-                overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch;
-                justify-content: flex-start; gap: 12px;
             }
-            .app-sidebar::-webkit-scrollbar { display: none; }
-            .app-brand, .sidebar-bottom { display: none; }
-            
-            .app-nav { flex-direction: row; width: auto; justify-content: flex-start; gap: 4px; flex: 0 0 auto; }
-            .nav-item { flex-direction: column; gap: 4px; font-size: 10px; padding: 6px 8px; min-width: 54px; border-radius: 12px; }
+            .app-brand { display: none; }
+            .app-nav { flex-direction: row; width: 100%; justify-content: space-around; gap: 4px; flex: 1; }
+            .nav-item { flex: 1; flex-direction: column; gap: 4px; font-size: 10px; padding: 8px 0; border-radius: 12px; justify-content: center; }
             .nav-item svg { width: 22px; height: 22px; }
-            
-            .sidebar-upload {
-                flex-direction: row; border-top: none; padding-top: 0; margin-top: 0;
-                border-left: 2px solid var(--border); padding-left: 12px; margin-left: 0;
-                flex: 0 0 auto; gap: 8px; align-items: center; height: 100%;
-            }
-            .upload-label, .sidebar-upload .truncate { display: none; }
-            .sidebar-upload .nav-item { min-width: 44px; padding: 6px; }
-            .sidebar-upload .launch-btn { width: auto; margin-top: 0; padding: 8px 16px; font-size: 13px; border-radius: 12px; }
-
-            .mobile-theme-btn { display: flex; }
             
             body { align-items: flex-start; }
             .workspace { flex-direction: column; padding: 0; gap: 0; }
@@ -563,10 +616,34 @@
     <div class="bubble" style="left: 80%; animation-duration: 24s; animation-delay: 8s;">Focus</div>
 </div>
 
+<!-- 🍎 登入/註冊介面 -->
+<div class="auth-screen hidden" id="authScreen">
+    <div class="auth-card">
+        <div class="auth-title" id="authTitle">歡迎回來</div>
+        <form id="authForm" class="auth-form">
+            <input type="email" id="authEmail" class="auth-input" placeholder="電子信箱" autocomplete="email" required />
+            <input type="password" id="authPassword" class="auth-input" placeholder="密碼" autocomplete="current-password" required />
+            <input type="text" id="authInviteCode" class="auth-input" placeholder="邀請碼 (註冊必填)" style="display: none;" autocomplete="off" />
+            
+            <div id="authErrorMsg" class="auth-error-msg"></div>
+
+            <div class="auth-checkbox-group" id="authRememberGroup">
+                <input type="checkbox" id="authRemember" checked />
+                <label for="authRemember">記住信箱</label>
+            </div>
+            
+            <button type="submit" class="auth-btn" id="authSubmitBtn">登入</button>
+        </form>
+        <div class="auth-toggle">
+            <span id="authToggleText">還沒有帳號？</span> <a href="#" id="authToggleLink">立即註冊</a>
+        </div>
+    </div>
+</div>
+
 <!-- 🍎 首页：多功能视频库 -->
 <div class="home-screen" id="homeScreen">
     
-    <!-- 左侧菜单栏 -->
+    <!-- 🍎 極簡左侧菜单栏 -->
     <aside class="app-sidebar">
         <div class="app-brand">
             <svg viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11z"/><circle cx="17.5" cy="17.5" r="4.5"/><path d="M3 13.5h8v8H3z"/></svg>
@@ -576,11 +653,11 @@
         <nav class="app-nav" id="sidebarNav">
             <div class="nav-item active" data-tab="all" data-title="Library">
                 <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
-                <span data-i18n="title_all">视频库</span>
+                <span data-i18n="title_all">視頻庫</span>
             </div>
             <div class="nav-item" data-tab="history" data-title="History">
                 <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
-                <span data-i18n="title_history">观看历史</span>
+                <span data-i18n="title_history">觀看歷史</span>
             </div>
             <div class="nav-item" data-tab="favorites" data-title="Favorites">
                 <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
@@ -588,31 +665,9 @@
             </div>
             <div class="nav-item" data-tab="completed" data-title="Completed">
                 <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                <span data-i18n="title_completed">已学完</span>
+                <span data-i18n="title_completed">已學完</span>
             </div>
         </nav>
-        
-        <div class="sidebar-upload">
-            <div class="upload-label" data-i18n="sidebar_local">LOCAL FILES</div>
-            <label class="nav-item upload-item" id="btnLocalVideo">
-                <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-                <span id="txtLocalVideo" class="truncate" data-i18n="sidebar_video">选择视频 (MP4)</span>
-                <input type="file" id="localVideoInput" accept="video/mp4,video/webm" hidden>
-            </label>
-            <label class="nav-item upload-item" id="btnLocalSub">
-                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-                <span id="txtLocalSub" class="truncate" data-i18n="sidebar_sub">选择字幕 (SRT)</span>
-                <input type="file" id="localSubInput" accept=".srt,.json,.vtt,.ass" hidden>
-            </label>
-            <button class="launch-btn" id="btnLaunchLocal" data-i18n="sidebar_launch">进入学习舱</button>
-        </div>
-
-        <div class="sidebar-bottom">
-            <div class="nav-item" id="sidebarThemeBtn">
-                <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
-                <span data-i18n="sidebar_theme">外观主题</span>
-            </div>
-        </div>
     </aside>
 
     <!-- 主内容区 -->
@@ -622,18 +677,74 @@
             <!-- 头部与导航 -->
             <div class="home-header">
                 <div class="header-left">
-                    <div class="home-title" id="pageTitle" data-i18n="title_all">视频库</div>
+                    <div class="home-title" id="pageTitle" data-i18n="title_all">視頻庫</div>
                     <!-- 搜索框 -->
                     <div class="search-box">
                         <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                        <input type="text" id="searchInput" placeholder="搜索视频..." data-i18n-placeholder="search_placeholder">
+                        <input type="text" id="searchInput" placeholder="搜索影片..." data-i18n-placeholder="search_placeholder">
                     </div>
                 </div>
-                <div class="header-actions" style="display: flex; gap: 12px; align-items: center;">
-                    <button class="icon-btn" id="langToggleBtn" title="Toggle Language" style="background:var(--surface); border:1px solid var(--border); font-size: 14px; font-weight: 700; font-family: inherit;">EN</button>
-                    <button class="icon-btn mobile-theme-btn" id="homeThemeBtn" title="Toggle Theme" style="background:var(--surface); border:1px solid var(--border)">
-                        <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
-                    </button>
+                
+                <!-- 🍎 頂部操作區塊 -->
+                <div class="header-actions">
+                    <!-- 1. 本地文件區塊 -->
+                    <div class="action-wrapper">
+                        <button class="header-icon-btn" id="localMenuBtn" title="本地文件">
+                            <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+                        </button>
+                        
+                        <div class="glass-dropdown" id="localMenuDropdown">
+                            <div class="dropdown-header" data-i18n="sidebar_local">本地文件學習</div>
+                            <div class="filter-divider" style="width: 100%; height: 1px; margin: 4px 0;"></div>
+                            
+                            <label class="dropdown-item" id="btnLocalVideo" style="position: relative;">
+                                <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                                <span id="txtLocalVideo" class="truncate" data-i18n="sidebar_video" style="max-width: 150px;">選擇影片 (MP4)</span>
+                                <input type="file" id="localVideoInput" accept="video/mp4,video/webm" hidden>
+                            </label>
+                            
+                            <label class="dropdown-item" id="btnLocalSub" style="position: relative;">
+                                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                                <span id="txtLocalSub" class="truncate" data-i18n="sidebar_sub" style="max-width: 150px;">選擇字幕 (SRT)</span>
+                                <input type="file" id="localSubInput" accept=".srt,.json,.vtt,.ass" hidden>
+                            </label>
+                            
+                            <div class="filter-divider" style="width: 100%; height: 1px; margin: 4px 0;"></div>
+                            
+                            <div class="dropdown-item launch-btn-item" id="btnLaunchLocal">
+                                <span data-i18n="sidebar_launch">進入學習艙</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 2. 用戶設定區塊 -->
+                    <div class="action-wrapper">
+                        <button class="header-icon-btn" id="userMenuBtn" title="用戶選單">
+                            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        </button>
+                        
+                        <div class="glass-dropdown" id="userMenuDropdown">
+                            <div class="dropdown-header" id="menuUserEmail">未登入</div>
+                            <div class="filter-divider" style="width: 100%; height: 1px; margin: 4px 0;"></div>
+                            
+                            <div class="dropdown-item" id="menuLangToggle">
+                                <svg viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
+                                <span id="menuLangText">Switch to English</span>
+                            </div>
+                            
+                            <div class="dropdown-item" id="menuThemeToggle">
+                                <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+                                <span data-i18n="menu_theme">外觀主題</span>
+                            </div>
+
+                            <div class="filter-divider" style="width: 100%; height: 1px; margin: 4px 0;"></div>
+
+                            <div class="dropdown-item danger" id="menuLogoutBtn">
+                                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+                                <span data-i18n="menu_logout">退出登入</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -672,7 +783,7 @@
                 <!-- 加载状态指示器 -->
                 <div class="empty-state">
                     <div class="spinner"></div>
-                    <h3 data-i18n="loading">加载中...</h3>
+                    <h3 data-i18n="loading">加載中...</h3>
                 </div>
             </div>
 
@@ -796,21 +907,160 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 let videoDatabase = [];
 
 // ==========================================
-// 🍎 【修复核心 1】：优化获取与错误展示逻辑
+// 🍎 身份驗證 (Auth) 系統
+// ==========================================
+const authState = { 
+    isLoginMode: true,
+    failedAttempts: 0,
+    lockoutUntil: 0
+};
+const authScreen = document.getElementById('authScreen');
+const authTitle = document.getElementById('authTitle');
+const authForm = document.getElementById('authForm');
+const authEmail = document.getElementById('authEmail');
+const authPassword = document.getElementById('authPassword');
+const authInviteCode = document.getElementById('authInviteCode');
+const authErrorMsg = document.getElementById('authErrorMsg');
+const authRemember = document.getElementById('authRemember');
+const authRememberGroup = document.getElementById('authRememberGroup');
+const authSubmitBtn = document.getElementById('authSubmitBtn');
+const authToggleLink = document.getElementById('authToggleLink');
+const authToggleText = document.getElementById('authToggleText');
+
+const savedEmail = localStorage.getItem('studio_saved_email');
+if (savedEmail) {
+    authEmail.value = savedEmail;
+    authRemember.checked = true;
+}
+
+authToggleLink.onclick = (e) => {
+    e.preventDefault();
+    authState.isLoginMode = !authState.isLoginMode;
+    authTitle.innerText = authState.isLoginMode ? '歡迎回來' : '建立帳號';
+    authSubmitBtn.innerText = authState.isLoginMode ? '登入' : '註冊';
+    authToggleText.innerText = authState.isLoginMode ? '還沒有帳號？' : '已經有帳號了？';
+    authToggleLink.innerText = authState.isLoginMode ? '立即註冊' : '立即登入';
+    
+    authErrorMsg.style.display = 'none';
+    authErrorMsg.innerText = '';
+    
+    authInviteCode.style.display = authState.isLoginMode ? 'none' : 'block';
+    authInviteCode.required = !authState.isLoginMode;
+    authRememberGroup.style.display = authState.isLoginMode ? 'flex' : 'none';
+    
+    authPassword.setAttribute('autocomplete', authState.isLoginMode ? 'current-password' : 'new-password');
+};
+
+authForm.onsubmit = async (e) => {
+    e.preventDefault();
+    authErrorMsg.style.display = 'none';
+    authErrorMsg.innerText = '';
+
+    try {
+        const email = authEmail.value.trim();
+        const password = authPassword.value;
+        const inviteCode = authInviteCode.value.trim();
+
+        if (!authState.isLoginMode && !inviteCode) {
+            authErrorMsg.innerText = '請輸入邀請碼';
+            authErrorMsg.style.display = 'block';
+            return;
+        }
+
+        if (authState.isLoginMode) {
+            if (Date.now() < authState.lockoutUntil) {
+                const remainingSecs = Math.ceil((authState.lockoutUntil - Date.now()) / 1000);
+                authErrorMsg.innerText = `⚠️ 錯誤次數過多！請等待 ${remainingSecs} 秒後再嘗試登入。`;
+                authErrorMsg.style.display = 'block';
+                return;
+            }
+        }
+
+        authSubmitBtn.innerText = '請稍候...';
+        authSubmitBtn.disabled = true;
+
+        if (authState.isLoginMode) {
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            
+            if (error) {
+                if (error.message.includes('Invalid login credentials') || error.message.includes('credentials')) {
+                    authState.failedAttempts++;
+                    const remainingChances = 3 - authState.failedAttempts;
+                    
+                    if (remainingChances <= 0) {
+                        authState.lockoutUntil = Date.now() + 60000;
+                        authState.failedAttempts = 0;
+                        throw new Error(`密碼錯誤已達 3 次！\n基於安全考量，登入暫時鎖定，請等待 60 秒。`);
+                    } else {
+                        throw new Error(`帳號或密碼錯誤。您還有 ${remainingChances} 次輸入機會。`);
+                    }
+                }
+                throw error;
+            }
+            
+            authState.failedAttempts = 0;
+            if (authRemember.checked) {
+                localStorage.setItem('studio_saved_email', email);
+            } else {
+                localStorage.removeItem('studio_saved_email');
+            }
+        } else {
+            const { data: codeData, error: codeError } = await supabaseClient
+                .from('invite_codes')
+                .select('*')
+                .eq('code', inviteCode)
+                .maybeSingle();
+
+            if (codeError) throw new Error('資料庫查詢錯誤: ' + codeError.message);
+            if (!codeData) throw new Error('找不到這組邀請碼，請確認是否輸入正確。');
+            if (codeData.is_used) throw new Error('這組邀請碼已經被使用過了！');
+
+            const { error: signUpError } = await supabaseClient.auth.signUp({ email, password });
+            if (signUpError) throw signUpError;
+
+            await supabaseClient.from('invite_codes').update({ is_used: true }).eq('code', inviteCode);
+
+            alert('🎉 註冊成功！\n(系統已自動為您切換至登入畫面，請直接點擊登入)');
+            authToggleLink.click();
+        }
+    } catch (error) {
+        console.error("Auth Exception:", error);
+        authErrorMsg.innerText = (error.message || '未知錯誤，請按 F12 檢查控制台');
+        authErrorMsg.style.display = 'block';
+    } finally {
+        authSubmitBtn.innerText = authState.isLoginMode ? '登入' : '註冊';
+        authSubmitBtn.disabled = false;
+    }
+};
+
+function handleSession(session) {
+    if (session) {
+        state.user = session.user;
+        authScreen.classList.add('hidden');
+        if (dom.menuUserEmail) dom.menuUserEmail.innerText = session.user.email;
+        if (videoDatabase.length === 0) loadVideosFromSupabase();
+    } else {
+        state.user = null;
+        authScreen.classList.remove('hidden');
+        if (dom.menuUserEmail) dom.menuUserEmail.innerText = '未登入';
+    }
+}
+
+supabaseClient.auth.onAuthStateChange((_event, session) => {
+    handleSession(session);
+});
+
+
+// ==========================================
+// 🍎 数据获取与错误展示逻辑
 // ==========================================
 async function loadVideosFromSupabase() {
+    if (!state.user) return;
+    
     const dict = i18n[state.lang];
     try {
-        // 请求数据
-        const { data, error } = await supabaseClient
-            .from('videos')
-            .select('*')
-            .order('created_at', { ascending: false });
-
-        if(error) {
-            // 直接抛出错误，交给下方的 catch 渲染给用户看
-            throw error;
-        }
+        const { data, error } = await supabaseClient.from('videos').select('*').order('created_at', { ascending: false });
+        if(error) throw error;
 
         videoDatabase = data.map(v => ({
             id: v.id,
@@ -825,11 +1075,10 @@ async function loadVideosFromSupabase() {
             progress: 0,
             favorite: false,
             status: 'new',
-            duration: v.duration || '--:--', // <--- 优先读取数据库的值
+            duration: v.duration || '--:--',
             date: 'Cloud'
         }));
 
-        // 恢复进度
         videoDatabase.forEach(v => {
             const savedPct = localStorage.getItem(`prog_pct_${v.id}`);
             if(savedPct) {
@@ -839,10 +1088,8 @@ async function loadVideosFromSupabase() {
         });
 
         renderGrid();
-
     } catch(e) {
         console.error("Supabase Error Details: ", e);
-        // 【关键修复】在 UI 上直接反馈数据库报错，方便你查错
         dom.mainContentArea.innerHTML = `
             <div class="empty-state">
                 <svg viewBox="0 0 24 24" style="fill: var(--red); width:64px; height:64px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
@@ -850,11 +1097,6 @@ async function loadVideosFromSupabase() {
                 <div class="error-card">
                     <p style="font-weight:600; font-size:14px; margin-bottom:8px;">错误详情：</p>
                     <code>${e.message || "未知错误"}</code>
-                    <ul style="font-size:13px; color:var(--text-sub); margin-top:16px; padding-left:20px; line-height:1.6;">
-                        <li>请检查 Supabase 中是否真的建了名为 <b>videos</b> 的表。</li>
-                        <li>请检查该表是否开启了 <b>Row Level Security (RLS)</b>，如果开启了，必须添加允许匿名读取 (Select) 的 Policy。</li>
-                        <li>请检查提供的 API Key 和 URL 是否正确。</li>
-                    </ul>
                 </div>
             </div>
         `;
@@ -870,11 +1112,10 @@ const i18n = {
         title_history: "History",
         title_completed: "Completed",
         title_favorites: "Favorites",
-        sidebar_theme: "Theme",
         sidebar_local: "LOCAL FILES",
         sidebar_video: "Video (MP4)",
         sidebar_sub: "Subtitles (SRT/VTT)",
-        sidebar_launch: "Launch",
+        sidebar_launch: "Launch Workspace",
         search_placeholder: "Search videos...",
         filter_difficulty: "Difficulty",
         filter_level_all: "All Levels",
@@ -909,53 +1150,56 @@ const i18n = {
         cat_continue: "Continue Watching",
         cat_academic: "Academic Deep Dive",
         cat_daily: "Daily Life & Travel",
-        cat_business: "Business English"
+        cat_business: "Business English",
+        menu_theme: "Theme",
+        menu_logout: "Log Out"
     },
     zh: {
-        title_all: "视频库",
-        title_history: "观看历史",
-        title_completed: "已学完",
+        title_all: "視頻庫",
+        title_history: "觀看歷史",
+        title_completed: "已學完",
         title_favorites: "我的收藏",
-        sidebar_theme: "外观主题",
-        sidebar_local: "本地文件",
-        sidebar_video: "选择视频 (MP4)",
-        sidebar_sub: "选择字幕 (SRT/VTT)",
-        sidebar_launch: "进入学习舱",
-        search_placeholder: "搜索视频...",
-        filter_difficulty: "难度",
-        filter_level_all: "所有难度",
-        filter_level_5: "⭐⭐⭐⭐⭐ (困难)",
-        filter_level_4: "⭐⭐⭐⭐ (进阶)",
+        sidebar_local: "本地文件學習",
+        sidebar_video: "選擇影片 (MP4)",
+        sidebar_sub: "選擇字幕 (SRT)",
+        sidebar_launch: "進入學習艙",
+        search_placeholder: "搜索影片...",
+        filter_difficulty: "難度",
+        filter_level_all: "所有難度",
+        filter_level_5: "⭐⭐⭐⭐⭐ (困難)",
+        filter_level_4: "⭐⭐⭐⭐ (進階)",
         filter_level_3: "⭐⭐⭐ (中等)",
-        filter_level_2: "⭐⭐ (基础)",
-        filter_level_1: "⭐ (入门)",
-        filter_scenario: "场景",
-        filter_topic_all: "所有主题",
-        filter_topic_acad: "学术",
+        filter_level_2: "⭐⭐ (基礎)",
+        filter_level_1: "⭐ (入門)",
+        filter_scenario: "場景",
+        filter_topic_all: "所有主題",
+        filter_topic_acad: "學術",
         filter_topic_daily: "日常生活",
-        filter_topic_bus: "商业",
-        filter_topic_ent: "娱乐",
+        filter_topic_bus: "商業",
+        filter_topic_ent: "娛樂",
         filter_accent: "口音",
         filter_acc_all: "所有口音",
-        filter_acc_us: "🇺🇸 美式英语",
-        filter_acc_uk: "🇬🇧 英式英语",
-        filter_acc_au: "🇦🇺 澳式英语",
-        empty_title: "未找到视频",
-        empty_desc: "请尝试调整筛选条件，或者确认 Supabase 数据库中有数据插入。",
-        vocab_title: "生词本",
-        btn_export: "导出 CSV",
-        tt_add: "加入生词本",
+        filter_acc_us: "🇺🇸 美式英語",
+        filter_acc_uk: "🇬🇧 英式英語",
+        filter_acc_au: "🇦🇺 澳式英語",
+        empty_title: "未找到影片",
+        empty_desc: "請嘗試調整篩選條件，或者確認 Supabase 資料庫中有數據插入。",
+        vocab_title: "生詞本",
+        btn_export: "匯出 CSV",
+        tt_add: "加入生詞本",
         tt_analyzing: "分析中...",
-        tt_definition: "释义",
+        tt_definition: "釋義",
         tt_example: "例句",
-        tt_synonyms: "同义词",
+        tt_synonyms: "同義詞",
         word_remove: "移除",
-        loading: "加载中...",
+        loading: "加載中...",
         card_accent: "口音:",
-        cat_continue: "继续学习",
-        cat_academic: "学术深研",
-        cat_daily: "日常与旅行",
-        cat_business: "商务英语"
+        cat_continue: "繼續學習",
+        cat_academic: "學術深研",
+        cat_daily: "日常與旅行",
+        cat_business: "商務英語",
+        menu_theme: "外觀主題",
+        menu_logout: "退出登入"
     }
 };
 
@@ -964,6 +1208,7 @@ const state = {
     currentTab: 'all',
     searchText: '',
     filters: { rating: 'all', tag: 'all', accent: 'all' },
+    user: null,
     
     currentVideoId: null,
     subtitles: [], 
@@ -982,7 +1227,6 @@ const dom = {
     transcript: document.getElementById('transcript'), 
     tooltip: document.getElementById('tooltip'), 
     themeBtn: document.getElementById('themeBtn'), 
-    homeThemeBtn: document.getElementById('homeThemeBtn'),
     translateBtn: document.getElementById('translateBtn'), 
     clozeBtn: document.getElementById('clozeBtn'),
     dictationBtn: document.getElementById('dictationBtn'), 
@@ -999,11 +1243,21 @@ const dom = {
     backToHomeBtn: document.getElementById('backToHomeBtn'), 
     
     sidebarNav: document.getElementById('sidebarNav'),
-    sidebarThemeBtn: document.getElementById('sidebarThemeBtn'),
     pageTitle: document.getElementById('pageTitle'),
     searchInput: document.getElementById('searchInput'),
     filterBar: document.getElementById('filterBar'),
     mainContentArea: document.getElementById('mainContentArea'),
+
+    // 右上角選單元素
+    localMenuBtn: document.getElementById('localMenuBtn'),
+    localMenuDropdown: document.getElementById('localMenuDropdown'),
+    userMenuBtn: document.getElementById('userMenuBtn'),
+    userMenuDropdown: document.getElementById('userMenuDropdown'),
+    menuUserEmail: document.getElementById('menuUserEmail'),
+    menuLangToggle: document.getElementById('menuLangToggle'),
+    menuThemeToggle: document.getElementById('menuThemeToggle'),
+    menuLogoutBtn: document.getElementById('menuLogoutBtn'),
+    menuLangText: document.getElementById('menuLangText'),
 
     btnLocalVideo: document.getElementById('btnLocalVideo'), 
     btnLocalSub: document.getElementById('btnLocalSub'),
@@ -1011,8 +1265,7 @@ const dom = {
     txtLocalSub: document.getElementById('txtLocalSub'),
     btnLaunchLocal: document.getElementById('btnLaunchLocal'),
     localVideoInput: document.getElementById('localVideoInput'),
-    localSubInput: document.getElementById('localSubInput'),
-    langToggleBtn: document.getElementById('langToggleBtn'),
+    localSubInput: document.getElementById('localSubInput')
 };
 
 // ==========================================
@@ -1163,7 +1416,6 @@ function renderGrid() {
                      <div class="row-scroll">${business.map(v => renderVideoCard(v, dict)).join('')}</div></div>`;
         }
         
-        // 如果上面没有任何特定分类，显示完整的 Grid
         if(html === '') {
             html = `<div class="video-grid">${filtered.map(v => renderVideoCard(v, dict)).join('')}</div>`;
         }
@@ -1226,31 +1478,24 @@ if(dom.sidebarNav) {
     });
 }
 
-// ==========================================
-// 🍎 【修复核心 2】：定义缺失的 UI 切换函数
-// ==========================================
 function enterWorkspace() {
     dom.homeScreen.classList.add('hidden');
     dom.workspace.classList.add('active');
 }
 
-// 绑定返回按钮事件，返回主界面并暂停视频
 dom.backToHomeBtn.onclick = () => {
     dom.workspace.classList.remove('active');
     dom.homeScreen.classList.remove('hidden');
     dom.player.pause();
 };
 
-// ==========================================
-// 🍎 【修复核心 3】：增强字慕查询的容错处理
-// ==========================================
 async function loadVideo(id) {
     const videoData = videoDatabase.find(v => v.id === id);
     if (!videoData) return;
     state.currentVideoId = id;
     
     if (!videoData.videoUrl) {
-        alert("视频链接为空，请在 Supabase 里补全 video_url 字段。");
+        alert("視頻鏈接為空，請在 Supabase 裡補全 video_url 欄位。");
         return;
     }
 
@@ -1273,10 +1518,8 @@ async function loadVideo(id) {
             dom.player.removeEventListener('loadedmetadata', onLoaded);
         });
         
-        // --- 对字幕做查询容错降级处理 ---
         let finalSubtitles = [];
         
-        // 尝试查询包含 highlights 外键关联的数据
         const { data: joinData, error: joinError } = await supabaseClient
             .from('subtitles')
             .select('*, highlights:subtitle_highlights(*)')
@@ -1284,19 +1527,13 @@ async function loadVideo(id) {
             .order('start', { ascending: true });
 
         if(joinError) {
-            console.warn("包含外键的关联查询失败，尝试基础查询 (这通常是因为还没建 subtitle_highlights 表): ", joinError.message);
-            // 降级：仅查询纯字幕
             const { data: basicData, error: basicError } = await supabaseClient
                 .from('subtitles')
                 .select('*')
                 .eq('video_id', id)
                 .order('start', { ascending: true });
             
-            if (basicError) {
-                console.error("基础字幕查询也失败:", basicError);
-            } else {
-                finalSubtitles = basicData || [];
-            }
+            if (!basicError) finalSubtitles = basicData || [];
         } else {
             finalSubtitles = joinData || [];
         }
@@ -1304,13 +1541,11 @@ async function loadVideo(id) {
         state.subtitles = finalSubtitles;
 
         renderTranscript();
-        
-        // 调用补充完毕的页面切换函数
         enterWorkspace();
         
     } catch (err) {
         console.error("Failed to setup workspace:", err);
-        alert(`加载播放环境失败: ${err.message}`);
+        alert(`加載播放環境失敗: ${err.message}`);
     } finally {
         if(card) card.classList.remove('loading');
     }
@@ -1324,23 +1559,43 @@ const toggleTheme = () => {
     const isDark = document.body.classList.contains('dark-theme');
     if(isDark) { 
         dom.themeBtn.classList.add('active'); 
-        dom.homeThemeBtn.classList.add('active'); 
-        if(dom.sidebarThemeBtn) dom.sidebarThemeBtn.classList.add('active');
     } else { 
         dom.themeBtn.classList.remove('active'); 
-        dom.homeThemeBtn.classList.remove('active'); 
-        if(dom.sidebarThemeBtn) dom.sidebarThemeBtn.classList.remove('active');
     }
 };
-dom.themeBtn.onclick = toggleTheme; dom.homeThemeBtn.onclick = toggleTheme;
-if(dom.sidebarThemeBtn) dom.sidebarThemeBtn.onclick = toggleTheme;
+dom.themeBtn.onclick = toggleTheme;
+if (dom.menuThemeToggle) dom.menuThemeToggle.onclick = toggleTheme;
 
 const toggleLang = () => {
     state.lang = state.lang === 'en' ? 'zh' : 'en';
-    if(dom.langToggleBtn) dom.langToggleBtn.innerText = state.lang === 'en' ? 'EN' : '中';
+    if(dom.menuLangText) {
+        dom.menuLangText.innerText = state.lang === 'en' ? '切換為 中文' : 'Switch to English';
+    }
     updateLanguageUI();
 };
-if(dom.langToggleBtn) dom.langToggleBtn.onclick = toggleLang;
+if (dom.menuLangToggle) dom.menuLangToggle.onclick = toggleLang;
+
+// 🍎 管理頂部下拉選單
+const setupDropdown = (btn, dropdown) => {
+    if (!btn || !dropdown) return;
+    btn.onclick = (e) => {
+        e.stopPropagation();
+        // 關閉其他的下拉選單
+        document.querySelectorAll('.glass-dropdown').forEach(d => {
+            if (d !== dropdown) d.classList.remove('show');
+        });
+        dropdown.classList.toggle('show');
+    };
+};
+setupDropdown(dom.localMenuBtn, dom.localMenuDropdown);
+setupDropdown(dom.userMenuBtn, dom.userMenuDropdown);
+
+if (dom.menuLogoutBtn) {
+    dom.menuLogoutBtn.onclick = async () => {
+        await supabaseClient.auth.signOut();
+        window.location.reload();
+    };
+}
 
 function updateLanguageUI() {
     const dict = i18n[state.lang];
@@ -1439,6 +1694,14 @@ dom.speedToggleBtn.onclick = (e) => {
 document.addEventListener('click', e => { 
     if (!dom.speedMenu.contains(e.target) && e.target !== dom.speedToggleBtn) dom.speedMenu.classList.remove('show'); 
     if (!dom.tooltip.contains(e.target)) dom.tooltip.classList.remove('show');
+    
+    // 點擊外部關閉所有下拉選單
+    document.querySelectorAll('.glass-dropdown').forEach(dropdown => {
+        const btn = dropdown.previousElementSibling;
+        if (btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
+            dropdown.classList.remove('show');
+        }
+    });
 });
 
 document.querySelectorAll('.sp-item').forEach(item => {
@@ -1548,7 +1811,7 @@ setInterval(async () => {
         await supabaseClient
         .from('progress')
         .upsert({
-            user_id: 'guest',
+            user_id: state.user ? state.user.id : 'guest',
             video_id: state.currentVideoId,
             watched_seconds: dom.player.currentTime,
             progress_percent: pct
@@ -1662,7 +1925,12 @@ function renderVocab() {
 }
 window.deleteWord = i => { let words = getVocab(); words.splice(i, 1); saveVocab(words); renderVocab(); };
 
-function checkLocalReady() { if (state.localReady.v && state.localReady.s) dom.btnLaunchLocal.classList.add('active'); }
+function checkLocalReady() { 
+    if (state.localReady.v && state.localReady.s) {
+        dom.btnLaunchLocal.classList.add('active'); 
+    }
+}
+
 function handleLocalFiles(files) {
     Array.from(files).forEach(f => {
         if (f.type.includes('video') || f.name.endsWith('.mp4') || f.name.endsWith('.webm')) {
@@ -1686,13 +1954,23 @@ function handleLocalFiles(files) {
 }
 dom.localVideoInput.addEventListener('change', e => handleLocalFiles(e.target.files));
 dom.localSubInput.addEventListener('change', e => handleLocalFiles(e.target.files));
-dom.btnLaunchLocal.onclick = () => { if (state.localReady.v && state.localReady.s) { renderTranscript(); enterWorkspace(); } };
+dom.btnLaunchLocal.onclick = () => { 
+    if (state.localReady.v && state.localReady.s) { 
+        renderTranscript(); 
+        enterWorkspace(); 
+        // 進入後自動收起下拉選單
+        dom.localMenuDropdown.classList.remove('show');
+    } 
+};
 
 document.body.addEventListener('dragover', e => e.preventDefault());
 document.body.addEventListener('drop', e => { if(!dom.homeScreen.classList.contains('hidden')) { e.preventDefault(); handleLocalFiles(e.dataTransfer.files); } });
 
-// 初始化
-loadVideosFromSupabase();
+// 初始化 (改為透過 Auth 監聽觸發加載)
+supabaseClient.auth.getSession().then(({ data: { session } }) => {
+    handleSession(session);
+});
+
 updateLanguageUI();
 
 const initialRate = localStorage.getItem('playbackRate') || 1;
