@@ -890,8 +890,12 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 
 let videoDatabase = [];
 
-// 雅思核心高频词（扩展用于自动高亮，配合更严谨的正则）
-const IELTS_VOCAB_STATIC = [
+// ==========================================
+// 优化核心：使用 Set (哈希表) 取代字符串数组的超级正则表达式
+// ==========================================
+// 将所有单词库转换为小写的 Set 结构，保证 O(1) 的查询速度
+// 无论单词有几百个还是几万个，都不会对性能造成影响。
+const CORE_VOCAB_HASH = new Set([
     "abandon", "abnormal", "abolish", "abrupt", "absurd", "abundance", "academy", "accelerate", "accommodate", "accompany", 
     "accomplish", "accumulate", "accurate", "accuse", "acknowledge", "acquire", "adapt", "adequate", "adhere", "adjacent", 
     "adjust", "administer", "adolescent", "adopt", "adverse", "advocate", "aesthetic", "affiliate", "aggravate", "aggressive", 
@@ -905,11 +909,10 @@ const IELTS_VOCAB_STATIC = [
     "evaluate", "feature", "final", "focus", "impact", "injure", "institute", "invest", "item", "journal", "maintain", 
     "normal", "obtain", "participate", "perceive", "positive", "potential", "previous", "primary", "purchase", "range", 
     "region", "regulate", "relevant", "reside", "resource", "restrict", "secure", "seek", "select", "site", "strategy", "survey", "text", "tradition", "transfer", "gravitating"
-];
-// 使用负向前瞻后顾确保只匹配完整单词且避免破坏已有HTML标签
-const ieltsRegex = new RegExp(`(?<!<[^>]*)\\b(${IELTS_VOCAB_STATIC.join('|')})\\b(?![^<]*>)`, 'gi');
+    // 你可以将上万个托福、雅思单词全部塞进这里...
+].map(w => w.toLowerCase()));
 
-// 离线字典缓存 (全简体)
+// 离线字典缓存 (用于显示释义，此结构本身已是哈希对象)
 const LOCAL_EN_ZH_DICT = {
     "abandon": "v. 放弃，抛弃；沉溺于", "abnormal": "adj. 反常的，异常的", "abolish": "v. 废除，废止", "abrupt": "adj. 突然的，意外的",
     "absurd": "adj. 荒谬的，可笑的", "abundance": "n. 充裕，丰富", "academy": "n. 学院，学会", "accelerate": "v. 加速，促进",
@@ -1025,7 +1028,7 @@ function resizeImageToBase64(file, maxWidth, maxHeight) {
 }
 
 // ----------------------------------------------------------------
-// 核心 IndexedDB 数据存储系统 (取代 localStorage 以支持巨量单词)
+// 核心 IndexedDB 数据存储系统 (支持巨量单词)
 // ----------------------------------------------------------------
 const DB_NAME = 'StudioProDB_v4'; const DB_VERSION = 3; let db = null;
 
@@ -1241,7 +1244,7 @@ function renderGrid(container, context) {
 }
 
 // ----------------------------------------------------------------
-// 播放器、字幕与跟读引擎 (完善版)
+// 播放器、字幕与跟读引擎 (使用 Set 优化单词匹配)
 // ----------------------------------------------------------------
 async function loadVideo(id) {
     const videoData = videoDatabase.find(v => v.id === id); if (!videoData) return; state.currentVideoId = id; if (!videoData.videoUrl) { showToast("Video URL is empty."); return; }
@@ -1271,8 +1274,23 @@ function applyLocalHighlights(text, localHls) {
             });
         });
     }
+    
+    // 将文本分割为处理过 (placeholder) 与未处理过的部分
     const parts = res.split(/(__PH_\d+__)/);
-    res = parts.map(part => { if (part.startsWith('__PH_')) return part; return part.replace(ieltsRegex, match => addPlaceholder(`<span class="ielts-word" title="点击查词">${match}</span>`)); }).join('');
+    res = parts.map(part => { 
+        if (part.startsWith('__PH_')) return part; 
+        
+        // 【核心优化】: 用基础单词正则匹配纯文本部分，然后使用 Hash 结构 (Set) 以 O(1) 的复杂度进行判断
+        // 此做法完全移除了以往数千词构成的超大正则表达式，性能显著提升！
+        return part.replace(/\b([a-zA-Z]+(?:'[a-zA-Z]+)?)\b/g, (match, wordPart) => {
+            if (CORE_VOCAB_HASH.has(wordPart.toLowerCase())) {
+                return addPlaceholder(`<span class="ielts-word" title="点击查词">${match}</span>`);
+            }
+            return match;
+        });
+    }).join('');
+    
+    // 复原 placeholder 为实际 HTML 标签
     placeholders.forEach(ph => { res = res.replace(ph.key, ph.html); }); return res;
 }
 
@@ -1284,7 +1302,7 @@ function renderTranscript() {
     lyricNodes = Array.from(document.querySelectorAll('.lyric-line'));
     lyricNodes.forEach((node, i) => { 
         node.onclick = (e) => { 
-            // 如果点中了需要填空的 input 框，或者是雅思词，则不跳转
+            // 如果点中了需要填空的 input 框，或者是重点单词，则不跳转视频时间
             if (e.target.tagName === 'INPUT' || e.target.classList.contains('ielts-word')) return; 
             dom.player.currentTime = state.subtitles[i].start; 
             dom.player.play(); 
@@ -1321,7 +1339,7 @@ setInterval(async () => {
 
 dom.abRepeatBtn.onclick = () => {
     if (state.abState === 0) { state.abPointA = dom.player.currentTime; state.abState = 1; dom.abRepeatBtn.classList.add('half-active'); document.getElementById('abText').innerText = 'A'; showToast(`标记 A 点: ${formatTime(state.abPointA)}`); }
-    else if (state.abState === 1) { state.abPointB = dom.player.currentTime; if (state.abPointB <= state.abPointA) { showToast("B 点必须晚于 A 点"); state.abState = 0; dom.abRepeatBtn.classList.remove('half-active'); document.getElementById('abText').innerText = ''; return; } state.abState = 2; dom.abRepeatBtn.classList.remove('half-active'); dom.abRepeatBtn.classList.add('active'); document.getElementById('abText').innerText = 'A-B'; showToast(`循环区间建立: ${formatTime(state.abPointA)} - ${formatTime(state.abPointB)}`); }
+    else if (state.abState === 1) { state.abPointB = dom.player.currentTime; if (state.abPointB <= state.abPointA) { showToast("B 点必须晚于 A 点"); state.abState = 0; dom.abRepeatBtn.classList.remove('half-active'); document.getElementById('abText').innerText = ''; return; } state.abState = 2; dom.abRepeatBtn.classList.remove('half-active'); dom.abRepeatBtn.classList.add('active'); document.getElementById('abText').innerText = 'A-B'; showToast(`建立循环区间: ${formatTime(state.abPointA)} - ${formatTime(state.abPointB)}`); }
     else { state.abState = 0; dom.abRepeatBtn.classList.remove('active'); document.getElementById('abText').innerText = ''; showToast("已取消复读"); }
 };
 
@@ -1331,7 +1349,7 @@ const SUBTITLE_ICONS = [
     `<svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/><line x1="2" y1="22" x2="22" y2="2" stroke="currentColor" stroke-width="2"/></svg>`
 ];
 
-dom.subtitleModeBtn.onclick = () => { state.subtitleMode = (state.subtitleMode + 1) % 3; dom.transcript.className = 'transcript-flow mode-' + state.subtitleMode; dom.subtitleModeBtn.innerHTML = SUBTITLE_ICONS[state.subtitleMode]; if(state.subtitleMode === 0) showToast("已切换至：双语模式"); else if(state.subtitleMode === 1) showToast("已切换至：纯英文模式"); else showToast("已切换至：盲听模式 (文本模糊，悬停可见)"); };
+dom.subtitleModeBtn.onclick = () => { state.subtitleMode = (state.subtitleMode + 1) % 3; dom.transcript.className = 'transcript-flow mode-' + state.subtitleMode; dom.subtitleModeBtn.innerHTML = SUBTITLE_ICONS[state.subtitleMode]; if(state.subtitleMode === 0) showToast("已切换至：双语模式"); else if(state.subtitleMode === 1) showToast("已切换至：纯英文模式"); else showToast("已切换至：盲听模式 (文字模糊，悬停可见)"); };
 dom.clozeBtn.onclick = () => { state.isClozeMode = !state.isClozeMode; dom.clozeBtn.classList.toggle('active', state.isClozeMode); renderTranscript(); };
 dom.mobileVocabToggle.onclick = () => dom.vocabContainer.classList.add('open'); dom.closeVocabBtn.onclick = () => dom.vocabContainer.classList.remove('open');
 
@@ -1408,7 +1426,7 @@ async function populateTooltip(word) {
     try {
         if (word.includes(' ')) {
             document.getElementById('tooltipPhonetic').innerText = "[Phrase]"; document.getElementById('tooltipDef').innerHTML = "<em>Phrase definition selected.</em>";
-            state.currentWord = { word: lowerWord, phonetic: '', definition: "Phrase / Idea Unit", example: "", synonyms: [], addedAt: Date.now(), reviewCount: 0, nextReview: getNextReviewDate(0) };
+            state.currentWord = { word: lowerWord, phonetic: '', definition: "片语 / 意群", example: "", synonyms: [], addedAt: Date.now(), reviewCount: 0, nextReview: getNextReviewDate(0) };
             fetchZhTranslation(lowerWord).then(zh => {
                 if(zh) { state.currentWord.zhDefinition = zh; document.getElementById('tooltipZhDef').innerText = zh; document.getElementById('tooltipZhSection').style.display = 'block'; }
             });
@@ -1522,13 +1540,13 @@ dom.btnLaunchLocalView.onclick = () => { if (state.localReady.v && state.localRe
 dom.localUploadDropzone.addEventListener('dragover', e => { e.preventDefault(); dom.localUploadDropzone.classList.add('dragover'); }); dom.localUploadDropzone.addEventListener('dragleave', e => { e.preventDefault(); dom.localUploadDropzone.classList.remove('dragover'); }); dom.localUploadDropzone.addEventListener('drop', e => { e.preventDefault(); dom.localUploadDropzone.classList.remove('dragover'); handleLocalFiles(e.dataTransfer.files); });
 
 // ----------------------------------------------------------------
-// 系统互动控制 (热键, 菜单, 触屏)
+// 系统互动控制 (热键, 菜单, 触控)
 // ----------------------------------------------------------------
 dom.speedToggleBtn.onclick = (e) => { e.stopPropagation(); dom.speedMenu.classList.toggle('show'); const r=dom.speedToggleBtn.getBoundingClientRect(); dom.speedMenu.style.top = window.innerWidth>1024?`${r.bottom+12}px`:'auto'; dom.speedMenu.style.bottom = window.innerWidth<=1024?`${window.innerHeight-r.top+12}px`:'auto'; dom.speedMenu.style.left=`${r.left+(r.width/2)-50}px`; };
 document.querySelectorAll('.sp-item').forEach(item => item.onclick = () => { const s=parseFloat(item.dataset.speed); dom.player.playbackRate=s; localStorage.setItem('playbackRate',s); dom.speedToggleBtn.innerText=`${s.toFixed(1)}x`; document.querySelectorAll('.sp-item').forEach(i=>i.classList.remove('active')); item.classList.add('active'); dom.speedMenu.classList.remove('show'); });
 document.addEventListener('click', e => { if (!dom.speedMenu.contains(e.target) && e.target !== dom.speedToggleBtn) dom.speedMenu.classList.remove('show'); if (!dom.tooltip.contains(e.target)) dom.tooltip.classList.remove('show'); }); document.addEventListener('touchstart', e => { if (window.innerWidth <= 1024 && !dom.vocabContainer.contains(e.target) && !dom.mobileVocabToggle.contains(e.target)) dom.vocabContainer.classList.remove('open'); }, {passive: true});
 
-// 手机端双击快进快退
+// 手机端双击快转倒退
 let lastVideoTapTime = 0;
 dom.videoContainer.addEventListener('touchstart', (e) => {
     const currentTime = new Date().getTime(); const tapLength = currentTime - lastVideoTapTime;
@@ -1577,5 +1595,3 @@ document.addEventListener('keydown', (e) => { if (!dom.workspace.classList.conta
 </script>
 </body>
 </html>
-
-
