@@ -2007,18 +2007,29 @@ document.addEventListener('click', (e) => {
 // 中文翻译：使用 MyMemory API（免费，无需 key）
 // ================================================================
 async function fetchZhTranslation(word) {
+    // Google翻译非官方接口：无需key，无CORS限制，质量好
     try {
-        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|zh`;
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=${encodeURIComponent(word)}`;
         const res = await fetch(url);
-        if (!res.ok) return null;
-        const data = await res.json();
-        if (data.responseStatus === 200 && data.responseData && data.responseData.translatedText) {
-            const zh = data.responseData.translatedText.trim();
-            // 过滤掉返回了英文或数字乱码的情况
+        if (res.ok) {
+            const data = await res.json();
+            // 返回格式: [[[译文, 原文, ...],...], ...]
+            const translated = data?.[0]?.map(item => item?.[0]).filter(Boolean).join('').trim();
+            if (translated && /[一-龥]/.test(translated)) return translated;
+        }
+    } catch {}
+
+    // 备用：MyMemory
+    try {
+        const res2 = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|zh-CN`);
+        if (res2.ok) {
+            const data2 = await res2.json();
+            const zh = data2?.responseData?.translatedText?.trim();
             if (zh && /[一-龥]/.test(zh)) return zh;
         }
-        return null;
-    } catch { return null; }
+    } catch {}
+
+    return null;
 }
 
 async function showWordTooltip(word, targetEl) {
