@@ -28,6 +28,7 @@
                              inset 0 -1px 1px rgba(0, 0, 0, 0.02);
                              
             --shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
+            --safe-top: env(safe-area-inset-top, 0px);
             --safe-bottom: env(safe-area-inset-bottom, 20px);
         }
 
@@ -56,11 +57,18 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
+        /* 解決 Safari 回彈露白問題 */
+        html {
+            background-color: var(--bg);
+            transition: background-color 0.4s ease;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
             background-color: var(--bg);
             color: var(--text-main);
             height: 100dvh;
+            width: 100vw;
             overflow: hidden;
             transition: background-color 0.4s ease, color 0.4s ease;
             -webkit-font-smoothing: antialiased;
@@ -69,8 +77,9 @@
             justify-content: center;
         }
 
+        /* 擴大 mesh-bg 尺寸並偏移，防止 Safari 捲動回彈時出現邊界割裂感 */
         .mesh-bg {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
+            position: fixed; top: -10vh; left: -10vw; width: 120vw; height: 120vh; z-index: -2;
             background-color: #fdfbfb;
             background-image: 
                 radial-gradient(at 0% 0%, rgba(255, 228, 214, 0.8) 0px, transparent 50%),
@@ -101,7 +110,7 @@
             0% { transform: translateY(0) rotate(-5deg) scale(0.9); opacity: 0; }
             10% { opacity: 1; }
             90% { opacity: 1; }
-            100% { transform: translateY(-110vh) rotate(15deg) scale(1.1); opacity: 0; }
+            100% { transform: translateY(-120vh) rotate(15deg) scale(1.1); opacity: 0; }
         }
 
         .home-screen {
@@ -119,7 +128,7 @@
             backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
             border-right: 1px solid var(--glass-border);
             display: flex; flex-direction: column;
-            padding: 40px 20px; z-index: 10;
+            padding: calc(40px + var(--safe-top)) 20px 40px 20px; z-index: 10;
         }
         .app-brand { display: flex; align-items: center; gap: 12px; font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 40px; padding: 0 12px; }
         .app-brand svg { width: 28px; height: 28px; fill: var(--blue); }
@@ -139,7 +148,7 @@
 
         .home-main {
             flex: 1; overflow-y: auto; scroll-behavior: smooth;
-            padding: 60px 40px; display: flex; flex-direction: column; align-items: center;
+            padding: calc(60px + var(--safe-top)) 40px 60px 40px; display: flex; flex-direction: column; align-items: center;
         }
         
         .home-content-wrapper { max-width: 1200px; width: 100%; display: flex; flex-direction: column; gap: 32px; }
@@ -148,11 +157,17 @@
         .app-view.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .view-header { display: flex; justify-content: space-between; align-items: flex-end; width: 100%; border-bottom: 1px solid var(--border); padding-bottom: 20px;}
-        .header-left { display: flex; flex-direction: column; gap: 16px; flex: 1; }
-        .view-title { font-size: 40px; font-weight: 800; letter-spacing: -1.5px; line-height: 1; }
+        /* 優化標題與搜尋框排版 */
+        .top-section-group {
+            display: flex; flex-direction: column; gap: 16px; width: 100%;
+            border-bottom: 1px solid var(--border); padding-bottom: 24px;
+        }
         
-        .search-box { width: 100%; max-width: 600px; position: relative; margin-top: 8px; }
+        .view-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .header-left { display: flex; flex-direction: row; align-items: center; gap: 24px; flex: 1; width: 100%; }
+        .view-title { font-size: 40px; font-weight: 800; letter-spacing: -1.5px; line-height: 1; flex-shrink: 0; }
+        
+        .search-box { width: 100%; max-width: none; flex: 1; position: relative; }
         .search-box input {
             width: 100%; height: 50px; border: 1px solid var(--glass-border); outline: none;
             border-radius: 18px; padding: 0 20px 0 48px; font-size: 16px; font-weight: 500;
@@ -166,7 +181,7 @@
             display: flex; gap: 16px; flex-wrap: wrap; 
             background: var(--surface); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
             padding: 16px; border-radius: 20px; border: 1px solid var(--glass-border); box-shadow: var(--shadow);
-            transition: all 0.3s;
+            transition: all 0.3s; width: 100%; margin-top: 0;
         }
         .filter-group { display: flex; align-items: center; gap: 12px; }
         .filter-label { font-size: 13px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -413,39 +428,32 @@
         .icon-btn:hover { background: var(--hover-bg); }
         .icon-btn.active { background: var(--text-main); color: var(--bg); }
         .icon-btn svg { width: 18px; height: 18px; fill: currentColor; }
-        .icon-btn.half-active { background: var(--purple); color: #fff; } /* For A-B repeat A point */
+        .icon-btn.half-active { background: var(--purple); color: #fff; }
         
         .speed-btn-txt { padding: 0 16px; height: 38px; border-radius: 99px; border: none; background: transparent; color: var(--text-main); font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.25s; }
         .speed-btn-txt:active { background: var(--hover-bg); }
         .divider { width: 1px; height: 20px; background: var(--border); margin: auto 4px; }
 
-        /* 🍎 新增功能：字幕容器与模式样式 */
         .transcript-flow { flex: 1; overflow-y: auto; padding: 80px 10% 120px 10%; scroll-behavior: smooth; }
         .transcript-flow::-webkit-scrollbar { display: none; }
         
         .lyric-line { margin-bottom: 24px; cursor: pointer; opacity: 0.35; transform: scale(0.98); transform-origin: left center; transition: all 0.4s; border-left: 4px solid transparent; padding-left: 16px; }
         
-        /* 🍎 升级：更醒目的高亮当前句 */
         .lyric-line.active { opacity: 1; transform: scale(1.02); border-left-color: var(--blue); background: linear-gradient(90deg, rgba(0, 122, 255, 0.08) 0%, transparent 100%); border-radius: 0 12px 12px 0; padding-top: 8px; padding-bottom: 8px;}
         .dark-theme .lyric-line.active { background: linear-gradient(90deg, rgba(10, 132, 255, 0.15) 0%, transparent 100%); }
         
         .lyric-en { font-size: 24px; font-weight: 700; line-height: 1.4; letter-spacing: -0.5px; user-select: text; -webkit-user-select: text; transition: 0.3s ease; }
         .lyric-zh { font-size: 15px; font-weight: 500; color: var(--text-sub); margin-top: 8px; line-height: 1.5; transition: opacity 0.3s; }
         
-        /* 🍎 雅思词汇高亮 */
         .ielts-word { border-bottom: 2px dashed var(--orange); color: var(--orange); cursor: help; padding-bottom: 2px; }
         .dark-theme .ielts-word { color: #FFB340; border-bottom-color: #FFB340; }
         
         .hl-word { background: rgba(52, 199, 89, 0.15); color: var(--green); border-radius: 6px; padding: 2px 4px; }
         
-        /* 🍎 字幕三种模式逻辑 (Bilingual, English, Shadowing) */
-        /* mode-0: 双语 (默认) */
         .transcript-flow.mode-0 .lyric-zh { display: block; }
         
-        /* mode-1: 纯英文 */
         .transcript-flow.mode-1 .lyric-zh { display: none; }
         
-        /* mode-2: 跟读 (模糊英文, 隐藏中文, 悬停/激活时清晰) */
         .transcript-flow.mode-2 .lyric-zh { display: none; }
         .transcript-flow.mode-2 .lyric-en { filter: blur(6px); opacity: 0.6; }
         .transcript-flow.mode-2 .lyric-line.active .lyric-en,
@@ -483,14 +491,15 @@
 
         @media (max-width: 1024px) {
             .home-screen { flex-direction: column; }
-            .home-main { padding: 20px 16px 120px 16px; }
+            .home-main { padding: calc(20px + var(--safe-top)) 16px 120px 16px; }
             
-            .view-header { flex-direction: column; align-items: flex-start; border-bottom: none; gap: 16px;}
-            .view-title { font-size: 32px; }
-            .search-box { margin-top: 0; }
+            .top-section-group { padding-bottom: 12px; border-bottom: none; }
+            .header-left { flex-direction: column; align-items: stretch; gap: 16px;}
+            .view-title { font-size: 32px; align-self: flex-start; }
+            .search-box { width: 100%; margin-top: 0; }
             .search-box input { height: 44px; border-radius: 14px; font-size: 14px; padding-left: 40px; }
 
-            .filter-bar { flex-direction: row; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 8px 12px; border-radius: 16px; gap: 8px; margin-top: 8px; }
+            .filter-bar { flex-direction: row; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 8px 12px; border-radius: 16px; gap: 8px; margin-top: 0; }
             .filter-bar::-webkit-scrollbar { display: none; }
             .filter-group { flex: 0 0 auto; gap: 0; }
             .filter-label { display: none; }
@@ -606,20 +615,23 @@
         <div class="home-content-wrapper">
             <!-- 视图 1: 视频库 -->
             <div id="view-library" class="app-view active">
-                <div class="view-header">
-                    <div class="header-left">
-                        <div class="view-title" data-i18n="nav_library">视频库</div>
-                        <div class="search-box">
-                            <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                            <input type="text" id="searchInput" placeholder="搜索影片..." data-i18n-placeholder="search_placeholder">
+                
+                <div class="top-section-group">
+                    <div class="view-header">
+                        <div class="header-left">
+                            <div class="view-title" data-i18n="nav_library">视频库</div>
+                            <div class="search-box">
+                                <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                                <input type="text" id="searchInput" placeholder="搜索影片..." data-i18n-placeholder="search_placeholder">
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="filter-bar" id="filterBar">
-                    <div class="filter-group"><span class="filter-label" data-i18n="filter_difficulty">难度</span><div class="custom-filter-btn" id="btnFilterRating"><span id="labelFilterRating" data-i18n="filter_level_all">所有难度</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div><div class="filter-divider"></div>
-                    <div class="filter-group"><span class="filter-label" data-i18n="filter_scenario">场景</span><div class="custom-filter-btn" id="btnFilterTag"><span id="labelFilterTag" data-i18n="filter_topic_all">所有主题</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div><div class="filter-divider"></div>
-                    <div class="filter-group"><span class="filter-label" data-i18n="filter_accent">口音</span><div class="custom-filter-btn" id="btnFilterAccent"><span id="labelFilterAccent" data-i18n="filter_acc_all">所有口音</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div>
+                    <div class="filter-bar" id="filterBar">
+                        <div class="filter-group"><span class="filter-label" data-i18n="filter_difficulty">难度</span><div class="custom-filter-btn" id="btnFilterRating"><span id="labelFilterRating" data-i18n="filter_level_all">所有难度</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div><div class="filter-divider"></div>
+                        <div class="filter-group"><span class="filter-label" data-i18n="filter_scenario">场景</span><div class="custom-filter-btn" id="btnFilterTag"><span id="labelFilterTag" data-i18n="filter_topic_all">所有主题</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div><div class="filter-divider"></div>
+                        <div class="filter-group"><span class="filter-label" data-i18n="filter_accent">口音</span><div class="custom-filter-btn" id="btnFilterAccent"><span id="labelFilterAccent" data-i18n="filter_acc_all">所有口音</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div>
+                    </div>
                 </div>
 
                 <div id="libraryContentArea">
@@ -629,11 +641,13 @@
 
             <!-- 视图 2: 单词本 -->
             <div id="view-vocabulary" class="app-view">
-                <div class="view-header">
-                    <div class="header-left">
-                        <div class="view-title" data-i18n="nav_vocab">单词本</div>
+                <div class="top-section-group">
+                    <div class="view-header">
+                        <div class="header-left">
+                            <div class="view-title" data-i18n="nav_vocab">单词本</div>
+                        </div>
+                        <button class="export-btn" id="globalExportVocabBtn" data-i18n="btn_export">导出 CSV</button>
                     </div>
-                    <button class="export-btn" id="globalExportVocabBtn" data-i18n="btn_export">导出 CSV</button>
                 </div>
                 <div class="global-vocab-container">
                     <div class="global-vocab-header">
@@ -645,9 +659,11 @@
 
             <!-- 视图 3: 本地文件 -->
             <div id="view-local" class="app-view">
-                <div class="view-header">
-                    <div class="header-left">
-                        <div class="view-title" data-i18n="nav_local">本地文件</div>
+                <div class="top-section-group">
+                    <div class="view-header">
+                        <div class="header-left">
+                            <div class="view-title" data-i18n="nav_local">本地文件</div>
+                        </div>
                     </div>
                 </div>
                 <div class="local-upload-area" id="localUploadDropzone">
@@ -673,9 +689,11 @@
 
             <!-- 视图 4: 个人中心 -->
             <div id="view-profile" class="app-view">
-                <div class="view-header">
-                    <div class="header-left">
-                        <div class="view-title" data-i18n="nav_profile">个人中心</div>
+                <div class="top-section-group">
+                    <div class="view-header">
+                        <div class="header-left">
+                            <div class="view-title" data-i18n="nav_profile">个人中心</div>
+                        </div>
                     </div>
                 </div>
 
@@ -719,7 +737,7 @@
     </main>
 </div>
 
-<!-- 🍎 主工作区 -->
+<!-- 主工作区 -->
 <div class="workspace" id="workspace">
     <div class="sidebar">
         <div class="video-container">
@@ -741,15 +759,12 @@
             </button>
             <div class="divider"></div>
             
-            <!-- A-B Repeat Button -->
             <button class="icon-btn" id="abRepeatBtn" title="A-B Repeat" data-i18n-title="tt_ab">
                 <svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4zm-4-2V9h-1l-2 1v1h1.5v4H13z"/></svg>
                 <span class="ab-btn-text" id="abText"></span>
             </button>
             
-            <!-- Subtitle Mode Toggle Button (Replaces Translation toggle) -->
             <button class="icon-btn active" id="subtitleModeBtn" title="Subtitle Mode" data-i18n-title="tt_mode">
-                <!-- SVG dynamically changed in JS, defaults to Bilingual icon -->
                 <svg id="icon-mode-0" viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
             </button>
             
@@ -764,7 +779,6 @@
             <button class="speed-btn-txt" id="speedToggleBtn">1.0x</button>
         </div>
         
-        <!-- 字幕滚动区，默认开启 mode-0 (双语) -->
         <div class="transcript-flow mode-0" id="transcript"></div>
     </div>
 </div>
@@ -837,7 +851,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 
 let videoDatabase = [];
 
-// 🍎 静态雅思核心词汇表 (节选核心高频词，作为本地静态 JSON 驱动展示)
 const IELTS_VOCAB_STATIC = [
     "abandon", "abnormal", "abolish", "abrupt", "absurd", "abundance", "academy", "accelerate", "accommodate", "accompany", 
     "accomplish", "accumulate", "accurate", "accuse", "acknowledge", "acquire", "adapt", "adequate", "adhere", "adjacent", 
@@ -853,7 +866,6 @@ const IELTS_VOCAB_STATIC = [
     "normal", "obtain", "participate", "perceive", "positive", "potential", "previous", "primary", "purchase", "range", 
     "region", "regulate", "relevant", "reside", "resource", "restrict", "secure", "seek", "select", "site", "strategy", "survey", "text", "tradition", "transfer"
 ];
-// 提前构建 Regex 提高匹配效率
 const ieltsRegex = new RegExp(`\\b(${IELTS_VOCAB_STATIC.join('|')})\\b`, 'gi');
 
 const i18n = {
@@ -897,10 +909,10 @@ const state = {
     user: null, currentVideoId: null, subtitles: [], 
     currentActiveIndex: -1, 
     
-    subtitleMode: 0, // 0: Bilingual, 1: English, 2: Shadowing
+    subtitleMode: 0, 
     isClozeMode: false,
     
-    abState: 0, // 0: Off, 1: Point A set, 2: A-B looping
+    abState: 0, 
     abPointA: 0,
     abPointB: 0,
     
@@ -1164,7 +1176,6 @@ async function loadVideo(id) {
 
     const card = document.getElementById(`card-${id}`); if(card) card.classList.add('loading');
     
-    // 重置 A-B 状态
     state.abState = 0;
     dom.abRepeatBtn.classList.remove('active');
     dom.abRepeatBtn.classList.remove('half-active');
@@ -1197,7 +1208,6 @@ async function loadVideo(id) {
 
 dom.backToHomeBtn.onclick = () => { dom.workspace.classList.remove('active'); dom.homeScreen.classList.remove('hidden'); dom.player.pause(); };
 
-// 🍎 强大的高亮处理器：支持挖空、短语高亮，以及本地雅思词汇标红。
 function applyLocalHighlights(text, localHls) {
     let res = text;
     let placeholders = [];
@@ -1209,7 +1219,6 @@ function applyLocalHighlights(text, localHls) {
         return key;
     };
 
-    // 1. 处理特定的短语高亮或填空 (优先级最高)
     if (localHls && localHls.length) {
         [...localHls].sort((a, b) => b.text.length - a.text.length).forEach(hl => {
             const regex = new RegExp(`\\b${hl.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
@@ -1225,14 +1234,12 @@ function applyLocalHighlights(text, localHls) {
         });
     }
 
-    // 2. 处理雅思静态词库高亮 (仅作用于非占位符的普通文本)
     const parts = res.split(/(__PH_\d+__)/);
     res = parts.map(part => {
         if (part.startsWith('__PH_')) return part;
         return part.replace(ieltsRegex, match => addPlaceholder(`<span class="ielts-word" title="IELTS Vocabulary">${match}</span>`));
     }).join('');
 
-    // 3. 还原占位符
     placeholders.forEach(ph => { res = res.replace(ph.key, ph.html); });
     
     return res;
@@ -1240,7 +1247,6 @@ function applyLocalHighlights(text, localHls) {
 
 let lyricNodes = [];
 function renderTranscript() {
-    // 确保应用当前的 mode class
     dom.transcript.className = 'transcript-flow mode-' + state.subtitleMode;
 
     dom.transcript.innerHTML = state.subtitles.map((item, i) => `
@@ -1255,14 +1261,12 @@ function renderTranscript() {
     });
 }
 
-// 🍎 精准的自动滚动居中逻辑与时间更新
 let isThrottled = false;
 dom.player.addEventListener('timeupdate', () => {
     if (isThrottled) return; isThrottled = true;
     requestAnimationFrame(() => {
         const now = dom.player.currentTime; 
         
-        // 处理 A-B 复读逻辑
         if (state.abState === 2 && now >= state.abPointB) {
             dom.player.currentTime = state.abPointA;
             dom.player.play();
@@ -1281,7 +1285,6 @@ dom.player.addEventListener('timeupdate', () => {
                     const node = lyricNodes[activeIdx];
                     node.classList.add('active');
                     
-                    // 🍎 完美的绝对居中计算
                     const container = dom.transcript;
                     const scrollPos = node.offsetTop - (container.clientHeight / 2) + (node.clientHeight / 2);
                     container.scrollTo({ top: scrollPos, behavior: 'smooth' });
@@ -1301,7 +1304,6 @@ setInterval(async () => {
     try { await supabaseClient.from('progress').upsert({ user_id: state.user ? state.user.id : 'guest', video_id: state.currentVideoId, watched_seconds: dom.player.currentTime, progress_percent: pct }); } catch(e){}
 }, 5000);
 
-// 🍎 升级的 A-B 复读控制
 dom.abRepeatBtn.onclick = () => {
     if (state.abState === 0) {
         state.abPointA = dom.player.currentTime;
@@ -1327,13 +1329,9 @@ dom.abRepeatBtn.onclick = () => {
     }
 };
 
-// 🍎 字幕模式循环切换 (0:双语 -> 1:纯英文 -> 2:跟读/遮挡)
 const SUBTITLE_ICONS = [
-    // Bilingual (EN + ZH icon representation)
     `<svg viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>`,
-    // English Only (Single text block)
     `<svg viewBox="0 0 24 24"><path d="M4 9h16v2H4zm0 4h10v2H4z"/></svg>`,
-    // Shadowing (Eye with dash or blurred representation)
     `<svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/><line x1="2" y1="22" x2="22" y2="2" stroke="currentColor" stroke-width="2"/></svg>`
 ];
 
@@ -1342,7 +1340,6 @@ dom.subtitleModeBtn.onclick = () => {
     dom.transcript.className = 'transcript-flow mode-' + state.subtitleMode;
     dom.subtitleModeBtn.innerHTML = SUBTITLE_ICONS[state.subtitleMode];
     
-    // UI Update feedback
     if(state.subtitleMode === 0) showToast("已切换至：双语模式");
     else if(state.subtitleMode === 1) showToast("已切换至：纯英文模式");
     else showToast("已切换至：跟读模式 (文本模糊，悬停可见)");
@@ -1480,8 +1477,7 @@ document.querySelectorAll('.sp-item').forEach(item => item.onclick = () => { con
 document.addEventListener('click', e => { if (!dom.speedMenu.contains(e.target) && e.target !== dom.speedToggleBtn) dom.speedMenu.classList.remove('show'); if (!dom.tooltip.contains(e.target)) dom.tooltip.classList.remove('show'); });
 document.addEventListener('touchstart', e => { if (window.innerWidth <= 1024 && !dom.vocabContainer.contains(e.target) && !dom.mobileVocabToggle.contains(e.target)) dom.vocabContainer.classList.remove('open'); }, {passive: true});
 
-// Settings Handlers (Profile View)
-dom.btnSettingTheme.onclick = () => { document.body.classList.toggle('dark-theme'); };
+dom.btnSettingTheme.onclick = () => { document.body.classList.toggle('dark-theme'); document.documentElement.classList.toggle('dark-theme'); };
 dom.btnSettingLang.onclick = () => {
     state.lang = state.lang === 'en' ? 'zh' : 'en';
     updateLanguageUIInit();
@@ -1508,7 +1504,6 @@ initCustomFilter('btnFilterTag', 'modalFilterTag', 'labelFilterTag', 'tag');
 initCustomFilter('btnFilterAccent', 'modalFilterAccent', 'labelFilterAccent', 'accent');
 dom.searchInput.addEventListener('input', (e) => { state.searchText = e.target.value; renderCurrentView(); });
 
-// Init profile edit
 window.openEditProfile = (type) => {
     state.editProfileType = type; const modal = document.getElementById('editProfileModal'); const title = document.getElementById('editProfileTitle');
     const txtInput = document.getElementById('editProfileInput'); const fileGroup = document.getElementById('editProfileFileGroup'); const fileInput = document.getElementById('editProfileFileInput');
