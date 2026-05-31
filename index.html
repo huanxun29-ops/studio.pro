@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Studio Listening Pro</title>
-    <!-- 引入 Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* 🍎 极简配色系统与液态玻璃变量 */
@@ -108,7 +107,7 @@
         }
 
         /* =========================================
-           🍎 首页：高级视频库 (Home Screen)
+           🍎 首页及全局导航 (Home & Global Nav)
            ========================================= */
         .home-screen {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
@@ -119,7 +118,7 @@
         }
         .home-screen.hidden { opacity: 0; visibility: hidden; transform: scale(0.98); }
         
-        /* 🍎 左侧菜单栏 (Sidebar) - 極簡化 */
+        /* 🍎 统一侧边栏 (4个核心入口) */
         .app-sidebar {
             width: 260px; flex-shrink: 0;
             background: var(--surface);
@@ -144,7 +143,7 @@
         .nav-item.active { background: rgba(0, 122, 255, 0.1); color: var(--blue); }
         .dark-theme .nav-item.active { background: rgba(10, 132, 255, 0.15); color: var(--blue); }
 
-        /* 主内容区 */
+        /* 主内容区及视图容器 */
         .home-main {
             flex: 1; overflow-y: auto; scroll-behavior: smooth;
             padding: 60px 40px; display: flex; flex-direction: column; align-items: center;
@@ -152,11 +151,15 @@
         
         .home-content-wrapper { max-width: 1200px; width: 100%; display: flex; flex-direction: column; gap: 32px; }
 
-        .home-header { display: flex; justify-content: space-between; align-items: flex-end; width: 100%; border-bottom: 1px solid var(--border); padding-bottom: 20px;}
+        .app-view { display: none; flex-direction: column; width: 100%; gap: 24px; animation: fadeIn 0.4s ease; }
+        .app-view.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 公共头部 */
+        .view-header { display: flex; justify-content: space-between; align-items: flex-end; width: 100%; border-bottom: 1px solid var(--border); padding-bottom: 20px;}
         .header-left { display: flex; flex-direction: column; gap: 16px; flex: 1; }
-        .home-title { font-size: 40px; font-weight: 800; letter-spacing: -1.5px; line-height: 1; }
+        .view-title { font-size: 40px; font-weight: 800; letter-spacing: -1.5px; line-height: 1; }
         
-        /* 新增：搜索框 */
         .search-box { width: 100%; max-width: 600px; position: relative; margin-top: 8px; }
         .search-box input {
             width: 100%; height: 50px; border: 1px solid var(--glass-border); outline: none;
@@ -166,53 +169,6 @@
         }
         .search-box input:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15); }
         .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; fill: var(--text-sub); }
-
-        /* 🍎 右上角按鈕群組與下拉選單 */
-        .header-actions { display: flex; gap: 16px; align-items: center; }
-        .action-wrapper { position: relative; } /* 為下拉選單定位使用 */
-
-        .header-icon-btn {
-            width: 44px; height: 44px; border-radius: 50%;
-            background: var(--surface); border: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.3s; color: var(--text-main);
-            box-shadow: var(--shadow); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-        }
-        .header-icon-btn:hover { background: var(--hover-bg); transform: scale(1.05); border-color: var(--blue); }
-        .header-icon-btn svg { width: 22px; height: 22px; fill: currentColor; }
-        
-        .glass-dropdown {
-            position: absolute; top: calc(100% + 12px); right: 0; width: 220px;
-            background: var(--liquid-bg); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%);
-            border: 1px solid var(--liquid-border); box-shadow: var(--liquid-shadow);
-            border-radius: 20px; padding: 8px; display: flex; flex-direction: column;
-            opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 1000;
-        }
-        .glass-dropdown.show { opacity: 1; visibility: visible; transform: translateY(0); }
-        
-        .dropdown-header { padding: 12px 12px 4px 12px; font-size: 13px; color: var(--text-sub); font-weight: 600; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .dropdown-item {
-            display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 14px;
-            font-size: 14px; font-weight: 600; color: var(--text-main); cursor: pointer; transition: 0.2s;
-        }
-        .dropdown-item svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
-        .dropdown-item:hover { background: var(--hover-bg); transform: scale(0.98); }
-        
-        /* 特殊下拉選單項目樣式 */
-        .dropdown-item.danger { color: var(--red); }
-        .dropdown-item.danger:hover { background: rgba(255, 59, 48, 0.1); }
-        
-        .dropdown-item.ready { color: var(--green); background: rgba(52, 199, 89, 0.1); }
-        .dark-theme .dropdown-item.ready { background: rgba(52, 199, 89, 0.15); }
-        .dropdown-item.ready svg { fill: var(--green); }
-        
-        .dropdown-item.launch-btn-item { justify-content: center; background: var(--text-main); color: var(--bg); opacity: 0.4; pointer-events: none; margin-top: 4px; }
-        .dropdown-item.launch-btn-item.active { opacity: 1; pointer-events: auto; }
-        .dropdown-item.launch-btn-item.active:hover { transform: translateY(-2px) scale(1); }
-
-        .truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .filter-divider { width: 1px; height: 24px; background: var(--border); margin: 0 8px; }
 
         /* 过滤栏 Filters */
         .filter-bar { 
@@ -234,6 +190,7 @@
         .custom-filter-btn:hover { background: rgba(0,0,0,0.08); }
         .dark-theme .custom-filter-btn:hover { background: rgba(255,255,255,0.15); }
         .custom-filter-btn svg { width: 18px; height: 18px; fill: var(--text-sub); transition: 0.3s; }
+        .filter-divider { width: 1px; height: 24px; background: var(--border); margin: 0 8px; }
 
         /* 悬浮玻璃菜单 (Glass Modal for Selects) */
         .glass-modal {
@@ -243,7 +200,6 @@
             opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease;
         }
         .glass-modal.active { opacity: 1; visibility: visible; }
-
         .glass-modal-content {
             background: var(--liquid-bg); border: 1px solid var(--liquid-border);
             box-shadow: var(--liquid-shadow); border-radius: 24px;
@@ -252,17 +208,15 @@
         }
         .glass-modal-content::-webkit-scrollbar { display: none; }
         .glass-modal.active .glass-modal-content { transform: scale(1); }
-
         .glass-option {
             padding: 14px 16px; border-radius: 14px; font-size: 15px; font-weight: 600;
             color: var(--text-main); margin-bottom: 4px; cursor: pointer; transition: 0.2s;
             text-align: center;
         }
-        .glass-option:last-child { margin-bottom: 0; }
         .glass-option:active { transform: scale(0.96); background: var(--hover-bg); }
         .glass-option.active { background: var(--text-main); color: var(--bg); }
 
-        /* --- 🍎 Netflix / Apple TV 风格分类滚动区 --- */
+        /* --- 🍎 视频内容区样式 --- */
         .category-section { margin-bottom: 40px; }
         .category-header { font-size: 22px; font-weight: 700; color: var(--text-main); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end;}
         .row-scroll {
@@ -274,7 +228,6 @@
         .row-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
         .row-scroll .video-card { flex: 0 0 320px; scroll-snap-align: start; }
 
-        /* --- 🍎 标准化视频卡片 UI --- */
         .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 32px; width: 100%; }
         
         .video-card {
@@ -285,10 +238,8 @@
         }
         .dark-theme .video-card::before {
             content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
-            background: linear-gradient(180deg, rgba(255,255,255,0.08), transparent 25%);
-            z-index: 2;
+            background: linear-gradient(180deg, rgba(255,255,255,0.08), transparent 25%); z-index: 2;
         }
-        
         .video-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.12); border-color: var(--blue); }
         .video-card:active { transform: translateY(-2px) scale(0.98); }
         
@@ -304,50 +255,23 @@
 
         .card-top { 
             position: relative; aspect-ratio: 16/9; background: #e0e0e0; 
-            background-size: cover; background-position: center; border-bottom: 1px solid var(--border);
-            z-index: 1;
-        }
-        .card-creator {
-            position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.6);
-            color: #fff; font-size: 13px; font-weight: 600; padding: 6px 10px; border-radius: 12px;
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); display: flex; align-items: center; gap: 6px;
+            background-size: cover; background-position: center; border-bottom: 1px solid var(--border); z-index: 1;
         }
         .card-duration {
             position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,0.7);
             color: #fff; font-size: 12px; font-weight: 700; padding: 4px 8px; border-radius: 8px;
             backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); letter-spacing: 0.5px;
         }
-
-        .card-middle { 
-            display: flex; justify-content: space-between; align-items: flex-start; 
-            padding: 20px 20px 12px 20px; gap: 12px; z-index: 1;
-        }
+        .card-middle { display: flex; justify-content: space-between; align-items: flex-start; padding: 20px 20px 12px 20px; gap: 12px; z-index: 1; }
         .card-ep-group { display: flex; flex-direction: column; gap: 4px; }
         .card-ep { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; color: var(--text-main); line-height: 1.1; }
         .card-title { font-size: 14px; font-weight: 500; color: var(--text-sub); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
-        .card-rating { display: flex; gap: 2px; align-items: center; }
-        .star { width: 18px; height: 18px; }
-        .star.filled { fill: var(--orange); }
-        .star.empty { fill: var(--border); }
-        .dark-theme .star.empty { fill: rgba(255,255,255,0.2); }
-
+        
         .card-bottom { padding: 0 20px 20px 20px; display: flex; flex-direction: column; gap: 16px; z-index: 1; }
         .card-tags { display: flex; gap: 8px; flex-wrap: wrap; }
-        .card-tag { 
-            padding: 6px 12px; background: rgba(0, 122, 255, 0.08); color: var(--blue); 
-            border-radius: 99px; font-size: 13px; font-weight: 600; 
-        }
+        .card-tag { padding: 6px 12px; background: rgba(0, 122, 255, 0.08); color: var(--blue); border-radius: 99px; font-size: 13px; font-weight: 600; }
         .dark-theme .card-tag { background: rgba(10, 132, 255, 0.15); }
-        
-        .card-meta { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border); padding-top: 12px; }
-        .card-accent { font-size: 13px; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 4px;}
-        .card-date { font-size: 12px; color: var(--text-sub); }
-
-        .card-progress {
-            position: absolute; bottom: 0; left: 0; height: 4px; background: var(--green);
-            border-radius: 0 0 0 24px; transition: width 0.3s; z-index: 3;
-        }
-
+        .card-progress { position: absolute; bottom: 0; left: 0; height: 4px; background: var(--green); border-radius: 0 0 0 24px; transition: width 0.3s; z-index: 3; }
         .card-overlay {
             position: absolute; inset: 0; background: rgba(255,255,255,0.8); backdrop-filter: blur(4px);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -355,10 +279,8 @@
         }
         .dark-theme .card-overlay { background: rgba(0,0,0,0.7); }
         .video-card.loading .card-overlay { opacity: 1; pointer-events: all; }
-        .spinner {
-            width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--blue);
-            border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 8px;
-        }
+        
+        .spinner { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 8px; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         .empty-state {
@@ -367,76 +289,123 @@
         }
         .empty-state svg { width: 48px; height: 48px; fill: var(--border); margin-bottom: 16px; }
         .empty-state h3 { font-size: 18px; color: var(--text-main); margin-bottom: 8px; }
-        .error-card { background: rgba(255,59,48,0.1); border: 1px solid rgba(255,59,48,0.3); border-radius: 16px; padding: 20px; text-align: left; max-width: 600px; margin-top: 20px; }
-        .error-card code { display: block; background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px; margin-top: 10px; font-family: monospace; font-size: 13px; color: var(--text-main); word-break: break-all;}
 
-        /* 🍎 Auth (登入/註冊) 介面 */
-        .auth-screen {
-            position: fixed; inset: 0; z-index: 100000;
-            background: var(--bg); display: flex; align-items: center; justify-content: center;
-            transition: opacity 0.4s, visibility 0.4s;
+        /* =========================================
+           🍎 个人中心视图 (Profile View)
+           ========================================= */
+        .profile-header-card {
+            background: var(--surface); border: 1px solid var(--glass-border); border-radius: 24px;
+            backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+            padding: 32px; display: flex; align-items: center; gap: 24px; box-shadow: var(--shadow);
+            flex-wrap: wrap;
         }
+        .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), #5E5CE6); display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; font-weight: bold; box-shadow: 0 8px 24px rgba(0,122,255,0.3); }
+        .profile-info { flex: 1; min-width: 200px;}
+        .profile-email { font-size: 24px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; word-break: break-all;}
+        .profile-status { font-size: 14px; color: var(--text-sub); font-weight: 500; }
+        
+        .profile-settings-list { display: flex; gap: 12px; flex-wrap: wrap;}
+        .setting-btn {
+            display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 12px;
+            background: rgba(0,0,0,0.04); color: var(--text-main); font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; border: none; outline: none;
+        }
+        .dark-theme .setting-btn { background: rgba(255,255,255,0.08); }
+        .setting-btn:hover { background: rgba(0,0,0,0.08); }
+        .dark-theme .setting-btn:hover { background: rgba(255,255,255,0.15); }
+        .setting-btn svg { width: 18px; height: 18px; fill: currentColor; }
+        .setting-btn.danger { color: var(--red); background: rgba(255, 59, 48, 0.1); }
+        .dark-theme .setting-btn.danger { background: rgba(255, 59, 48, 0.15); }
+
+        .profile-tabs { display: flex; gap: 12px; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-top: 16px; overflow-x: auto;}
+        .profile-tab {
+            font-size: 18px; font-weight: 700; color: var(--text-sub); cursor: pointer; padding: 8px 16px; border-radius: 99px; transition: 0.3s; white-space: nowrap;
+        }
+        .profile-tab:hover { color: var(--text-main); background: var(--hover-bg); }
+        .profile-tab.active { color: #fff; background: var(--text-main); }
+        .dark-theme .profile-tab.active { color: var(--bg); background: var(--text-main); }
+
+        /* =========================================
+           🍎 本地文件视图 (Local Files View)
+           ========================================= */
+        .local-upload-area {
+            background: var(--surface); border: 2px dashed var(--glass-border); border-radius: 32px;
+            backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+            padding: 60px 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 24px; transition: 0.3s; min-height: 400px;
+        }
+        .local-upload-area.dragover { border-color: var(--blue); background: rgba(0, 122, 255, 0.05); transform: scale(1.02); }
+        .upload-icon { width: 64px; height: 64px; fill: var(--text-sub); margin-bottom: 8px; transition: 0.3s;}
+        .local-upload-area.dragover .upload-icon { fill: var(--blue); }
+        .upload-title { font-size: 24px; font-weight: 700; color: var(--text-main); }
+        .upload-desc { font-size: 15px; color: var(--text-sub); max-width: 400px; line-height: 1.5; }
+        
+        .upload-buttons { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+        .upload-btn {
+            position: relative; display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 16px 24px; border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.3s;
+            background: rgba(0,0,0,0.05); color: var(--text-main); overflow: hidden; border: 1px solid transparent; min-width: 200px;
+        }
+        .dark-theme .upload-btn { background: rgba(255,255,255,0.08); }
+        .upload-btn:hover { background: rgba(0,0,0,0.08); }
+        .upload-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+        .upload-btn svg { width: 20px; height: 20px; fill: currentColor; }
+        .upload-btn.ready { background: rgba(52, 199, 89, 0.1); color: var(--green); border-color: rgba(52, 199, 89, 0.3); }
+        .dark-theme .upload-btn.ready { background: rgba(52, 199, 89, 0.15); }
+        
+        .launch-btn {
+            background: var(--blue); color: white; padding: 16px 40px; border-radius: 99px; border: none;
+            font-size: 18px; font-weight: 700; cursor: pointer; transition: 0.3s; opacity: 0.5; pointer-events: none; box-shadow: 0 8px 20px rgba(0,122,255,0.3); margin-top: 16px;
+        }
+        .launch-btn.active { opacity: 1; pointer-events: auto; }
+        .launch-btn.active:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(0,122,255,0.4); }
+
+        /* =========================================
+           🍎 全局单词本视图 (Global Vocab View)
+           ========================================= */
+        .global-vocab-container {
+            background: var(--surface); border: 1px solid var(--glass-border); border-radius: 24px;
+            backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+            box-shadow: var(--shadow); overflow: hidden; flex: 1; display: flex; flex-direction: column;
+        }
+        .global-vocab-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .global-vocab-title { font-size: 18px; font-weight: 700; }
+        .global-vocab-list { padding: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; overflow-y: auto; }
+        .global-word-card {
+            background: rgba(0,0,0,0.02); border-radius: 16px; padding: 16px; border: 1px solid transparent; transition: 0.2s; position: relative;
+        }
+        .dark-theme .global-word-card { background: rgba(255,255,255,0.03); }
+        .global-word-card:hover { background: var(--hover-bg); border-color: var(--border); transform: translateY(-2px); }
+        
+        .export-btn { background: rgba(0,0,0,0.05); color: var(--text-main); border: none; padding: 8px 16px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .dark-theme .export-btn { background: rgba(255,255,255,0.1); }
+        .export-btn:hover { background: rgba(0,0,0,0.1); }
+
+        /* =========================================
+           🍎 Auth, Workspace & Tooltips (Retained & Optimized)
+           ========================================= */
+        .auth-screen { position: fixed; inset: 0; z-index: 100000; background: var(--bg); display: flex; align-items: center; justify-content: center; transition: opacity 0.4s, visibility 0.4s; }
         .auth-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-        .auth-card {
-            background: var(--liquid-bg); border: 1px solid var(--liquid-border);
-            box-shadow: var(--liquid-shadow); border-radius: 32px; padding: 40px;
-            width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 20px;
-            backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
-        }
+        .auth-card { background: var(--liquid-bg); border: 1px solid var(--liquid-border); box-shadow: var(--liquid-shadow); border-radius: 32px; padding: 40px; width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 20px; backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); }
         .auth-title { font-size: 28px; font-weight: 800; text-align: center; color: var(--text-main); margin-bottom: 10px; }
-        
-        /* 表單排版 */
         .auth-form { display: flex; flex-direction: column; gap: 20px; width: 100%; }
-        
-        .auth-input {
-            width: 100%; height: 50px; border: 1px solid var(--glass-border); outline: none;
-            border-radius: 16px; padding: 0 20px; font-size: 16px; font-weight: 500;
-            background: var(--surface); color: var(--text-main); transition: 0.3s;
-        }
+        .auth-input { width: 100%; height: 50px; border: 1px solid var(--glass-border); outline: none; border-radius: 16px; padding: 0 20px; font-size: 16px; font-weight: 500; background: var(--surface); color: var(--text-main); transition: 0.3s; }
         .auth-input:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15); }
-        
-        /* 淺紅色錯誤提示樣式 */
-        .auth-error-msg {
-            color: var(--red); font-size: 13px; font-weight: 600;
-            margin-top: -10px; margin-bottom: -5px; padding-left: 8px;
-            display: none; animation: fadeIn 0.3s ease; white-space: pre-wrap;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-
+        .auth-error-msg { color: var(--red); font-size: 13px; font-weight: 600; margin-top: -10px; margin-bottom: -5px; padding-left: 8px; display: none; white-space: pre-wrap; }
         .auth-checkbox-group { display: flex; align-items: center; gap: 8px; padding-left: 4px; }
-        .auth-checkbox-group input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--blue); }
+        .auth-checkbox-group input { width: 16px; height: 16px; cursor: pointer; accent-color: var(--blue); }
         .auth-checkbox-group label { font-size: 14px; color: var(--text-sub); cursor: pointer; user-select: none; }
-        
-        .auth-btn {
-            background: var(--blue); color: #fff; border: none; padding: 16px;
-            border-radius: 16px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s;
-        }
+        .auth-btn { background: var(--blue); color: #fff; border: none; padding: 16px; border-radius: 16px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; }
         .auth-btn:hover { background: #0066cc; transform: translateY(-2px); }
         .auth-toggle { text-align: center; font-size: 14px; color: var(--text-sub); }
         .auth-toggle a { color: var(--blue); text-decoration: none; font-weight: 600; }
 
-        /* =========================================
-           🍎 主工作区 (Workspace)
-           ========================================= */
-        .workspace {
-            display: flex; width: 100%; max-width: 1600px; height: 100dvh;
-            padding: 32px; gap: 32px; opacity: 0; visibility: hidden; position: absolute;
-            transform: translateY(20px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        }
+        .workspace { display: flex; width: 100%; max-width: 1600px; height: 100dvh; padding: 32px; gap: 32px; opacity: 0; visibility: hidden; position: absolute; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
         .workspace.active { opacity: 1; visibility: visible; transform: translateY(0); position: relative; z-index: 200; }
-
         .sidebar { width: 45%; min-width: 400px; max-width: 720px; flex-shrink: 0; display: flex; flex-direction: column; gap: 32px; }
         .video-container { border-radius: 24px; overflow: hidden; background: #000; box-shadow: var(--shadow); transform: translateZ(0); }
         video { width: 100%; display: block; outline: none; }
 
-        .vocab-container {
-            flex: 1; background: var(--surface); border-radius: 24px; border: 1px solid var(--glass-border);
-            backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-            display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow);
-        }
+        .vocab-container { flex: 1; background: var(--surface); border-radius: 24px; border: 1px solid var(--glass-border); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow); }
         .vocab-header { padding: 16px 20px; font-size: 15px; font-weight: 600; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .export-btn { background: rgba(0,0,0,0.05); color: var(--text-main); border: none; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; margin-left: auto; margin-right: 12px; }
-        .dark-theme .export-btn { background: rgba(255,255,255,0.1); }
         .vocab-list { flex: 1; overflow-y: auto; padding: 12px; }
         .word-item { padding: 12px 16px; border-radius: 12px; margin-bottom: 4px; transition: 0.2s; }
         .word-item:hover { background: var(--hover-bg); }
@@ -446,62 +415,32 @@
         .word-del { cursor: pointer; color: #ff3b30; font-size: 12px; opacity: 0; transition: 0.2s; }
         .word-item:hover .word-del { opacity: 1; }
 
-        .main-content {
-            flex: 1; background: var(--surface); border-radius: 24px; border: 1px solid var(--glass-border);
-            backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-            position: relative; display: flex; flex-direction: column; box-shadow: var(--shadow); overflow: hidden;
-        }
-
-        .toolbar-floating {
-            position: absolute; top: 24px; left: 50%; transform: translateX(-50%) scale(1);
-            background: var(--liquid-bg); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%);
-            border: 1px solid var(--liquid-border); box-shadow: var(--liquid-shadow);
-            border-radius: 99px; padding: 6px 8px; display: flex; gap: 4px; z-index: 50; transition: all 0.4s;
-        }
-        .icon-btn {
-            width: 38px; height: 38px; border-radius: 50%; border: none; background: transparent;
-            color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.25s;
-        }
+        .main-content { flex: 1; background: var(--surface); border-radius: 24px; border: 1px solid var(--glass-border); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); position: relative; display: flex; flex-direction: column; box-shadow: var(--shadow); overflow: hidden; }
+        .toolbar-floating { position: absolute; top: 24px; left: 50%; transform: translateX(-50%) scale(1); background: var(--liquid-bg); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%); border: 1px solid var(--liquid-border); box-shadow: var(--liquid-shadow); border-radius: 99px; padding: 6px 8px; display: flex; gap: 4px; z-index: 50; transition: all 0.4s; }
+        .icon-btn { width: 38px; height: 38px; border-radius: 50%; border: none; background: transparent; color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.25s; }
         .icon-btn:active { transform: scale(0.85); background: var(--hover-bg); }
         .icon-btn:hover { background: var(--hover-bg); }
         .icon-btn.active { background: var(--text-main); color: var(--bg); }
         .icon-btn svg { width: 18px; height: 18px; fill: currentColor; }
-        .speed-btn-txt {
-            padding: 0 16px; height: 38px; border-radius: 99px; border: none; background: transparent;
-            color: var(--text-main); font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.25s;
-        }
+        .speed-btn-txt { padding: 0 16px; height: 38px; border-radius: 99px; border: none; background: transparent; color: var(--text-main); font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.25s; }
         .speed-btn-txt:active { background: var(--hover-bg); }
         .divider { width: 1px; height: 20px; background: var(--border); margin: auto 4px; }
 
         .transcript-flow { flex: 1; overflow-y: auto; padding: 80px 10% 120px 10%; scroll-behavior: smooth; }
         .transcript-flow::-webkit-scrollbar { display: none; }
         .lyric-line { margin-bottom: 24px; cursor: pointer; opacity: 0.35; transform: scale(0.98); transform-origin: left center; transition: all 0.4s; border-left: 3px solid transparent; padding-left: 16px; }
-        .lyric-line:active { opacity: 0.8; }
         .lyric-line.active { opacity: 1; transform: scale(1.02); border-left-color: var(--blue); }
-        .lyric-line.looping { border-left-color: var(--green); }
         .lyric-en { font-size: 24px; font-weight: 700; line-height: 1.4; letter-spacing: -0.5px; user-select: text; -webkit-user-select: text; }
         .lyric-zh { font-size: 15px; font-weight: 500; color: var(--text-sub); margin-top: 8px; line-height: 1.5; transition: opacity 0.3s; }
         .lyric-zh.hidden { display: none; }
         .hl-word { background: rgba(52, 199, 89, 0.15); color: var(--green); border-radius: 6px; padding: 2px 4px; }
-        .hl-phrase { background: rgba(255, 149, 0, 0.15); color: var(--orange); border-radius: 6px; padding: 2px 4px; }
-
-        .cloze-input {
-            background: rgba(0, 0, 0, 0.05); border: 2px solid transparent; border-bottom: 2px solid var(--text-sub);
-            border-radius: 6px; padding: 0 6px; font-size: inherit; font-family: inherit; font-weight: 700;
-            color: var(--text-main); text-align: center; outline: none; transition: 0.3s; margin: 0 4px; max-width: 100%;
-        }
+        
+        .cloze-input { background: rgba(0, 0, 0, 0.05); border: 2px solid transparent; border-bottom: 2px solid var(--text-sub); border-radius: 6px; padding: 0 6px; font-size: inherit; font-family: inherit; font-weight: 700; color: var(--text-main); text-align: center; outline: none; transition: 0.3s; margin: 0 4px; max-width: 100%; }
         .dark-theme .cloze-input { background: rgba(255, 255, 255, 0.1); border-bottom-color: var(--text-sub); }
         .cloze-input:focus { border-color: transparent; border-bottom-color: var(--blue); background: rgba(0, 122, 255, 0.1); }
         .cloze-input.correct { background: rgba(52, 199, 89, 0.15); border-color: transparent; border-bottom-color: var(--green); color: var(--green); pointer-events: none; }
-        .cloze-input.incorrect { background: rgba(255, 59, 48, 0.15); border-color: transparent; border-bottom-color: #ff3b30; color: #ff3b30; animation: shake 0.4s ease-in-out; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
 
-        .tooltip {
-            position: fixed; width: 320px; padding: 20px; border-radius: 20px;
-            background: var(--liquid-bg); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%);
-            border: 1px solid var(--liquid-border); box-shadow: var(--liquid-shadow);
-            display: none; z-index: 10001; transform: translateY(10px); opacity: 0; transition: all 0.3s;
-        }
+        .tooltip { position: fixed; width: 320px; padding: 20px; border-radius: 20px; background: var(--liquid-bg); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%); border: 1px solid var(--liquid-border); box-shadow: var(--liquid-shadow); display: none; z-index: 10001; transform: translateY(10px); opacity: 0; transition: all 0.3s; }
         .tooltip.show { transform: translateY(0); opacity: 1; display: block; }
         .tt-word { font-size: 22px; font-weight: 700; margin-bottom: 2px; }
         .tt-phonetic { font-size: 13px; font-family: monospace; color: var(--text-sub); margin-bottom: 12px; }
@@ -511,21 +450,20 @@
         .tt-example { font-size: 13px; line-height: 1.4; color: var(--text-sub); font-style: italic; border-left: 2px solid var(--border); padding-left: 8px; margin-top: 4px;}
         .tt-synonyms { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
         .tt-synonym-tag { background: rgba(0,0,0,0.05); padding: 2px 8px; border-radius: 6px; font-size: 12px; color: var(--text-main); }
-        .dark-theme .tt-synonym-tag { background: rgba(255,255,255,0.1); }
-        
         .tt-btn { width: 100%; background: var(--text-main); color: var(--bg); border: none; padding: 12px; border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s; margin-top: 8px;}
         
-        .speed-menu {
-            position: fixed; width: 100px; 
-            background: var(--liquid-bg); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%);
-            border: 1px solid var(--liquid-border); border-radius: 16px; padding: 6px; box-shadow: var(--liquid-shadow);
-            display: none; flex-direction: column; gap: 2px; z-index: 9998; opacity: 0; transform: translateY(-10px); transition: 0.2s;
-        }
+        .speed-menu { position: fixed; width: 100px; background: var(--liquid-bg); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%); border: 1px solid var(--liquid-border); border-radius: 16px; padding: 6px; box-shadow: var(--liquid-shadow); display: none; flex-direction: column; gap: 2px; z-index: 9998; opacity: 0; transform: translateY(-10px); transition: 0.2s; }
         .speed-menu.show { display: flex; opacity: 1; transform: translateY(0); }
         .sp-item { padding: 10px; border-radius: 10px; text-align: center; font-size: 14px; font-weight: 500; cursor: pointer; }
         .sp-item.active { background: var(--text-main); color: var(--bg); }
 
-        /* 📱 移动端适配 */
+        /* Custom Toast Notification */
+        .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 999999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { background: rgba(0,0,0,0.8); color: white; padding: 12px 24px; border-radius: 99px; font-size: 14px; font-weight: 600; backdrop-filter: blur(10px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(-20px); }
+        @keyframes toastIn { to { opacity: 1; transform: translateY(0); } }
+        @keyframes toastOut { to { opacity: 0; transform: translateY(-10px); } }
+
+        /* 📱 移动端适配 (底部 4 个导航) */
         #mobileVocabToggle { display: none; }
         .vocab-close-mobile { display: none; font-size: 24px; cursor: pointer; color: var(--text-sub); font-weight: 300; }
 
@@ -533,34 +471,16 @@
             .home-screen { flex-direction: column; }
             .home-main { padding: 20px 16px 120px 16px; }
             
-            /* 🍎 修正：使用 Grid 排版解決標題、按鈕與搜尋框的重疊問題 */
-            .home-header { 
-                display: grid; 
-                grid-template-columns: 1fr auto; 
-                gap: 16px 12px; 
-                align-items: center; 
-                padding-bottom: 16px; 
-                border-bottom: none; 
-            }
-            .header-left { display: contents; } /* 讓子元素直接參與 Grid 排版 */
-            .home-title { font-size: 28px; grid-column: 1 / 2; grid-row: 1 / 2; margin: 0; }
-            .header-actions { grid-column: 2 / 3; grid-row: 1 / 2; position: static; gap: 8px; }
-            
-            .search-box { grid-column: 1 / -1; grid-row: 2 / 3; margin-top: 0; }
+            .view-header { flex-direction: column; align-items: flex-start; border-bottom: none; gap: 16px;}
+            .view-title { font-size: 32px; }
+            .search-box { margin-top: 0; }
             .search-box input { height: 44px; border-radius: 14px; font-size: 14px; padding-left: 40px; }
-            .search-icon { left: 14px; width: 18px; height: 18px; }
 
-            .filter-bar { 
-                flex-direction: row; align-items: center; justify-content: flex-start;
-                flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch;
-                padding: 8px 12px; border-radius: 16px; gap: 8px; margin-top: 8px;
-            }
+            .filter-bar { flex-direction: row; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 8px 12px; border-radius: 16px; gap: 8px; margin-top: 8px; }
             .filter-bar::-webkit-scrollbar { display: none; }
-            .filter-group { flex: 0 0 auto; flex-direction: row; align-items: center; gap: 0; }
+            .filter-group { flex: 0 0 auto; gap: 0; }
             .filter-label { display: none; }
-            
             .custom-filter-btn { padding: 6px 12px; height: 34px; font-size: 13px; border-radius: 10px; gap: 4px; }
-            .custom-filter-btn svg { width: 14px; height: 14px; }
             .filter-divider { display: none; }
 
             .category-header { font-size: 18px; margin-bottom: 12px; }
@@ -568,7 +488,7 @@
             .row-scroll .video-card { flex: 0 0 82vw; max-width: 320px; }
             .video-grid { grid-template-columns: 1fr; gap: 20px; }
 
-            /* 手機版純淨 Tab Bar 導航 */
+            /* 🍎 手機版純淨 4 Tab Bar 導航 */
             .app-sidebar {
                 width: 100%; border-right: none; position: fixed; bottom: 0; left: 0;
                 flex-direction: row; align-items: center; justify-content: space-around;
@@ -578,8 +498,8 @@
             }
             .app-brand { display: none; }
             .app-nav { flex-direction: row; width: 100%; justify-content: space-around; gap: 4px; flex: 1; }
-            .nav-item { flex: 1; flex-direction: column; gap: 4px; font-size: 10px; padding: 8px 0; border-radius: 12px; justify-content: center; }
-            .nav-item svg { width: 22px; height: 22px; }
+            .nav-item { flex: 1; flex-direction: column; gap: 4px; font-size: 11px; padding: 8px 0; border-radius: 12px; justify-content: center; }
+            .nav-item svg { width: 24px; height: 24px; }
             
             body { align-items: flex-start; }
             .workspace { flex-direction: column; padding: 0; gap: 0; }
@@ -589,29 +509,16 @@
             
             .main-content { border-radius: 0; border: none; box-shadow: none; flex: 1; min-height: 0; background: transparent; }
             .transcript-flow { padding: 20px 16px calc(100px + var(--safe-bottom)) 16px; }
-            .lyric-line { padding-left: 12px; margin-bottom: 20px; }
-            .lyric-en { font-size: 20px; letter-spacing: 0; }
-            .lyric-zh { font-size: 14px; }
-            
             .toolbar-floating { top: auto; bottom: calc(24px + var(--safe-bottom)); width: auto; padding: 6px 8px; gap: 4px; border-radius: 30px; }
-            .icon-btn { width: 36px; height: 36px; }
-            .speed-btn-txt { height: 36px; padding: 0 12px; font-size: 13px; }
             
             #mobileVocabToggle { display: flex; }
             .vocab-close-mobile { display: block; }
-            .vocab-container {
-                position: fixed; bottom: 0; left: 0; width: 100%; height: 75dvh;
-                border-radius: 28px 28px 0 0; z-index: 9999; transform: translateY(100%); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-                background: var(--liquid-bg); backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%);
-                border: 1px solid var(--liquid-border); box-shadow: var(--liquid-shadow);
-            }
+            .vocab-container { position: fixed; bottom: 0; left: 0; width: 100%; height: 75dvh; border-radius: 28px 28px 0 0; z-index: 9999; transform: translateY(100%); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); background: var(--liquid-bg); backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%); }
             .vocab-container.open { transform: translateY(0); }
-            .tooltip { 
-                top: auto !important; bottom: 0 !important; left: 0 !important; width: 100% !important; 
-                border-radius: 28px 28px 0 0; transform: translateY(100%); 
-                padding: 24px 24px calc(24px + var(--safe-bottom)) 24px; 
-            }
-            .tooltip.show { transform: translateY(0); }
+            
+            .profile-header-card { flex-direction: column; text-align: center; padding: 24px 16px; }
+            .profile-settings-list { justify-content: center; width: 100%;}
+            .local-upload-area { padding: 40px 20px; min-height: 300px; }
         }
     </style>
 </head>
@@ -625,6 +532,8 @@
     <div class="bubble" style="left: 80%; animation-duration: 24s; animation-delay: 8s;">Focus</div>
 </div>
 
+<div class="toast-container" id="toastContainer"></div>
+
 <!-- 🍎 登入/註冊介面 -->
 <div class="auth-screen hidden" id="authScreen">
     <div class="auth-card">
@@ -633,14 +542,11 @@
             <input type="email" id="authEmail" class="auth-input" placeholder="電子信箱" autocomplete="email" required />
             <input type="password" id="authPassword" class="auth-input" placeholder="密碼" autocomplete="current-password" required />
             <input type="text" id="authInviteCode" class="auth-input" placeholder="邀請碼 (註冊必填)" style="display: none;" autocomplete="off" />
-            
             <div id="authErrorMsg" class="auth-error-msg"></div>
-
             <div class="auth-checkbox-group" id="authRememberGroup">
                 <input type="checkbox" id="authRemember" checked />
                 <label for="authRemember">記住信箱</label>
             </div>
-            
             <button type="submit" class="auth-btn" id="authSubmitBtn">登入</button>
         </form>
         <div class="auth-toggle">
@@ -649,10 +555,10 @@
     </div>
 </div>
 
-<!-- 🍎 首页：多功能视频库 -->
+<!-- 🍎 首页全局容器 -->
 <div class="home-screen" id="homeScreen">
     
-    <!-- 🍎 極簡左侧菜单栏 -->
+    <!-- 🍎 統一的 4 Tab 導航欄 (側邊/底部) -->
     <aside class="app-sidebar">
         <div class="app-brand">
             <svg viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11z"/><circle cx="17.5" cy="17.5" r="4.5"/><path d="M3 13.5h8v8H3z"/></svg>
@@ -660,21 +566,21 @@
         </div>
         
         <nav class="app-nav" id="sidebarNav">
-            <div class="nav-item active" data-tab="all" data-title="Library">
+            <div class="nav-item active" data-tab="library">
                 <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
-                <span data-i18n="title_all">視頻庫</span>
+                <span data-i18n="nav_library">視頻庫</span>
             </div>
-            <div class="nav-item" data-tab="history" data-title="History">
-                <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
-                <span data-i18n="title_history">觀看歷史</span>
-            </div>
-            <div class="nav-item" data-tab="favorites" data-title="Favorites">
+            <div class="nav-item" data-tab="vocabulary">
                 <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                <span data-i18n="title_favorites">我的收藏</span>
+                <span data-i18n="nav_vocab">單詞本</span>
             </div>
-            <div class="nav-item" data-tab="completed" data-title="Completed">
-                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                <span data-i18n="title_completed">已學完</span>
+            <div class="nav-item" data-tab="local">
+                <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+                <span data-i18n="nav_local">本地文件</span>
+            </div>
+            <div class="nav-item" data-tab="profile">
+                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                <span data-i18n="nav_profile">個人中心</span>
             </div>
         </nav>
     </aside>
@@ -683,116 +589,116 @@
     <main class="home-main">
         <div class="home-content-wrapper">
             
-            <!-- 头部与导航 -->
-            <div class="home-header">
-                <div class="header-left">
-                    <div class="home-title" id="pageTitle" data-i18n="title_all">視頻庫</div>
-                    <!-- 搜索框 -->
-                    <div class="search-box">
-                        <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                        <input type="text" id="searchInput" placeholder="搜索影片..." data-i18n-placeholder="search_placeholder">
+            <!-- 👁️ 视图 1: 视频库 (Library) -->
+            <div id="view-library" class="app-view active">
+                <div class="view-header">
+                    <div class="header-left">
+                        <div class="view-title" data-i18n="nav_library">視頻庫</div>
+                        <div class="search-box">
+                            <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                            <input type="text" id="searchInput" placeholder="搜索影片..." data-i18n-placeholder="search_placeholder">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-bar" id="filterBar">
+                    <div class="filter-group"><span class="filter-label" data-i18n="filter_difficulty">难度</span><div class="custom-filter-btn" id="btnFilterRating"><span id="labelFilterRating" data-i18n="filter_level_all">所有难度</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div><div class="filter-divider"></div>
+                    <div class="filter-group"><span class="filter-label" data-i18n="filter_scenario">场景</span><div class="custom-filter-btn" id="btnFilterTag"><span id="labelFilterTag" data-i18n="filter_topic_all">所有主题</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div><div class="filter-divider"></div>
+                    <div class="filter-group"><span class="filter-label" data-i18n="filter_accent">口音</span><div class="custom-filter-btn" id="btnFilterAccent"><span id="labelFilterAccent" data-i18n="filter_acc_all">所有口音</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div>
+                </div>
+
+                <div id="libraryContentArea">
+                    <div class="empty-state"><div class="spinner"></div><h3 data-i18n="loading">加載中...</h3></div>
+                </div>
+            </div>
+
+            <!-- 👁️ 视图 2: 单词本 (Vocabulary) -->
+            <div id="view-vocabulary" class="app-view">
+                <div class="view-header">
+                    <div class="header-left">
+                        <div class="view-title" data-i18n="nav_vocab">單詞本</div>
+                    </div>
+                    <button class="export-btn" id="globalExportVocabBtn" data-i18n="btn_export">导出 CSV</button>
+                </div>
+                <div class="global-vocab-container">
+                    <div class="global-vocab-header">
+                        <span class="global-vocab-title"><span data-i18n="vocab_total">總計</span>: <span id="globalVocabCount">0</span></span>
+                    </div>
+                    <div class="global-vocab-list" id="globalVocabList">
+                        <!-- Words injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 👁️ 视图 3: 本地文件 (Local Files) -->
+            <div id="view-local" class="app-view">
+                <div class="view-header">
+                    <div class="header-left">
+                        <div class="view-title" data-i18n="nav_local">本地文件學習</div>
                     </div>
                 </div>
                 
-                <!-- 🍎 頂部操作區塊 -->
-                <div class="header-actions">
-                    <!-- 1. 本地文件區塊 -->
-                    <div class="action-wrapper">
-                        <button class="header-icon-btn" id="localMenuBtn" title="本地文件">
-                            <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
-                        </button>
+                <div class="local-upload-area" id="localUploadDropzone">
+                    <svg class="upload-icon" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+                    <div class="upload-title" data-i18n="local_title">構建你的沉浸環境</div>
+                    <div class="upload-desc" data-i18n="local_desc">請選擇一部 MP4 影片與對應的 SRT/VTT 字幕文件，我們將為您自動生成交互式學習艙。</div>
+                    
+                    <div class="upload-buttons">
+                        <label class="upload-btn" id="btnLocalVideoView">
+                            <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                            <span id="txtLocalVideoView" data-i18n="sidebar_video">選擇影片 (MP4)</span>
+                            <input type="file" id="localVideoInputView" accept="video/mp4,video/webm">
+                        </label>
                         
-                        <div class="glass-dropdown" id="localMenuDropdown">
-                            <div class="dropdown-header" data-i18n="sidebar_local">本地文件學習</div>
-                            <div class="filter-divider" style="width: 100%; height: 1px; margin: 4px 0;"></div>
-                            
-                            <label class="dropdown-item" id="btnLocalVideo" style="position: relative;">
-                                <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-                                <span id="txtLocalVideo" class="truncate" data-i18n="sidebar_video" style="max-width: 150px;">選擇影片 (MP4)</span>
-                                <input type="file" id="localVideoInput" accept="video/mp4,video/webm" hidden>
-                            </label>
-                            
-                            <label class="dropdown-item" id="btnLocalSub" style="position: relative;">
-                                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-                                <span id="txtLocalSub" class="truncate" data-i18n="sidebar_sub" style="max-width: 150px;">選擇字幕 (SRT)</span>
-                                <input type="file" id="localSubInput" accept=".srt,.json,.vtt,.ass" hidden>
-                            </label>
-                            
-                            <div class="filter-divider" style="width: 100%; height: 1px; margin: 4px 0;"></div>
-                            
-                            <div class="dropdown-item launch-btn-item" id="btnLaunchLocal">
-                                <span data-i18n="sidebar_launch">進入學習艙</span>
-                            </div>
-                        </div>
+                        <label class="upload-btn" id="btnLocalSubView">
+                            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                            <span id="txtLocalSubView" data-i18n="sidebar_sub">選擇字幕 (SRT)</span>
+                            <input type="file" id="localSubInputView" accept=".srt,.json,.vtt,.ass">
+                        </label>
                     </div>
                     
-                    <!-- 2. 用戶設定區塊 -->
-                    <div class="action-wrapper">
-                        <button class="header-icon-btn" id="userMenuBtn" title="用戶選單">
-                            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    <button class="launch-btn" id="btnLaunchLocalView" data-i18n="sidebar_launch">進入學習艙</button>
+                </div>
+            </div>
+
+            <!-- 👁️ 视图 4: 个人中心 (Profile / Settings) -->
+            <div id="view-profile" class="app-view">
+                <div class="view-header">
+                    <div class="header-left">
+                        <div class="view-title" data-i18n="nav_profile">個人中心</div>
+                    </div>
+                </div>
+
+                <div class="profile-header-card">
+                    <div class="profile-avatar" id="profileAvatar">U</div>
+                    <div class="profile-info">
+                        <div class="profile-email" id="profileEmailDisplay">user@example.com</div>
+                        <div class="profile-status">Pro Member</div>
+                    </div>
+                    <div class="profile-settings-list">
+                        <button class="setting-btn" id="btnSettingLang">
+                            <svg viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
+                            <span id="txtSettingLang">Switch to English</span>
                         </button>
-                        
-                        <div class="glass-dropdown" id="userMenuDropdown">
-                            <div class="dropdown-header" id="menuUserEmail">未登入</div>
-                            <div class="filter-divider" style="width: 100%; height: 1px; margin: 4px 0;"></div>
-                            
-                            <div class="dropdown-item" id="menuLangToggle">
-                                <svg viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
-                                <span id="menuLangText">Switch to English</span>
-                            </div>
-                            
-                            <div class="dropdown-item" id="menuThemeToggle">
-                                <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
-                                <span data-i18n="menu_theme">外觀主題</span>
-                            </div>
-
-                            <div class="filter-divider" style="width: 100%; height: 1px; margin: 4px 0;"></div>
-
-                            <div class="dropdown-item danger" id="menuLogoutBtn">
-                                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
-                                <span data-i18n="menu_logout">退出登入</span>
-                            </div>
-                        </div>
+                        <button class="setting-btn" id="btnSettingTheme">
+                            <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+                            <span data-i18n="menu_theme">外觀主題</span>
+                        </button>
+                        <button class="setting-btn danger" id="btnSettingLogout">
+                            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+                            <span data-i18n="menu_logout">退出登入</span>
+                        </button>
                     </div>
                 </div>
-            </div>
 
-            <!-- 🍎 升级后的玻璃质感过滤栏 -->
-            <div class="filter-bar" id="filterBar">
-                <!-- 难度选择 -->
-                <div class="filter-group">
-                    <span class="filter-label" data-i18n="filter_difficulty">难度</span>
-                    <div class="custom-filter-btn" id="btnFilterRating">
-                        <span id="labelFilterRating" data-i18n="filter_level_all">所有难度</span>
-                        <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
-                    </div>
+                <div class="profile-tabs" id="profileTabs">
+                    <div class="profile-tab active" data-subtab="history" data-i18n="title_history">觀看歷史</div>
+                    <div class="profile-tab" data-subtab="favorites" data-i18n="title_favorites">我的收藏</div>
+                    <div class="profile-tab" data-subtab="completed" data-i18n="title_completed">已學完</div>
                 </div>
-                <div class="filter-divider"></div>
-                <!-- 场景选择 -->
-                <div class="filter-group">
-                    <span class="filter-label" data-i18n="filter_scenario">场景</span>
-                    <div class="custom-filter-btn" id="btnFilterTag">
-                        <span id="labelFilterTag" data-i18n="filter_topic_all">所有主题</span>
-                        <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
-                    </div>
-                </div>
-                <div class="filter-divider"></div>
-                <!-- 口音选择 -->
-                <div class="filter-group">
-                    <span class="filter-label" data-i18n="filter_accent">口音</span>
-                    <div class="custom-filter-btn" id="btnFilterAccent">
-                        <span id="labelFilterAccent" data-i18n="filter_acc_all">所有口音</span>
-                        <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
-                    </div>
-                </div>
-            </div>
 
-            <!-- 视频网格容器 -->
-            <div id="mainContentArea">
-                <!-- 加载状态指示器 -->
-                <div class="empty-state">
-                    <div class="spinner"></div>
-                    <h3 data-i18n="loading">加載中...</h3>
+                <div id="profileContentArea">
+                    <!-- Specific lists rendered here -->
                 </div>
             </div>
 
@@ -809,7 +715,6 @@
         <div class="vocab-container" id="vocabContainer">
             <div class="vocab-header">
                 <span><span data-i18n="vocab_title">生词本</span> <span id="vocabCount" style="color:var(--text-sub); font-weight:normal; margin-left:6px;">0</span></span>
-                <button class="export-btn" id="exportVocabBtn" data-i18n="btn_export">导出 CSV</button>
                 <span class="vocab-close-mobile" id="closeVocabBtn">✕</span>
             </div>
             <div class="vocab-list" id="vocabList"></div>
@@ -818,11 +723,8 @@
 
     <div class="main-content">
         <div class="toolbar-floating" id="toolbar">
-            <button class="icon-btn" id="backToHomeBtn" title="Back to Library">
+            <button class="icon-btn" id="backToHomeBtn" title="Back">
                 <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-            </button>
-            <button class="icon-btn" id="themeBtn" title="Toggle Theme">
-                <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
             </button>
             <div class="divider"></div>
             
@@ -853,30 +755,16 @@
     <div class="sp-item" data-speed="1.5">1.5x</div>
 </div>
 
-<!-- 升级版 AI 字典卡片 -->
 <div class="tooltip" id="tooltip">
     <div class="tt-word" id="tooltipWord"></div>
     <div class="tt-phonetic" id="tooltipPhonetic"></div>
-    
-    <div class="tt-section" id="tooltipDefSection">
-        <div class="tt-sec-title" data-i18n="tt_definition">Definition</div>
-        <div class="tt-def" id="tooltipDef"></div>
-    </div>
-    
-    <div class="tt-section" id="tooltipExSection" style="display:none;">
-        <div class="tt-sec-title" data-i18n="tt_example">Example</div>
-        <div class="tt-example" id="tooltipExample"></div>
-    </div>
-    
-    <div class="tt-section" id="tooltipSynSection" style="display:none;">
-        <div class="tt-sec-title" data-i18n="tt_synonyms">Synonyms</div>
-        <div class="tt-synonyms" id="tooltipSynonyms"></div>
-    </div>
-
+    <div class="tt-section" id="tooltipDefSection"><div class="tt-sec-title" data-i18n="tt_definition">Definition</div><div class="tt-def" id="tooltipDef"></div></div>
+    <div class="tt-section" id="tooltipExSection" style="display:none;"><div class="tt-sec-title" data-i18n="tt_example">Example</div><div class="tt-example" id="tooltipExample"></div></div>
+    <div class="tt-section" id="tooltipSynSection" style="display:none;"><div class="tt-sec-title" data-i18n="tt_synonyms">Synonyms</div><div class="tt-synonyms" id="tooltipSynonyms"></div></div>
     <button class="tt-btn" id="saveWordBtn" data-i18n="tt_add">加入生词本</button>
 </div>
 
-<!-- 🍎 悬浮玻璃菜单 HTML 结构 -->
+<!-- 过滤菜单 Modals -->
 <div class="glass-modal" id="modalFilterRating">
     <div class="glass-modal-content">
         <div class="glass-option active" data-value="all" data-i18n="filter_level_all">所有难度</div>
@@ -906,139 +794,149 @@
 </div>
 
 <script>
-// ==========================================
-// 🍎 数据层：连接 Supabase
-// ==========================================
 const SUPABASE_URL = "https://revbsrjaeoldhhifibdx.supabase.co"; 
 const SUPABASE_ANON_KEY = "sb_publishable_fo8RtO0BL9fBr1uPH8cu1Q_wy5bj5GI"; 
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let videoDatabase = [];
 
-// ==========================================
-// 🍎 身份驗證 (Auth) 系統
-// ==========================================
-const authState = { 
-    isLoginMode: true,
-    failedAttempts: 0,
-    lockoutUntil: 0
+// i18n Dictionary
+const i18n = {
+    en: {
+        nav_library: "Library",
+        nav_vocab: "Vocabulary",
+        nav_local: "Local Files",
+        nav_profile: "Profile",
+        title_history: "History",
+        title_completed: "Completed",
+        title_favorites: "Favorites",
+        search_placeholder: "Search videos...",
+        filter_difficulty: "Difficulty", filter_level_all: "All Levels", filter_level_5: "⭐⭐⭐⭐⭐ (Hard)", filter_level_4: "⭐⭐⭐⭐ (Advanced)", filter_level_3: "⭐⭐⭐ (Intermediate)", filter_level_2: "⭐⭐ (Basic)", filter_level_1: "⭐ (Beginner)",
+        filter_scenario: "Scenario", filter_topic_all: "All Topics", filter_topic_acad: "Academic", filter_topic_daily: "Daily Life", filter_topic_bus: "Business", filter_topic_ent: "Entertainment",
+        filter_accent: "Accent", filter_acc_all: "All Accents", filter_acc_us: "🇺🇸 US", filter_acc_uk: "🇬🇧 UK", filter_acc_au: "🇦🇺 AU",
+        empty_title: "No videos found", empty_desc: "Try adjusting your filters, or check connection.",
+        vocab_title: "Vocabulary", vocab_total: "Total", btn_export: "Export CSV",
+        tt_add: "Add to Vocab", tt_analyzing: "Analyzing...", tt_definition: "Definition", tt_example: "Example", tt_synonyms: "Synonyms", word_remove: "Remove",
+        loading: "Loading...", card_accent: "Accent:",
+        cat_continue: "Continue Watching", cat_academic: "Academic", cat_daily: "Daily & Travel", cat_business: "Business",
+        menu_theme: "Theme", menu_logout: "Log Out",
+        sidebar_video: "Select Video (MP4)", sidebar_sub: "Select Subs (SRT)", sidebar_launch: "Launch Workspace",
+        local_title: "Build Your Environment", local_desc: "Select an MP4 video and an SRT/VTT subtitle file to automatically generate an interactive learning workspace."
+    },
+    zh: {
+        nav_library: "視頻庫",
+        nav_vocab: "單詞本",
+        nav_local: "本地文件",
+        nav_profile: "個人中心",
+        title_history: "觀看歷史",
+        title_completed: "已學完",
+        title_favorites: "我的收藏",
+        search_placeholder: "搜索影片...",
+        filter_difficulty: "難度", filter_level_all: "所有難度", filter_level_5: "⭐⭐⭐⭐⭐ (困難)", filter_level_4: "⭐⭐⭐⭐ (進階)", filter_level_3: "⭐⭐⭐ (中等)", filter_level_2: "⭐⭐ (基礎)", filter_level_1: "⭐ (入門)",
+        filter_scenario: "場景", filter_topic_all: "所有主題", filter_topic_acad: "學術", filter_topic_daily: "日常生活", filter_topic_bus: "商業", filter_topic_ent: "娛樂",
+        filter_accent: "口音", filter_acc_all: "所有口音", filter_acc_us: "🇺🇸 美式", filter_acc_uk: "🇬🇧 英式", filter_acc_au: "🇦🇺 澳式",
+        empty_title: "未找到影片", empty_desc: "請嘗試調整篩選條件，或等待數據加載。",
+        vocab_title: "生詞本", vocab_total: "總計", btn_export: "匯出 CSV",
+        tt_add: "加入生詞本", tt_analyzing: "分析中...", tt_definition: "釋義", tt_example: "例句", tt_synonyms: "同義詞", word_remove: "移除",
+        loading: "加載中...", card_accent: "口音:",
+        cat_continue: "繼續學習", cat_academic: "學術深研", cat_daily: "日常與旅行", cat_business: "商務英語",
+        menu_theme: "外觀主題", menu_logout: "退出登入",
+        sidebar_video: "選擇影片 (MP4)", sidebar_sub: "選擇字幕 (SRT/VTT)", sidebar_launch: "進入學習艙",
+        local_title: "構建沉浸環境", local_desc: "請選擇一部 MP4 影片與對應的 SRT/VTT 字幕文件，我們將為您自動生成交互式學習艙。"
+    }
 };
-const authScreen = document.getElementById('authScreen');
-const authTitle = document.getElementById('authTitle');
-const authForm = document.getElementById('authForm');
-const authEmail = document.getElementById('authEmail');
-const authPassword = document.getElementById('authPassword');
-const authInviteCode = document.getElementById('authInviteCode');
-const authErrorMsg = document.getElementById('authErrorMsg');
-const authRemember = document.getElementById('authRemember');
-const authRememberGroup = document.getElementById('authRememberGroup');
-const authSubmitBtn = document.getElementById('authSubmitBtn');
-const authToggleLink = document.getElementById('authToggleLink');
-const authToggleText = document.getElementById('authToggleText');
 
-const savedEmail = localStorage.getItem('studio_saved_email');
-if (savedEmail) {
-    authEmail.value = savedEmail;
-    authRemember.checked = true;
+const state = { 
+    lang: 'zh', currentTab: 'library', profileSubTab: 'history',
+    searchText: '', filters: { rating: 'all', tag: 'all', accent: 'all' },
+    user: null, currentVideoId: null, subtitles: [], 
+    currentLoopIndex: null, currentActiveIndex: -1, 
+    dictationMode: false, translationVisible: true, isClozeMode: false,
+    currentWord: null, videoObjectURL: null,
+    localReady: { v: false, s: false }
+};
+
+const dom = { 
+    player: document.getElementById('player'), transcript: document.getElementById('transcript'), 
+    tooltip: document.getElementById('tooltip'), 
+    translateBtn: document.getElementById('translateBtn'), clozeBtn: document.getElementById('clozeBtn'), dictationBtn: document.getElementById('dictationBtn'), 
+    saveWordBtn: document.getElementById('saveWordBtn'), globalExportVocabBtn: document.getElementById('globalExportVocabBtn'),
+    vocabList: document.getElementById('vocabList'), globalVocabList: document.getElementById('globalVocabList'),
+    homeScreen: document.getElementById('homeScreen'), workspace: document.getElementById('workspace'), 
+    vocabContainer: document.getElementById('vocabContainer'), mobileVocabToggle: document.getElementById('mobileVocabToggle'), 
+    closeVocabBtn: document.getElementById('closeVocabBtn'), speedToggleBtn: document.getElementById('speedToggleBtn'), 
+    speedMenu: document.getElementById('speedMenu'), backToHomeBtn: document.getElementById('backToHomeBtn'), 
+    
+    sidebarNav: document.getElementById('sidebarNav'), searchInput: document.getElementById('searchInput'),
+    filterBar: document.getElementById('filterBar'), libraryContentArea: document.getElementById('libraryContentArea'),
+    profileContentArea: document.getElementById('profileContentArea'), profileTabs: document.getElementById('profileTabs'),
+    profileEmailDisplay: document.getElementById('profileEmailDisplay'), profileAvatar: document.getElementById('profileAvatar'),
+
+    btnSettingLang: document.getElementById('btnSettingLang'), txtSettingLang: document.getElementById('txtSettingLang'),
+    btnSettingTheme: document.getElementById('btnSettingTheme'), btnSettingLogout: document.getElementById('btnSettingLogout'),
+
+    btnLocalVideoView: document.getElementById('btnLocalVideoView'), btnLocalSubView: document.getElementById('btnLocalSubView'),
+    txtLocalVideoView: document.getElementById('txtLocalVideoView'), txtLocalSubView: document.getElementById('txtLocalSubView'),
+    btnLaunchLocalView: document.getElementById('btnLaunchLocalView'), localVideoInputView: document.getElementById('localVideoInputView'),
+    localSubInputView: document.getElementById('localSubInputView'), localUploadDropzone: document.getElementById('localUploadDropzone')
+};
+
+// Custom Toast Notification System
+function showToast(message) {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerText = message;
+    container.appendChild(toast);
+    setTimeout(() => { toast.style.animation = 'toastOut 0.3s forwards'; setTimeout(() => toast.remove(), 300); }, 3000);
 }
 
-authToggleLink.onclick = (e) => {
-    e.preventDefault();
-    authState.isLoginMode = !authState.isLoginMode;
-    authTitle.innerText = authState.isLoginMode ? '歡迎回來' : '建立帳號';
-    authSubmitBtn.innerText = authState.isLoginMode ? '登入' : '註冊';
-    authToggleText.innerText = authState.isLoginMode ? '還沒有帳號？' : '已經有帳號了？';
-    authToggleLink.innerText = authState.isLoginMode ? '立即註冊' : '立即登入';
-    
-    authErrorMsg.style.display = 'none';
-    authErrorMsg.innerText = '';
-    
-    authInviteCode.style.display = authState.isLoginMode ? 'none' : 'block';
-    authInviteCode.required = !authState.isLoginMode;
-    authRememberGroup.style.display = authState.isLoginMode ? 'flex' : 'none';
-    
-    authPassword.setAttribute('autocomplete', authState.isLoginMode ? 'current-password' : 'new-password');
+const authState = { isLoginMode: true, failedAttempts: 0, lockoutUntil: 0 };
+const authScreen = document.getElementById('authScreen');
+const authForm = document.getElementById('authForm');
+const authEmail = document.getElementById('authEmail');
+
+const savedEmail = localStorage.getItem('studio_saved_email');
+if (savedEmail) { authEmail.value = savedEmail; document.getElementById('authRemember').checked = true; }
+
+document.getElementById('authToggleLink').onclick = (e) => {
+    e.preventDefault(); authState.isLoginMode = !authState.isLoginMode;
+    document.getElementById('authTitle').innerText = authState.isLoginMode ? '歡迎回來' : '建立帳號';
+    document.getElementById('authSubmitBtn').innerText = authState.isLoginMode ? '登入' : '註冊';
+    document.getElementById('authToggleText').innerText = authState.isLoginMode ? '還沒有帳號？' : '已經有帳號了？';
+    e.target.innerText = authState.isLoginMode ? '立即註冊' : '立即登入';
+    document.getElementById('authErrorMsg').style.display = 'none';
+    document.getElementById('authInviteCode').style.display = authState.isLoginMode ? 'none' : 'block';
+    document.getElementById('authInviteCode').required = !authState.isLoginMode;
+    document.getElementById('authRememberGroup').style.display = authState.isLoginMode ? 'flex' : 'none';
 };
 
 authForm.onsubmit = async (e) => {
     e.preventDefault();
-    authErrorMsg.style.display = 'none';
-    authErrorMsg.innerText = '';
-
+    const err = document.getElementById('authErrorMsg'); err.style.display = 'none';
+    const email = authEmail.value.trim(); const password = document.getElementById('authPassword').value;
+    const btn = document.getElementById('authSubmitBtn');
+    
     try {
-        const email = authEmail.value.trim();
-        const password = authPassword.value;
-        const inviteCode = authInviteCode.value.trim();
-
-        if (!authState.isLoginMode && !inviteCode) {
-            authErrorMsg.innerText = '請輸入邀請碼';
-            authErrorMsg.style.display = 'block';
-            return;
-        }
-
-        if (authState.isLoginMode) {
-            if (Date.now() < authState.lockoutUntil) {
-                const remainingSecs = Math.ceil((authState.lockoutUntil - Date.now()) / 1000);
-                authErrorMsg.innerText = `⚠️ 錯誤次數過多！請等待 ${remainingSecs} 秒後再嘗試登入。`;
-                authErrorMsg.style.display = 'block';
-                return;
-            }
-        }
-
-        authSubmitBtn.innerText = '請稍候...';
-        authSubmitBtn.disabled = true;
-
+        btn.disabled = true; btn.innerText = '請稍候...';
         if (authState.isLoginMode) {
             const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-            
-            if (error) {
-                if (error.message.includes('Invalid login credentials') || error.message.includes('credentials')) {
-                    authState.failedAttempts++;
-                    const remainingChances = 3 - authState.failedAttempts;
-                    
-                    if (remainingChances <= 0) {
-                        authState.lockoutUntil = Date.now() + 60000;
-                        authState.failedAttempts = 0;
-                        throw new Error(`密碼錯誤已達 3 次！\n基於安全考量，登入暫時鎖定，請等待 60 秒。`);
-                    } else {
-                        throw new Error(`帳號或密碼錯誤。您還有 ${remainingChances} 次輸入機會。`);
-                    }
-                }
-                throw error;
-            }
-            
-            authState.failedAttempts = 0;
-            if (authRemember.checked) {
-                localStorage.setItem('studio_saved_email', email);
-            } else {
-                localStorage.removeItem('studio_saved_email');
-            }
+            if (error) throw error;
+            if (document.getElementById('authRemember').checked) localStorage.setItem('studio_saved_email', email);
+            else localStorage.removeItem('studio_saved_email');
         } else {
-            const { data: codeData, error: codeError } = await supabaseClient
-                .from('invite_codes')
-                .select('*')
-                .eq('code', inviteCode)
-                .maybeSingle();
-
-            if (codeError) throw new Error('資料庫查詢錯誤: ' + codeError.message);
-            if (!codeData) throw new Error('找不到這組邀請碼，請確認是否輸入正確。');
-            if (codeData.is_used) throw new Error('這組邀請碼已經被使用過了！');
-
-            const { error: signUpError } = await supabaseClient.auth.signUp({ email, password });
-            if (signUpError) throw signUpError;
-
-            await supabaseClient.from('invite_codes').update({ is_used: true }).eq('code', inviteCode);
-
-            alert('🎉 註冊成功！\n(系統已自動為您切換至登入畫面，請直接點擊登入)');
-            authToggleLink.click();
+            const ic = document.getElementById('authInviteCode').value.trim();
+            const { data, error: ce } = await supabaseClient.from('invite_codes').select('*').eq('code', ic).maybeSingle();
+            if (ce || !data || data.is_used) throw new Error('邀請碼無效或已被使用。');
+            const { error: se } = await supabaseClient.auth.signUp({ email, password });
+            if (se) throw se;
+            await supabaseClient.from('invite_codes').update({ is_used: true }).eq('code', ic);
+            showToast('註冊成功！請登入。'); document.getElementById('authToggleLink').click();
         }
     } catch (error) {
-        console.error("Auth Exception:", error);
-        authErrorMsg.innerText = (error.message || '未知錯誤，請按 F12 檢查控制台');
-        authErrorMsg.style.display = 'block';
+        err.innerText = error.message; err.style.display = 'block';
     } finally {
-        authSubmitBtn.innerText = authState.isLoginMode ? '登入' : '註冊';
-        authSubmitBtn.disabled = false;
+        btn.disabled = false; btn.innerText = authState.isLoginMode ? '登入' : '註冊';
     }
 };
 
@@ -1046,311 +944,91 @@ function handleSession(session) {
     if (session) {
         state.user = session.user;
         authScreen.classList.add('hidden');
-        if (dom.menuUserEmail) dom.menuUserEmail.innerText = session.user.email;
+        dom.profileEmailDisplay.innerText = session.user.email;
+        dom.profileAvatar.innerText = session.user.email.charAt(0).toUpperCase();
         if (videoDatabase.length === 0) loadVideosFromSupabase();
     } else {
         state.user = null;
         authScreen.classList.remove('hidden');
-        if (dom.menuUserEmail) dom.menuUserEmail.innerText = '未登入';
     }
 }
+supabaseClient.auth.onAuthStateChange((_e, session) => handleSession(session));
 
-supabaseClient.auth.onAuthStateChange((_event, session) => {
-    handleSession(session);
-});
-
-
-// ==========================================
-// 🍎 数据获取与错误展示逻辑
-// ==========================================
 async function loadVideosFromSupabase() {
     if (!state.user) return;
-    
-    const dict = i18n[state.lang];
     try {
         const { data, error } = await supabaseClient.from('videos').select('*').order('created_at', { ascending: false });
         if(error) throw error;
 
         videoDatabase = data.map(v => ({
-            id: v.id,
-            title: v.title,
-            episode: v.episode || '',
-            rating: v.rating || 5,
-            tags: v.tags || [],
-            accent: v.accent || 'US',
-            creator: v.creator || '',
-            coverUrl: v.cover_url,
-            videoUrl: v.video_url,
-            progress: 0,
-            favorite: false,
-            status: 'new',
-            duration: v.duration || '--:--',
-            date: 'Cloud'
+            id: v.id, title: v.title, episode: v.episode || '', rating: v.rating || 5,
+            tags: v.tags || [], accent: v.accent || 'US', creator: v.creator || '',
+            coverUrl: v.cover_url, videoUrl: v.video_url, progress: 0, favorite: false,
+            status: 'new', duration: v.duration || '--:--', date: 'Cloud'
         }));
 
         videoDatabase.forEach(v => {
             const savedPct = localStorage.getItem(`prog_pct_${v.id}`);
-            if(savedPct) {
-                v.progress = parseFloat(savedPct);
-                v.status = v.progress >= 99 ? 'completed' : 'history';
-            }
+            if(savedPct) { v.progress = parseFloat(savedPct); v.status = v.progress >= 99 ? 'completed' : 'history'; }
         });
-
-        renderGrid();
+        renderCurrentView();
     } catch(e) {
-        console.error("Supabase Error Details: ", e);
-        dom.mainContentArea.innerHTML = `
-            <div class="empty-state">
-                <svg viewBox="0 0 24 24" style="fill: var(--red); width:64px; height:64px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-                <h3 style="color:var(--red)">数据库连接错误 (Connection Error)</h3>
-                <div class="error-card">
-                    <p style="font-weight:600; font-size:14px; margin-bottom:8px;">错误详情：</p>
-                    <code>${e.message || "未知错误"}</code>
-                </div>
-            </div>
-        `;
+        dom.libraryContentArea.innerHTML = `<div class="empty-state"><h3 style="color:var(--red)">Connection Error</h3><p>${e.message}</p></div>`;
     }
 }
 
-// ==========================================
-// 🍎 状态管理 (包含 i18n 字典)
-// ==========================================
-const i18n = {
-    en: {
-        title_all: "Library",
-        title_history: "History",
-        title_completed: "Completed",
-        title_favorites: "Favorites",
-        sidebar_local: "LOCAL FILES",
-        sidebar_video: "Video (MP4)",
-        sidebar_sub: "Subtitles (SRT/VTT)",
-        sidebar_launch: "Launch Workspace",
-        search_placeholder: "Search videos...",
-        filter_difficulty: "Difficulty",
-        filter_level_all: "All Levels",
-        filter_level_5: "⭐⭐⭐⭐⭐ (Hard)",
-        filter_level_4: "⭐⭐⭐⭐ (Advanced)",
-        filter_level_3: "⭐⭐⭐ (Intermediate)",
-        filter_level_2: "⭐⭐ (Basic)",
-        filter_level_1: "⭐ (Beginner)",
-        filter_scenario: "Scenario",
-        filter_topic_all: "All Topics",
-        filter_topic_acad: "Academic",
-        filter_topic_daily: "Daily Life",
-        filter_topic_bus: "Business",
-        filter_topic_ent: "Entertainment",
-        filter_accent: "Accent",
-        filter_acc_all: "All Accents",
-        filter_acc_us: "🇺🇸 US English",
-        filter_acc_uk: "🇬🇧 UK English",
-        filter_acc_au: "🇦🇺 AU English",
-        empty_title: "No videos found",
-        empty_desc: "Try adjusting your filters, or ensure your Supabase database has data.",
-        vocab_title: "Vocabulary",
-        btn_export: "Export CSV",
-        tt_add: "Add to Vocab",
-        tt_analyzing: "Analyzing...",
-        tt_definition: "Definition",
-        tt_example: "Example",
-        tt_synonyms: "Synonyms",
-        word_remove: "Remove",
-        loading: "Loading...",
-        card_accent: "Accent:",
-        cat_continue: "Continue Watching",
-        cat_academic: "Academic Deep Dive",
-        cat_daily: "Daily Life & Travel",
-        cat_business: "Business English",
-        menu_theme: "Theme",
-        menu_logout: "Log Out"
-    },
-    zh: {
-        title_all: "視頻庫",
-        title_history: "觀看歷史",
-        title_completed: "已學完",
-        title_favorites: "我的收藏",
-        sidebar_local: "本地文件學習",
-        sidebar_video: "選擇影片 (MP4)",
-        sidebar_sub: "選擇字幕 (SRT)",
-        sidebar_launch: "進入學習艙",
-        search_placeholder: "搜索影片...",
-        filter_difficulty: "難度",
-        filter_level_all: "所有難度",
-        filter_level_5: "⭐⭐⭐⭐⭐ (困難)",
-        filter_level_4: "⭐⭐⭐⭐ (進階)",
-        filter_level_3: "⭐⭐⭐ (中等)",
-        filter_level_2: "⭐⭐ (基礎)",
-        filter_level_1: "⭐ (入門)",
-        filter_scenario: "場景",
-        filter_topic_all: "所有主題",
-        filter_topic_acad: "學術",
-        filter_topic_daily: "日常生活",
-        filter_topic_bus: "商業",
-        filter_topic_ent: "娛樂",
-        filter_accent: "口音",
-        filter_acc_all: "所有口音",
-        filter_acc_us: "🇺🇸 美式英語",
-        filter_acc_uk: "🇬🇧 英式英語",
-        filter_acc_au: "🇦🇺 澳式英語",
-        empty_title: "未找到影片",
-        empty_desc: "請嘗試調整篩選條件，或者確認 Supabase 資料庫中有數據插入。",
-        vocab_title: "生詞本",
-        btn_export: "匯出 CSV",
-        tt_add: "加入生詞本",
-        tt_analyzing: "分析中...",
-        tt_definition: "釋義",
-        tt_example: "例句",
-        tt_synonyms: "同義詞",
-        word_remove: "移除",
-        loading: "加載中...",
-        card_accent: "口音:",
-        cat_continue: "繼續學習",
-        cat_academic: "學術深研",
-        cat_daily: "日常與旅行",
-        cat_business: "商務英語",
-        menu_theme: "外觀主題",
-        menu_logout: "退出登入"
+// 🍎 导航切换逻辑
+dom.sidebarNav.addEventListener('click', (e) => {
+    const item = e.target.closest('.nav-item');
+    if (item) {
+        document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
+        item.classList.add('active');
+        state.currentTab = item.dataset.tab;
+        
+        document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
+        document.getElementById(`view-${state.currentTab}`).classList.add('active');
+        
+        renderCurrentView();
     }
-};
+});
 
-const state = { 
-    lang: 'zh',
-    currentTab: 'all',
-    searchText: '',
-    filters: { rating: 'all', tag: 'all', accent: 'all' },
-    user: null,
-    
-    currentVideoId: null,
-    subtitles: [], 
-    currentLoopIndex: null, 
-    currentActiveIndex: -1, 
-    dictationMode: false, 
-    translationVisible: true, 
-    isClozeMode: false,
-    currentWord: null,
-    videoObjectURL: null,
-    localReady: { v: false, s: false }
-};
+// 🍎 个人中心子标签切换
+dom.profileTabs.addEventListener('click', (e) => {
+    if(e.target.classList.contains('profile-tab')) {
+        document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+        e.target.classList.add('active');
+        state.profileSubTab = e.target.dataset.subtab;
+        renderGrid(dom.profileContentArea, state.profileSubTab);
+    }
+});
 
-const dom = { 
-    player: document.getElementById('player'), 
-    transcript: document.getElementById('transcript'), 
-    tooltip: document.getElementById('tooltip'), 
-    themeBtn: document.getElementById('themeBtn'), 
-    translateBtn: document.getElementById('translateBtn'), 
-    clozeBtn: document.getElementById('clozeBtn'),
-    dictationBtn: document.getElementById('dictationBtn'), 
-    saveWordBtn: document.getElementById('saveWordBtn'), 
-    exportVocabBtn: document.getElementById('exportVocabBtn'),
-    vocabList: document.getElementById('vocabList'), 
-    homeScreen: document.getElementById('homeScreen'), 
-    workspace: document.getElementById('workspace'), 
-    vocabContainer: document.getElementById('vocabContainer'), 
-    mobileVocabToggle: document.getElementById('mobileVocabToggle'), 
-    closeVocabBtn: document.getElementById('closeVocabBtn'), 
-    speedToggleBtn: document.getElementById('speedToggleBtn'), 
-    speedMenu: document.getElementById('speedMenu'), 
-    backToHomeBtn: document.getElementById('backToHomeBtn'), 
-    
-    sidebarNav: document.getElementById('sidebarNav'),
-    pageTitle: document.getElementById('pageTitle'),
-    searchInput: document.getElementById('searchInput'),
-    filterBar: document.getElementById('filterBar'),
-    mainContentArea: document.getElementById('mainContentArea'),
-
-    // 右上角選單元素
-    localMenuBtn: document.getElementById('localMenuBtn'),
-    localMenuDropdown: document.getElementById('localMenuDropdown'),
-    userMenuBtn: document.getElementById('userMenuBtn'),
-    userMenuDropdown: document.getElementById('userMenuDropdown'),
-    menuUserEmail: document.getElementById('menuUserEmail'),
-    menuLangToggle: document.getElementById('menuLangToggle'),
-    menuThemeToggle: document.getElementById('menuThemeToggle'),
-    menuLogoutBtn: document.getElementById('menuLogoutBtn'),
-    menuLangText: document.getElementById('menuLangText'),
-
-    btnLocalVideo: document.getElementById('btnLocalVideo'), 
-    btnLocalSub: document.getElementById('btnLocalSub'),
-    txtLocalVideo: document.getElementById('txtLocalVideo'),
-    txtLocalSub: document.getElementById('txtLocalSub'),
-    btnLaunchLocal: document.getElementById('btnLaunchLocal'),
-    localVideoInput: document.getElementById('localVideoInput'),
-    localSubInput: document.getElementById('localSubInput')
-};
-
-// ==========================================
-// 🍎 玻璃质感悬浮菜单控制器
-// ==========================================
-function initCustomFilter(btnId, modalId, labelId, filterKey) {
-    const btn = document.getElementById(btnId);
-    const modal = document.getElementById(modalId);
-    const label = document.getElementById(labelId);
-    
-    if(!btn || !modal) return;
-    btn.onclick = () => modal.classList.add('active');
-    
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.classList.remove('active');
-        } 
-        else if (e.target.classList.contains('glass-option')) {
-            modal.querySelectorAll('.glass-option').forEach(el => el.classList.remove('active'));
-            e.target.classList.add('active');
-            
-            state.filters[filterKey] = e.target.dataset.value;
-            
-            const i18nKey = e.target.getAttribute('data-i18n');
-            if (i18nKey) {
-                label.setAttribute('data-i18n', i18nKey);
-                label.innerText = i18n[state.lang][i18nKey];
-            } else {
-                label.innerText = e.target.innerText;
-            }
-            
-            modal.classList.remove('active');
-            renderGrid();
-        }
-    });
+function renderCurrentView() {
+    if (state.currentTab === 'library') {
+        renderGrid(dom.libraryContentArea, 'library');
+    } else if (state.currentTab === 'profile') {
+        renderGrid(dom.profileContentArea, state.profileSubTab);
+    } else if (state.currentTab === 'vocabulary') {
+        renderGlobalVocab();
+    }
 }
 
-initCustomFilter('btnFilterRating', 'modalFilterRating', 'labelFilterRating', 'rating');
-initCustomFilter('btnFilterTag', 'modalFilterTag', 'labelFilterTag', 'tag');
-initCustomFilter('btnFilterAccent', 'modalFilterAccent', 'labelFilterAccent', 'accent');
-
-// ==========================================
-// 🍎 UI 渲染核心 (Apple TV / Netflix 风格)
-// ==========================================
 const getStarsHtml = (rating) => {
     let html = '';
     for(let i=1; i<=5; i++) {
-        const cls = i <= rating ? 'filled' : 'empty';
-        html += `<svg class="star ${cls}" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`;
-    }
-    return html;
+        html += `<svg class="star ${i <= rating ? 'filled' : 'empty'}" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`;
+    } return html;
 };
 
 const renderVideoCard = (v, dict) => `
     <div class="video-card" id="card-${v.id}" onclick="loadVideo('${v.id}')">
         <div class="card-overlay"><div class="spinner"></div><span style="font-size:13px; font-weight:600;">${dict.loading}</span></div>
-        
-        <div class="favorite-btn ${v.favorite ? 'active' : ''}" onclick="toggleFavorite(event, '${v.id}')" title="Toggle Favorite">
-            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-        </div>
-
-        <div class="card-top" style="background-image: url('${v.coverUrl}')">
-            <div class="card-creator">${v.creator}</div>
-            <div class="card-duration">${v.duration}</div>
-        </div>
+        <div class="favorite-btn ${v.favorite ? 'active' : ''}" onclick="toggleFavorite(event, '${v.id}')"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+        <div class="card-top" style="background-image: url('${v.coverUrl}')"><div class="card-duration">${v.duration}</div></div>
         <div class="card-middle">
             <div class="card-ep-group"><div class="card-ep">${v.episode}</div><div class="card-title">${v.title}</div></div>
             <div class="card-rating">${getStarsHtml(v.rating)}</div>
         </div>
-        <div class="card-bottom">
-            <div class="card-tags">${(v.tags || []).map(t => `<span class="card-tag">${t}</span>`).join('')}</div>
-            <div class="card-meta">
-                <div class="card-accent">${dict.card_accent} ${v.accent}</div>
-                <div class="card-date">${v.date}</div>
-            </div>
-        </div>
+        <div class="card-bottom"><div class="card-tags">${(v.tags || []).map(t => `<span class="card-tag">${t}</span>`).join('')}</div></div>
         ${v.progress > 0 ? `<div class="card-progress" style="width: ${v.progress}%"></div>` : ''}
     </div>
 `;
@@ -1358,398 +1036,117 @@ const renderVideoCard = (v, dict) => `
 window.toggleFavorite = (e, id) => {
     e.stopPropagation(); 
     const video = videoDatabase.find(v => v.id === id);
-    if(video) {
-        video.favorite = !video.favorite;
-        renderGrid(); 
-    }
+    if(video) { video.favorite = !video.favorite; renderCurrentView(); }
 };
 
-function renderGrid() {
+function renderGrid(container, context) {
     let filtered = videoDatabase;
     const dict = i18n[state.lang];
 
-    if (state.searchText) {
-        filtered = filtered.filter(v => v.title.toLowerCase().includes(state.searchText.toLowerCase()));
-    }
-
-    if (state.currentTab === 'history') {
+    if (context === 'library') {
+        if (state.searchText) filtered = filtered.filter(v => v.title.toLowerCase().includes(state.searchText.toLowerCase()));
+        if (state.filters.rating !== 'all') filtered = filtered.filter(v => v.rating === parseInt(state.filters.rating));
+        if (state.filters.tag !== 'all') filtered = filtered.filter(v => v.tags && v.tags.includes(state.filters.tag));
+        if (state.filters.accent !== 'all') filtered = filtered.filter(v => v.accent === state.filters.accent);
+    } else if (context === 'history') {
         filtered = filtered.filter(v => v.status === 'history' || v.progress > 0 && v.progress < 99);
-    } else if (state.currentTab === 'completed') {
+    } else if (context === 'completed') {
         filtered = filtered.filter(v => v.status === 'completed' || v.progress >= 99);
-    } else if (state.currentTab === 'favorites') {
+    } else if (context === 'favorites') {
         filtered = filtered.filter(v => v.favorite === true);
     }
 
-    let isFiltering = false;
-    if (state.currentTab === 'all') {
-        if (state.filters.rating !== 'all') { filtered = filtered.filter(v => v.rating === parseInt(state.filters.rating)); isFiltering = true; }
-        if (state.filters.tag !== 'all') { filtered = filtered.filter(v => v.tags && v.tags.includes(state.filters.tag)); isFiltering = true; }
-        if (state.filters.accent !== 'all') { filtered = filtered.filter(v => v.accent === state.filters.accent); isFiltering = true; }
-    }
-
     if (filtered.length === 0) {
-        dom.mainContentArea.innerHTML = `
-            <div class="empty-state" style="margin-top:40px;">
-                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                <h3>${dict.empty_title}</h3>
-                <p>${dict.empty_desc}</p>
-            </div>
-        `;
+        container.innerHTML = `<div class="empty-state" style="margin-top:40px;"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg><h3>${dict.empty_title}</h3><p>${dict.empty_desc}</p></div>`;
         return;
     }
 
-    if (state.currentTab === 'all' && !state.searchText && !isFiltering) {
+    let isFiltering = state.searchText || state.filters.rating !== 'all' || state.filters.tag !== 'all' || state.filters.accent !== 'all';
+    
+    if (context === 'library' && !isFiltering) {
         let html = '';
-        
-        const continueWatching = filtered.filter(v => v.progress > 0 && v.progress < 99);
-        if (continueWatching.length > 0) {
-            html += `<div class="category-section"><div class="category-header">${dict.cat_continue}</div>
-                     <div class="row-scroll">${continueWatching.map(v => renderVideoCard(v, dict)).join('')}</div></div>`;
-        }
-
-        const academic = filtered.filter(v => v.tags && v.tags.includes('Academic'));
-        if (academic.length > 0) {
-            html += `<div class="category-section"><div class="category-header">${dict.cat_academic}</div>
-                     <div class="row-scroll">${academic.map(v => renderVideoCard(v, dict)).join('')}</div></div>`;
-        }
-
+        const cw = filtered.filter(v => v.progress > 0 && v.progress < 99);
+        if (cw.length > 0) html += `<div class="category-section"><div class="category-header">${dict.cat_continue}</div><div class="row-scroll">${cw.map(v => renderVideoCard(v, dict)).join('')}</div></div>`;
+        const acad = filtered.filter(v => v.tags && v.tags.includes('Academic'));
+        if (acad.length > 0) html += `<div class="category-section"><div class="category-header">${dict.cat_academic}</div><div class="row-scroll">${acad.map(v => renderVideoCard(v, dict)).join('')}</div></div>`;
         const daily = filtered.filter(v => v.tags && (v.tags.includes('Daily') || v.tags.includes('Entertainment')));
-        if (daily.length > 0) {
-            html += `<div class="category-section"><div class="category-header">${dict.cat_daily}</div>
-                     <div class="row-scroll">${daily.map(v => renderVideoCard(v, dict)).join('')}</div></div>`;
-        }
+        if (daily.length > 0) html += `<div class="category-section"><div class="category-header">${dict.cat_daily}</div><div class="row-scroll">${daily.map(v => renderVideoCard(v, dict)).join('')}</div></div>`;
         
-        const business = filtered.filter(v => v.tags && v.tags.includes('Business'));
-        if (business.length > 0) {
-            html += `<div class="category-section"><div class="category-header">${dict.cat_business}</div>
-                     <div class="row-scroll">${business.map(v => renderVideoCard(v, dict)).join('')}</div></div>`;
-        }
-        
-        if(html === '') {
-            html = `<div class="video-grid">${filtered.map(v => renderVideoCard(v, dict)).join('')}</div>`;
-        }
-        
-        dom.mainContentArea.innerHTML = html;
-    } 
-    else {
-        dom.mainContentArea.innerHTML = `<div class="video-grid">${filtered.map(v => renderVideoCard(v, dict)).join('')}</div>`;
+        container.innerHTML = html || `<div class="video-grid">${filtered.map(v => renderVideoCard(v, dict)).join('')}</div>`;
+    } else {
+        container.innerHTML = `<div class="video-grid">${filtered.map(v => renderVideoCard(v, dict)).join('')}</div>`;
     }
 }
 
-if(dom.searchInput) {
-    dom.searchInput.addEventListener('input', (e) => {
-        state.searchText = e.target.value;
-        renderGrid();
-    });
-}
-
-if(dom.sidebarNav) {
-    dom.sidebarNav.addEventListener('click', (e) => {
-        const item = e.target.closest('.nav-item');
-        if (item) {
-            document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
-            item.classList.add('active');
-            state.currentTab = item.dataset.tab;
-            
-            if (dom.pageTitle) {
-                dom.pageTitle.setAttribute('data-i18n', `title_${state.currentTab}`);
-                dom.pageTitle.innerText = i18n[state.lang][`title_${state.currentTab}`];
-            }
-            
-            if(dom.filterBar) {
-                dom.filterBar.style.display = state.currentTab === 'all' ? 'flex' : 'none';
-            }
-            
-            if(state.currentTab !== 'all') {
-                state.filters = { rating: 'all', tag: 'all', accent: 'all' };
-                
-                const resetFilter = (modalId, labelId, defaultI18nKey) => {
-                    const modal = document.getElementById(modalId);
-                    const label = document.getElementById(labelId);
-                    if(!modal || !label) return;
-                    
-                    modal.querySelectorAll('.glass-option').forEach(el => el.classList.remove('active'));
-                    const defaultOpt = modal.querySelector(`[data-value="all"]`);
-                    if(defaultOpt) defaultOpt.classList.add('active');
-                    
-                    label.setAttribute('data-i18n', defaultI18nKey);
-                    label.innerText = i18n[state.lang][defaultI18nKey];
-                };
-                
-                resetFilter('modalFilterRating', 'labelFilterRating', 'filter_level_all');
-                resetFilter('modalFilterTag', 'labelFilterTag', 'filter_topic_all');
-                resetFilter('modalFilterAccent', 'labelFilterAccent', 'filter_acc_all');
-
-                state.searchText = ''; dom.searchInput.value = '';
-            }
-            renderGrid();
+// 🍎 Filters Logic
+function initCustomFilter(btnId, modalId, labelId, filterKey) {
+    const btn = document.getElementById(btnId); const modal = document.getElementById(modalId); const label = document.getElementById(labelId);
+    if(!btn || !modal) return;
+    btn.onclick = () => modal.classList.add('active');
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('active');
+        else if (e.target.classList.contains('glass-option')) {
+            modal.querySelectorAll('.glass-option').forEach(el => el.classList.remove('active'));
+            e.target.classList.add('active');
+            state.filters[filterKey] = e.target.dataset.value;
+            const i18nKey = e.target.getAttribute('data-i18n');
+            label.innerText = i18nKey ? i18n[state.lang][i18nKey] : e.target.innerText;
+            modal.classList.remove('active');
+            renderCurrentView();
         }
     });
 }
-
-function enterWorkspace() {
-    dom.homeScreen.classList.add('hidden');
-    dom.workspace.classList.add('active');
-}
-
-dom.backToHomeBtn.onclick = () => {
-    dom.workspace.classList.remove('active');
-    dom.homeScreen.classList.remove('hidden');
-    dom.player.pause();
-};
+initCustomFilter('btnFilterRating', 'modalFilterRating', 'labelFilterRating', 'rating');
+initCustomFilter('btnFilterTag', 'modalFilterTag', 'labelFilterTag', 'tag');
+initCustomFilter('btnFilterAccent', 'modalFilterAccent', 'labelFilterAccent', 'accent');
+dom.searchInput.addEventListener('input', (e) => { state.searchText = e.target.value; renderCurrentView(); });
 
 async function loadVideo(id) {
     const videoData = videoDatabase.find(v => v.id === id);
-    if (!videoData) return;
-    state.currentVideoId = id;
-    
-    if (!videoData.videoUrl) {
-        alert("視頻鏈接為空，請在 Supabase 裡補全 video_url 欄位。");
-        return;
-    }
+    if (!videoData) return; state.currentVideoId = id;
+    if (!videoData.videoUrl) { showToast("Video URL is empty."); return; }
 
-    const card = document.getElementById(`card-${id}`);
-    if(card) card.classList.add('loading');
-
+    const card = document.getElementById(`card-${id}`); if(card) card.classList.add('loading');
     try {
         if(state.videoObjectURL) { URL.revokeObjectURL(state.videoObjectURL); state.videoObjectURL = null; }
         dom.player.src = videoData.videoUrl;
-        
         const savedRate = localStorage.getItem('playbackRate') || 1;
-        dom.player.playbackRate = parseFloat(savedRate);
-        dom.speedToggleBtn.innerText = `${parseFloat(savedRate).toFixed(1)}x`;
+        dom.player.playbackRate = parseFloat(savedRate); dom.speedToggleBtn.innerText = `${parseFloat(savedRate).toFixed(1)}x`;
 
         dom.player.addEventListener('loadedmetadata', function onLoaded() {
             const savedProg = localStorage.getItem(`prog_time_${id}`);
-            if(savedProg && parseFloat(savedProg) > 0) {
-                dom.player.currentTime = parseFloat(savedProg);
-            }
+            if(savedProg && parseFloat(savedProg) > 0) dom.player.currentTime = parseFloat(savedProg);
             dom.player.removeEventListener('loadedmetadata', onLoaded);
         });
         
         let finalSubtitles = [];
-        
-        const { data: joinData, error: joinError } = await supabaseClient
-            .from('subtitles')
-            .select('*, highlights:subtitle_highlights(*)')
-            .eq('video_id', id)
-            .order('start', { ascending: true });
-
+        const { data: joinData, error: joinError } = await supabaseClient.from('subtitles').select('*, highlights:subtitle_highlights(*)').eq('video_id', id).order('start', { ascending: true });
         if(joinError) {
-            const { data: basicData, error: basicError } = await supabaseClient
-                .from('subtitles')
-                .select('*')
-                .eq('video_id', id)
-                .order('start', { ascending: true });
-            
-            if (!basicError) finalSubtitles = basicData || [];
-        } else {
-            finalSubtitles = joinData || [];
-        }
-
+            const { data } = await supabaseClient.from('subtitles').select('*').eq('video_id', id).order('start', { ascending: true });
+            finalSubtitles = data || [];
+        } else { finalSubtitles = joinData || []; }
         state.subtitles = finalSubtitles;
 
-        renderTranscript();
-        enterWorkspace();
-        
-    } catch (err) {
-        console.error("Failed to setup workspace:", err);
-        alert(`加載播放環境失敗: ${err.message}`);
-    } finally {
-        if(card) card.classList.remove('loading');
-    }
+        renderTranscript(); dom.homeScreen.classList.add('hidden'); dom.workspace.classList.add('active');
+    } catch (err) { showToast(`Load failed: ${err.message}`); } 
+    finally { if(card) card.classList.remove('loading'); }
 }
 
-// ==========================================
-// 🍎 交互功能：主题、翻译、克漏字、倍速等
-// ==========================================
-const toggleTheme = () => {
-    document.body.classList.toggle('dark-theme'); 
-    const isDark = document.body.classList.contains('dark-theme');
-    if(isDark) { 
-        dom.themeBtn.classList.add('active'); 
-    } else { 
-        dom.themeBtn.classList.remove('active'); 
-    }
-};
-dom.themeBtn.onclick = toggleTheme;
-if (dom.menuThemeToggle) dom.menuThemeToggle.onclick = toggleTheme;
-
-const toggleLang = () => {
-    state.lang = state.lang === 'en' ? 'zh' : 'en';
-    if(dom.menuLangText) {
-        dom.menuLangText.innerText = state.lang === 'en' ? '切換為 中文' : 'Switch to English';
-    }
-    updateLanguageUI();
-};
-if (dom.menuLangToggle) dom.menuLangToggle.onclick = toggleLang;
-
-// 🍎 管理頂部下拉選單
-const setupDropdown = (btn, dropdown) => {
-    if (!btn || !dropdown) return;
-    btn.onclick = (e) => {
-        e.stopPropagation();
-        // 關閉其他的下拉選單
-        document.querySelectorAll('.glass-dropdown').forEach(d => {
-            if (d !== dropdown) d.classList.remove('show');
-        });
-        dropdown.classList.toggle('show');
-    };
-};
-setupDropdown(dom.localMenuBtn, dom.localMenuDropdown);
-setupDropdown(dom.userMenuBtn, dom.userMenuDropdown);
-
-if (dom.menuLogoutBtn) {
-    dom.menuLogoutBtn.onclick = async () => {
-        await supabaseClient.auth.signOut();
-        window.location.reload();
-    };
-}
-
-function updateLanguageUI() {
-    const dict = i18n[state.lang];
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (dict[key]) el.innerText = dict[key];
-    });
-    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-        const key = el.getAttribute('data-i18n-placeholder');
-        if (dict[key]) el.placeholder = dict[key];
-    });
-    renderGrid();
-    renderVocab();
-}
+dom.backToHomeBtn.onclick = () => { dom.workspace.classList.remove('active'); dom.homeScreen.classList.remove('hidden'); dom.player.pause(); };
 
 function applyLocalHighlights(text, highlights) {
-    if (!highlights || !Array.isArray(highlights) || highlights.length === 0) return text;
+    if (!highlights || !highlights.length) return text;
     let res = text; let placeholders = [];
-    const sortedHighlights = [...highlights].sort((a, b) => b.text.length - a.text.length);
-    
-    sortedHighlights.forEach(hl => {
-        const escapeRegExp = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const regex = new RegExp(`\\b${escapeRegExp(hl.text)}\\b`, 'gi');
+    [...highlights].sort((a, b) => b.text.length - a.text.length).forEach(hl => {
+        const regex = new RegExp(`\\b${hl.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
         res = res.replace(regex, match => {
-            if (state.isClozeMode) {
-                const width = Math.max(match.length * 14 + 16, 40); 
-                placeholders.push(`<input type="text" class="cloze-input" data-answer="${match.toLowerCase()}" data-original="${match}" style="width: ${width}px;" autocomplete="off" spellcheck="false" />`);
-            } else {
-                const className = hl.type === 'phrase' ? 'hl-phrase' : 'hl-word';
-                placeholders.push(`<span class="${className}">${match}</span>`);
-            }
+            if (state.isClozeMode) { placeholders.push(`<input type="text" class="cloze-input" data-answer="${match.toLowerCase()}" style="width: ${Math.max(match.length * 14 + 16, 40)}px;" autocomplete="off" />`); } 
+            else { placeholders.push(`<span class="${hl.type === 'phrase' ? 'hl-phrase' : 'hl-word'}">${match}</span>`); }
             return `__PH__${placeholders.length - 1}__`;
         });
     });
     placeholders.forEach((html, i) => { res = res.replace(`__PH__${i}__`, html); });
     return res;
-}
-
-const getVocab = () => JSON.parse(localStorage.getItem('vocabPro2')) || [];
-const saveVocab = words => { try { localStorage.setItem('vocabPro2', JSON.stringify(words)); } catch(e){} };
-
-dom.exportVocabBtn.onclick = () => {
-    const words = getVocab();
-    if(words.length === 0) return alert('No words to export.');
-    
-    const stripHtml = (html) => {
-       const tmp = document.createElement('DIV');
-       tmp.innerHTML = html;
-       return tmp.textContent || tmp.innerText || '';
-    };
-
-    let csvContent = "Word,Definition,Example,Synonyms\n";
-    words.forEach(w => {
-        const cleanDef = stripHtml(w.definition).replace(/"/g, '""');
-        const cleanEx = (w.example || "").replace(/"/g, '""');
-        const cleanSyn = (w.synonyms || []).join('; ').replace(/"/g, '""');
-        csvContent += `"${w.word}","${cleanDef}","${cleanEx}","${cleanSyn}"\n`;
-    });
-
-    const blob = new Blob(["\uFEFF"+csvContent], { type: 'text/csv;charset=utf-8;' }); 
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", "vocabulary_export.csv");
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-};
-
-dom.translateBtn.onclick = () => { 
-    state.translationVisible = !state.translationVisible; dom.translateBtn.classList.toggle('active'); 
-    document.querySelectorAll('.lyric-zh').forEach(el => el.classList.toggle('hidden', !state.translationVisible)); 
-};
-
-dom.clozeBtn.onclick = () => {
-    state.isClozeMode = !state.isClozeMode; dom.clozeBtn.classList.toggle('active', state.isClozeMode);
-    renderTranscript(); 
-};
-
-dom.dictationBtn.onclick = () => { state.dictationMode = !state.dictationMode; dom.dictationBtn.classList.toggle('active'); };
-
-dom.speedToggleBtn.onclick = (e) => {
-    e.stopPropagation();
-    if (dom.speedMenu.classList.contains('show')) { dom.speedMenu.classList.remove('show'); return; }
-    const rect = dom.speedToggleBtn.getBoundingClientRect();
-    if (window.innerWidth <= 1024) {
-        dom.speedMenu.style.top = 'auto'; dom.speedMenu.style.bottom = `${window.innerHeight - rect.top + 12}px`;
-    } else {
-        dom.speedMenu.style.bottom = 'auto'; dom.speedMenu.style.top = `${rect.bottom + 12}px`;
-    }
-    dom.speedMenu.style.left = `${rect.left + (rect.width/2) - 50}px`;
-    dom.speedMenu.classList.add('show');
-};
-
-document.addEventListener('click', e => { 
-    if (!dom.speedMenu.contains(e.target) && e.target !== dom.speedToggleBtn) dom.speedMenu.classList.remove('show'); 
-    if (!dom.tooltip.contains(e.target)) dom.tooltip.classList.remove('show');
-    
-    // 點擊外部關閉所有下拉選單
-    document.querySelectorAll('.glass-dropdown').forEach(dropdown => {
-        const btn = dropdown.previousElementSibling;
-        if (btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
-            dropdown.classList.remove('show');
-        }
-    });
-});
-
-document.querySelectorAll('.sp-item').forEach(item => {
-    item.onclick = () => {
-        const speed = parseFloat(item.dataset.speed); 
-        dom.player.playbackRate = speed;
-        localStorage.setItem('playbackRate', speed);
-        dom.speedToggleBtn.innerText = `${speed.toFixed(1)}x`;
-        document.querySelectorAll('.sp-item').forEach(i => i.classList.remove('active'));
-        item.classList.add('active'); dom.speedMenu.classList.remove('show');
-    };
-});
-
-dom.mobileVocabToggle.onclick = () => dom.vocabContainer.classList.add('open');
-dom.closeVocabBtn.onclick = () => dom.vocabContainer.classList.remove('open');
-
-function parseSRT(data, isVtt = false) {
-    if(isVtt) data = data.replace(/^WEBVTT.*\n*/, ''); 
-    const subtitleRegex = /(\d{2}:\d{2}:\d{2}[,.]\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}[,.]\d{3})(?:\s+[^\n]*)?\n([\s\S]*?)(?=\n{2,}|\n\d+\n\d{2}:|$)/g;
-    const subtitles = []; let match;
-    const timeToSec = (t) => { const [hrs, mins, secs] = t.replace(',', '.').split(':'); return (+hrs * 3600) + (+mins * 60) + parseFloat(secs); };
-    while ((match = subtitleRegex.exec(data.replace(/\r\n/g, '\n'))) !== null) {
-        const start = timeToSec(match[1]); const end = timeToSec(match[2]);
-        const text = match[3].replace(/<[^>]+>/g, '').trim(); const cleanText = text.replace(/\n/g, ' '); 
-        if (cleanText) subtitles.push({ start, end, en: cleanText, zh: "", highlights: [] });
-    }
-    return subtitles;
-}
-function parseASS(data) {
-    const lines = data.split('\n'); const subtitles = [];
-    lines.forEach(l => {
-        if(l.startsWith('Dialogue:')) {
-            const parts = l.split(',');
-            if(parts.length > 9) {
-                subtitles.push({ start: 0, end: 5, en: parts.slice(9).join(',').replace(/{[^}]+}/g, ''), zh: "", highlights: [] });
-            }
-        }
-    });
-    return subtitles;
 }
 
 let lyricNodes = [];
@@ -1760,82 +1157,85 @@ function renderTranscript() {
             ${item.zh ? `<div class="lyric-zh ${state.translationVisible ? '' : 'hidden'}">${item.zh}</div>` : ''}
         </div>
     `).join('');
-    
     lyricNodes = Array.from(document.querySelectorAll('.lyric-line'));
     lyricNodes.forEach((node, i) => {
         node.onclick = (e) => { if (e.target.tagName === 'INPUT') return; dom.player.currentTime = state.subtitles[i].start; dom.player.play(); };
-        node.ondblclick = (e) => { if (e.target.tagName === 'INPUT') return; toggleLoop(i, node); };
     });
 }
 
+// 播放器时间更新同步字幕
 let isThrottled = false;
 dom.player.addEventListener('timeupdate', () => {
-    if (isThrottled) return;
-    isThrottled = true;
+    if (isThrottled) return; isThrottled = true;
     requestAnimationFrame(() => {
         const now = dom.player.currentTime; 
-        
         if(state.subtitles.length && lyricNodes.length) {
-            let activeIdx = -1;
-            let l = 0, r = state.subtitles.length - 1;
+            let activeIdx = -1; let l = 0, r = state.subtitles.length - 1;
             while(l <= r) {
                 const m = Math.floor((l+r)/2);
                 if(now >= state.subtitles[m].start && now <= state.subtitles[m].end) { activeIdx = m; break; }
                 if(now < state.subtitles[m].start) r = m - 1; else l = m + 1;
             }
-
             if (activeIdx !== state.currentActiveIndex) {
                 if (state.currentActiveIndex !== -1 && lyricNodes[state.currentActiveIndex]) lyricNodes[state.currentActiveIndex].classList.remove('active');
                 if (activeIdx !== -1 && lyricNodes[activeIdx]) {
                     lyricNodes[activeIdx].classList.add('active');
-                    const offset = window.innerWidth <= 1024 ? 140 : dom.transcript.clientHeight / 2;
-                    dom.transcript.scrollTo({ top: lyricNodes[activeIdx].offsetTop - offset, behavior: 'smooth' });
+                    dom.transcript.scrollTo({ top: lyricNodes[activeIdx].offsetTop - (window.innerWidth <= 1024 ? 140 : dom.transcript.clientHeight / 2), behavior: 'smooth' });
                 }
                 state.currentActiveIndex = activeIdx;
             }
-
             if (activeIdx !== -1 && state.dictationMode && now >= state.subtitles[activeIdx].end - 0.1) dom.player.pause();
-            if (state.currentLoopIndex !== null) {
-                const sub = state.subtitles[state.currentLoopIndex];
-                if (now >= sub.end - 0.05 || now < sub.start) dom.player.currentTime = sub.start;
-            }
         }
         isThrottled = false;
     });
 });
 
+// 保存进度
 setInterval(async () => {
-    if(!state.currentVideoId) return;
-    if(!dom.player.duration) return;
-
+    if(!state.currentVideoId || !dom.player.duration) return;
     const pct = Math.floor((dom.player.currentTime / dom.player.duration) * 100);
-
-    localStorage.setItem(`prog_time_${state.currentVideoId}`, dom.player.currentTime);
-    localStorage.setItem(`prog_pct_${state.currentVideoId}`, pct);
-
-    const vid = videoDatabase.find(v => v.id === state.currentVideoId);
-    if(vid) vid.progress = pct;
-
-    try {
-        await supabaseClient
-        .from('progress')
-        .upsert({
-            user_id: state.user ? state.user.id : 'guest',
-            video_id: state.currentVideoId,
-            watched_seconds: dom.player.currentTime,
-            progress_percent: pct
-        });
-    } catch(e) {
-        // 静默失败，避免打扰用户
-    }
+    localStorage.setItem(`prog_time_${state.currentVideoId}`, dom.player.currentTime); localStorage.setItem(`prog_pct_${state.currentVideoId}`, pct);
+    const vid = videoDatabase.find(v => v.id === state.currentVideoId); if(vid) vid.progress = pct;
+    try { await supabaseClient.from('progress').upsert({ user_id: state.user ? state.user.id : 'guest', video_id: state.currentVideoId, watched_seconds: dom.player.currentTime, progress_percent: pct }); } catch(e){}
 }, 5000);
+
+const getVocab = () => JSON.parse(localStorage.getItem('vocabPro2')) || [];
+const saveVocab = words => { try { localStorage.setItem('vocabPro2', JSON.stringify(words)); } catch(e){} };
+
+function renderVocab() {
+    const words = getVocab(); const dict = i18n[state.lang];
+    document.getElementById('vocabCount').innerText = words.length;
+    dom.vocabList.innerHTML = words.map((w, i) => `
+        <div class="word-item">
+            <div class="word-head"><div class="word-text">${w.word}</div><div class="word-del" onclick="deleteWord(${i})">${dict.word_remove}</div></div>
+            <div class="word-def">${w.definition}</div>
+        </div>
+    `).join('');
+}
+function renderGlobalVocab() {
+    const words = getVocab(); const dict = i18n[state.lang];
+    document.getElementById('globalVocabCount').innerText = words.length;
+    dom.globalVocabList.innerHTML = words.map((w, i) => `
+        <div class="global-word-card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <div>
+                    <h3 style="font-size:18px; margin-bottom:4px;">${w.word}</h3>
+                    <div style="font-size:13px; color:var(--text-sub); font-family:monospace;">${w.phonetic||''}</div>
+                </div>
+                <div class="word-del" style="color:var(--red); font-size:13px; cursor:pointer;" onclick="deleteWord(${i}); renderGlobalVocab();">${dict.word_remove}</div>
+            </div>
+            <div style="margin-top:12px; font-size:14px; line-height:1.5;">${w.definition}</div>
+            ${w.example ? `<div style="margin-top:8px; font-size:13px; color:var(--text-sub); font-style:italic;">Ex: ${w.example}</div>` : ''}
+        </div>
+    `).join('');
+}
+window.deleteWord = i => { let words = getVocab(); words.splice(i, 1); saveVocab(words); renderVocab(); };
 
 document.addEventListener('selectionchange', () => setTimeout(handleSelection, 300));
 async function handleSelection() {
     const text = window.getSelection().toString().trim();
-    if (text && /^[a-zA-Z\s'-]{2,60}$/.test(text)) {
+    if (text && /^[a-zA-Z\s'-]{2,60}$/.test(text) && dom.workspace.classList.contains('active')) {
         if(dom.tooltip.classList.contains('show')) return;
-        
         if(window.innerWidth > 1024) {
             const rect = window.getSelection().getRangeAt(0).getBoundingClientRect();
             let topPos = rect.top - 200; let leftPos = rect.left + (rect.width/2) - 160;
@@ -1844,150 +1244,123 @@ async function handleSelection() {
             dom.tooltip.style.left = `${leftPos}px`; dom.tooltip.style.top = `${topPos}px`;
         }
         
-        const dict = i18n[state.lang];
-        dom.tooltip.classList.add('show'); 
-        document.getElementById('tooltipWord').innerText = text.toLowerCase();
-        document.getElementById('tooltipPhonetic').innerText = dict.tt_analyzing; 
-        document.getElementById('tooltipDef').innerHTML = "";
-        
-        document.getElementById('tooltipExSection').style.display = 'none';
-        document.getElementById('tooltipSynSection').style.display = 'none';
-        
+        dom.tooltip.classList.add('show'); document.getElementById('tooltipWord').innerText = text.toLowerCase();
+        document.getElementById('tooltipPhonetic').innerText = i18n[state.lang].tt_analyzing; document.getElementById('tooltipDef').innerHTML = "";
+        document.getElementById('tooltipExSection').style.display = 'none'; document.getElementById('tooltipSynSection').style.display = 'none';
         dom.saveWordBtn.disabled = true;
 
-        const isPhrase = text.includes(' ');
         try {
-            if (isPhrase) {
-                document.getElementById('tooltipPhonetic').innerText = "[Idea Unit / Phrase]";
-                document.getElementById('tooltipDef').innerHTML = "<em>Phrase definitions require an advanced NLP endpoint. Saved as an integrated unit.</em>";
+            if (text.includes(' ')) {
+                document.getElementById('tooltipPhonetic').innerText = "[Phrase]"; document.getElementById('tooltipDef').innerHTML = "<em>Phrase definition selected.</em>";
                 state.currentWord = { word: text.toLowerCase(), phonetic: '', definition: "Phrase / Idea Unit", example: "", synonyms: [] };
                 dom.saveWordBtn.disabled = false;
             } else {
                 const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${text}`);
-                if (!res.ok) throw new Error('Not found');
+                if (!res.ok) throw new Error();
                 const data = await res.json();
-                
                 const defs = []; let synonyms = []; let example = "";
-                data[0].meanings.forEach(m => {
-                    if(m.synonyms && m.synonyms.length > 0) synonyms.push(...m.synonyms);
-                    m.definitions.forEach(d => {
-                        if(d.example && !example) example = d.example; 
-                        defs.push(`<strong>${m.partOfSpeech}</strong>: ${d.definition}`);
-                    });
-                });
-                
-                synonyms = [...new Set(synonyms)].slice(0, 5);
+                data[0].meanings.forEach(m => { if(m.synonyms) synonyms.push(...m.synonyms); m.definitions.forEach(d => { if(d.example && !example) example = d.example; defs.push(`<strong>${m.partOfSpeech}</strong>: ${d.definition}`); }); });
                 const finalDef = defs.slice(0,2).join('<br><br>');
-
-                state.currentWord = { 
-                    word: text.toLowerCase(), 
-                    phonetic: data[0].phonetic || '', 
-                    definition: finalDef,
-                    example: example,
-                    synonyms: synonyms
-                };
+                state.currentWord = { word: text.toLowerCase(), phonetic: data[0].phonetic || '', definition: finalDef, example: example, synonyms: [...new Set(synonyms)].slice(0, 5) };
                 
-                document.getElementById('tooltipPhonetic').innerText = state.currentWord.phonetic;
-                document.getElementById('tooltipDef').innerHTML = finalDef;
-                
-                if (example) {
-                    document.getElementById('tooltipExSection').style.display = 'block';
-                    document.getElementById('tooltipExample').innerText = `"${example}"`;
-                }
-                if (synonyms.length > 0) {
-                    document.getElementById('tooltipSynSection').style.display = 'block';
-                    document.getElementById('tooltipSynonyms').innerHTML = synonyms.map(s => `<span class="tt-synonym-tag">${s}</span>`).join('');
-                }
-                
+                document.getElementById('tooltipPhonetic').innerText = state.currentWord.phonetic; document.getElementById('tooltipDef').innerHTML = finalDef;
+                if (example) { document.getElementById('tooltipExSection').style.display = 'block'; document.getElementById('tooltipExample').innerText = `"${example}"`; }
+                if (state.currentWord.synonyms.length) { document.getElementById('tooltipSynSection').style.display = 'block'; document.getElementById('tooltipSynonyms').innerHTML = state.currentWord.synonyms.map(s => `<span class="tt-synonym-tag">${s}</span>`).join(''); }
                 dom.saveWordBtn.disabled = false;
             }
-        } catch {
-            document.getElementById('tooltipPhonetic').innerHTML = `<span style="color:#ff3b30">Not found in lexicon</span>`;
-            state.currentWord = null;
-        }
+        } catch { document.getElementById('tooltipPhonetic').innerHTML = `<span style="color:#ff3b30">Not found in lexicon</span>`; state.currentWord = null; }
     }
 }
-
-const closeOverlays = (e) => {
-    if (window.innerWidth <= 1024 && !dom.vocabContainer.contains(e.target) && !dom.mobileVocabToggle.contains(e.target)) { dom.vocabContainer.classList.remove('open'); }
-};
-document.addEventListener('touchstart', closeOverlays, {passive: true});
 
 dom.saveWordBtn.onclick = () => {
     if (!state.currentWord) return;
-    let words = getVocab();
-    if (!words.some(w => w.word === state.currentWord.word)) { words.unshift(state.currentWord); saveVocab(words); renderVocab(); }
-    dom.tooltip.classList.remove('show');
+    let words = getVocab(); if (!words.some(w => w.word === state.currentWord.word)) { words.unshift(state.currentWord); saveVocab(words); renderVocab(); }
+    dom.tooltip.classList.remove('show'); showToast('已加入單詞本');
 };
 
-function renderVocab() {
-    const words = getVocab();
-    const dict = i18n[state.lang] || i18n.zh;
-    document.getElementById('vocabCount').innerText = words.length;
-    dom.vocabList.innerHTML = words.map((w, i) => `
-        <div class="word-item">
-            <div class="word-head"><div class="word-text">${w.word}</div><div class="word-del" onclick="deleteWord(${i})">${dict.word_remove}</div></div>
-            <div class="word-def">${w.definition}</div>
-            ${w.example ? `<div style="font-size:12px; color:var(--text-sub); margin-top:4px; font-style:italic;">Ex: ${w.example}</div>` : ''}
-        </div>
-    `).join('');
-}
-window.deleteWord = i => { let words = getVocab(); words.splice(i, 1); saveVocab(words); renderVocab(); };
+const handleExport = () => {
+    const words = getVocab(); if(!words.length) return showToast('沒有單詞可匯出');
+    const strip = h => { const t=document.createElement('DIV'); t.innerHTML=h; return t.textContent||''; };
+    let csv = "Word,Definition,Example\n";
+    words.forEach(w => csv += `"${w.word}","${strip(w.definition).replace(/"/g,'""')}","${(w.example||"").replace(/"/g,'""')}"\n`);
+    const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob(["\uFEFF"+csv], {type:'text/csv;charset=utf-8;'}));
+    link.download = "vocabulary.csv"; link.click();
+};
+dom.globalExportVocabBtn.onclick = handleExport;
 
-function checkLocalReady() { 
-    if (state.localReady.v && state.localReady.s) {
-        dom.btnLaunchLocal.classList.add('active'); 
-    }
-}
-
+// 🍎 本地文件处理 (集成在新 View 中)
+function checkLocalReady() { if (state.localReady.v && state.localReady.s) dom.btnLaunchLocalView.classList.add('active'); }
 function handleLocalFiles(files) {
     Array.from(files).forEach(f => {
         if (f.type.includes('video') || f.name.endsWith('.mp4') || f.name.endsWith('.webm')) {
             if(state.videoObjectURL) URL.revokeObjectURL(state.videoObjectURL);
             state.videoObjectURL = URL.createObjectURL(f); dom.player.src = state.videoObjectURL;
-            dom.btnLocalVideo.classList.add('ready'); dom.txtLocalVideo.innerText = f.name; state.localReady.v = true;
-        } else if (f.name.endsWith('.srt') || f.name.endsWith('.json') || f.name.endsWith('.vtt') || f.name.endsWith('.ass')) {
+            dom.btnLocalVideoView.classList.add('ready'); dom.txtLocalVideoView.innerText = f.name; state.localReady.v = true;
+        } else if (f.name.endsWith('.srt') || f.name.endsWith('.json') || f.name.endsWith('.vtt')) {
             const r = new FileReader();
             r.onload = () => {
                 if(f.name.endsWith('.json')) state.subtitles = JSON.parse(r.result);
-                else if (f.name.endsWith('.vtt')) state.subtitles = parseSRT(r.result, true);
-                else if (f.name.endsWith('.ass')) state.subtitles = parseASS(r.result);
-                else state.subtitles = parseSRT(r.result);
-                
-                dom.btnLocalSub.classList.add('ready'); dom.txtLocalSub.innerText = f.name; state.localReady.s = true; checkLocalReady();
+                else {
+                    const data = f.name.endsWith('.vtt') ? r.result.replace(/^WEBVTT.*\n*/, '') : r.result;
+                    const regex = /(\d{2}:\d{2}:\d{2}[,.]\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}[,.]\d{3})[\s\S]*?\n([\s\S]*?)(?=\n{2,}|\n\d+\n|$)/g;
+                    state.subtitles = []; let m;
+                    const ts = t => { const p=t.replace(',','.').split(':'); return (+p[0]*3600)+(+p[1]*60)+parseFloat(p[2]); };
+                    while((m=regex.exec(data)) !== null) if(m[3].trim()) state.subtitles.push({start:ts(m[1]), end:ts(m[2]), en:m[3].replace(/<[^>]+>/g,'').replace(/\n/g,' ').trim(), zh:"", highlights:[]});
+                }
+                dom.btnLocalSubView.classList.add('ready'); dom.txtLocalSubView.innerText = f.name; state.localReady.s = true; checkLocalReady();
             };
             r.readAsText(f);
         }
-    });
-    checkLocalReady();
+    }); checkLocalReady();
 }
-dom.localVideoInput.addEventListener('change', e => handleLocalFiles(e.target.files));
-dom.localSubInput.addEventListener('change', e => handleLocalFiles(e.target.files));
-dom.btnLaunchLocal.onclick = () => { 
-    if (state.localReady.v && state.localReady.s) { 
-        renderTranscript(); 
-        enterWorkspace(); 
-        // 進入後自動收起下拉選單
-        dom.localMenuDropdown.classList.remove('show');
-    } 
+dom.localVideoInputView.addEventListener('change', e => handleLocalFiles(e.target.files));
+dom.localSubInputView.addEventListener('change', e => handleLocalFiles(e.target.files));
+dom.btnLaunchLocalView.onclick = () => { if (state.localReady.v && state.localReady.s) { renderTranscript(); dom.homeScreen.classList.add('hidden'); dom.workspace.classList.add('active'); } };
+
+dom.localUploadDropzone.addEventListener('dragover', e => { e.preventDefault(); dom.localUploadDropzone.classList.add('dragover'); });
+dom.localUploadDropzone.addEventListener('dragleave', e => { e.preventDefault(); dom.localUploadDropzone.classList.remove('dragover'); });
+dom.localUploadDropzone.addEventListener('drop', e => { e.preventDefault(); dom.localUploadDropzone.classList.remove('dragover'); handleLocalFiles(e.dataTransfer.files); });
+
+
+// Workspace tools
+dom.translateBtn.onclick = () => { state.translationVisible = !state.translationVisible; dom.translateBtn.classList.toggle('active'); document.querySelectorAll('.lyric-zh').forEach(el => el.classList.toggle('hidden', !state.translationVisible)); };
+dom.clozeBtn.onclick = () => { state.isClozeMode = !state.isClozeMode; dom.clozeBtn.classList.toggle('active', state.isClozeMode); renderTranscript(); };
+dom.dictationBtn.onclick = () => { state.dictationMode = !state.dictationMode; dom.dictationBtn.classList.toggle('active'); };
+dom.mobileVocabToggle.onclick = () => dom.vocabContainer.classList.add('open');
+dom.closeVocabBtn.onclick = () => dom.vocabContainer.classList.remove('open');
+
+// Player Speed
+dom.speedToggleBtn.onclick = (e) => { e.stopPropagation(); dom.speedMenu.classList.toggle('show'); const r=dom.speedToggleBtn.getBoundingClientRect(); dom.speedMenu.style.top = window.innerWidth>1024?`${r.bottom+12}px`:'auto'; dom.speedMenu.style.bottom = window.innerWidth<=1024?`${window.innerHeight-r.top+12}px`:'auto'; dom.speedMenu.style.left=`${r.left+(r.width/2)-50}px`; };
+document.querySelectorAll('.sp-item').forEach(item => item.onclick = () => { const s=parseFloat(item.dataset.speed); dom.player.playbackRate=s; localStorage.setItem('playbackRate',s); dom.speedToggleBtn.innerText=`${s.toFixed(1)}x`; document.querySelectorAll('.sp-item').forEach(i=>i.classList.remove('active')); item.classList.add('active'); dom.speedMenu.classList.remove('show'); });
+
+// Global interaction closes Modals
+document.addEventListener('click', e => { if (!dom.speedMenu.contains(e.target) && e.target !== dom.speedToggleBtn) dom.speedMenu.classList.remove('show'); if (!dom.tooltip.contains(e.target)) dom.tooltip.classList.remove('show'); });
+document.addEventListener('touchstart', e => { if (window.innerWidth <= 1024 && !dom.vocabContainer.contains(e.target) && !dom.mobileVocabToggle.contains(e.target)) dom.vocabContainer.classList.remove('open'); }, {passive: true});
+
+// Settings Handlers (in Profile View)
+const toggleTheme = () => { document.body.classList.toggle('dark-theme'); };
+dom.btnSettingTheme.onclick = toggleTheme;
+
+const toggleLang = () => {
+    state.lang = state.lang === 'en' ? 'zh' : 'en';
+    dom.txtSettingLang.innerText = state.lang === 'en' ? '切換為 中文' : 'Switch to English';
+    const dict = i18n[state.lang];
+    document.querySelectorAll('[data-i18n]').forEach(el => { if(dict[el.dataset.i18n]) el.innerText = dict[el.dataset.i18n]; });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { if(dict[el.dataset.i18nPlaceholder]) el.placeholder = dict[el.dataset.i18nPlaceholder]; });
+    renderCurrentView(); renderVocab(); renderGlobalVocab();
 };
+dom.btnSettingLang.onclick = toggleLang;
+dom.btnSettingLogout.onclick = async () => { await supabaseClient.auth.signOut(); window.location.reload(); };
 
-document.body.addEventListener('dragover', e => e.preventDefault());
-document.body.addEventListener('drop', e => { if(!dom.homeScreen.classList.contains('hidden')) { e.preventDefault(); handleLocalFiles(e.dataTransfer.files); } });
-
-// 初始化 (改為透過 Auth 監聽觸發加載)
-supabaseClient.auth.getSession().then(({ data: { session } }) => {
-    handleSession(session);
-});
-
-updateLanguageUI();
-
-const initialRate = localStorage.getItem('playbackRate') || 1;
-dom.speedToggleBtn.innerText = `${parseFloat(initialRate).toFixed(1)}x`;
-document.querySelectorAll('.sp-item').forEach(i => {
-    i.classList.toggle('active', parseFloat(i.dataset.speed) === parseFloat(initialRate));
-});
-
+// Initialization execution
+updateLanguageUIInit();
+function updateLanguageUIInit() {
+    dom.txtSettingLang.innerText = state.lang === 'en' ? '切換為 中文' : 'Switch to English';
+    const dict = i18n[state.lang];
+    document.querySelectorAll('[data-i18n]').forEach(el => { if(dict[el.dataset.i18n]) el.innerText = dict[el.dataset.i18n]; });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { if(dict[el.dataset.i18nPlaceholder]) el.placeholder = dict[el.dataset.i18nPlaceholder]; });
+    renderVocab();
+}
 </script>
 </body>
 </html>
