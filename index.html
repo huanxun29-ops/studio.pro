@@ -225,7 +225,7 @@
 
         .category-section { margin-bottom: 40px; }
         .category-header { font-size: 22px; font-weight: 700; color: var(--text-main); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end;}
-        .row-scroll { display: flex; overflow-x: auto; gap: 24px; padding-bottom: 32px; margin-bottom: -16px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+        .row-scroll { display: flex; overflow-x: auto; gap: 24px; padding-top: 16px; margin-top: -16px; padding-bottom: 32px; margin-bottom: -16px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
         .row-scroll::-webkit-scrollbar { height: 6px; }
         .row-scroll::-webkit-scrollbar-track { background: transparent; }
         .row-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
@@ -237,7 +237,7 @@
             backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
             overflow: hidden; cursor: pointer; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             box-shadow: var(--shadow); position: relative; display: flex; flex-direction: column;
-            transform: translateZ(0); /* Fix animation jitter */
+            transform: translateZ(0); isolation: isolate;
         }
         .dark-theme .video-card::before {
             content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
@@ -491,7 +491,7 @@
             .filter-divider { display: none; }
 
             .category-header { font-size: 18px; margin-bottom: 12px; }
-            .row-scroll { gap: 16px; padding-bottom: 16px; margin-bottom: -4px; }
+            .row-scroll { gap: 16px; padding-top: 16px; margin-top: -16px; padding-bottom: 24px; margin-bottom: -8px; }
             .row-scroll .video-card { flex: 0 0 82vw; max-width: 320px; }
             .video-grid { grid-template-columns: 1fr; gap: 20px; }
 
@@ -550,6 +550,21 @@
         .kbd-hint.show { opacity: 1; }
         .kbd-hint kbd { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; font-family: monospace; font-size: 11px; color: var(--text-main); }
         @media (max-width: 1024px) { .kbd-hint { display: none; } }
+
+        /* 新增：數量角标（Badge）樣式 */
+        .count-badge { background: rgba(0, 122, 255, 0.1); color: var(--blue); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 99px; margin-left: 6px; display: inline-flex; align-items: center; justify-content: center; min-width: 20px; transition: all 0.3s; }
+        .dark-theme .count-badge { background: rgba(10, 132, 255, 0.15); }
+        .nav-item .count-badge { margin-left: auto; }
+        .profile-tab { display: flex; align-items: center; gap: 4px; }
+        .profile-tab .count-badge { background: rgba(0,0,0,0.06); color: var(--text-sub); }
+        .dark-theme .profile-tab .count-badge { background: rgba(255,255,255,0.1); }
+        .profile-tab.active .count-badge { background: rgba(255,255,255,0.2); color: #fff; }
+        .dark-theme .profile-tab.active .count-badge { background: rgba(0,0,0,0.2); color: var(--bg); }
+        
+        @media (max-width: 1024px) {
+            .nav-item { position: relative; }
+            .app-nav .count-badge { position: absolute; top: 4px; right: 25%; padding: 2px 4px; font-size: 9px; min-width: 16px; margin: 0; }
+        }
     </style>
 </head>
 <body>
@@ -598,11 +613,13 @@
         <nav class="app-nav" id="sidebarNav">
             <div class="nav-item active" data-tab="library">
                 <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
-                <span data-i18n="nav_library">视频库</span>
+                <span data-i18n="nav_library">影片庫</span>
+                <span class="count-badge" id="badge-library">0</span>
             </div>
             <div class="nav-item" data-tab="vocabulary">
                 <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                <span data-i18n="nav_vocab">单词本</span>
+                <span data-i18n="nav_vocab">單字本</span>
+                <span class="count-badge" id="badge-vocab">0</span>
             </div>
             <div class="nav-item" data-tab="local">
                 <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
@@ -728,15 +745,15 @@
                 </div>
 
                 <div class="stats-row" id="statsRow">
-                    <div class="stat-card"><div class="stat-icon">⏱️</div><div class="stat-value" id="statTodayMin">0</div><div class="stat-label">今日学习(分钟)</div></div>
-                    <div class="stat-card"><div class="stat-icon">📖</div><div class="stat-value" id="statNewWords">0</div><div class="stat-label">新学单词</div></div>
-                    <div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-value" id="statStreak">0</div><div class="stat-label">连续学习(天)</div></div>
-                    <div class="stat-card"><div class="stat-icon">💎</div><div class="stat-value" id="statTotalWords">0</div><div class="stat-label">单词本总计</div></div>
+                    <div class="stat-card"><div class="stat-icon">⏱️</div><div class="stat-value" id="statTodayMin">0</div><div class="stat-label">今日學習(分鐘)</div></div>
+                    <div class="stat-card"><div class="stat-icon">📖</div><div class="stat-value" id="statNewWords">0</div><div class="stat-label">新學單字</div></div>
+                    <div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-value" id="statStreak">0</div><div class="stat-label">連續學習(天)</div></div>
+                    <div class="stat-card"><div class="stat-icon">💎</div><div class="stat-value" id="statTotalWords">0</div><div class="stat-label">單字本總計</div></div>
                 </div>
                 <div class="profile-tabs" id="profileTabs">
-                    <div class="profile-tab active" data-subtab="history" data-i18n="title_history">观看历史</div>
-                    <div class="profile-tab" data-subtab="favorites" data-i18n="title_favorites">我的收藏</div>
-                    <div class="profile-tab" data-subtab="completed" data-i18n="title_completed">已学完</div>
+                    <div class="profile-tab active" data-subtab="history"><span data-i18n="title_history">觀看歷史</span> <span class="count-badge" id="badge-history">0</span></div>
+                    <div class="profile-tab" data-subtab="favorites"><span data-i18n="title_favorites">我的收藏</span> <span class="count-badge" id="badge-favorites">0</span></div>
+                    <div class="profile-tab" data-subtab="completed"><span data-i18n="title_completed">已學完</span> <span class="count-badge" id="badge-completed">0</span></div>
                 </div>
 
                 <div id="profileContentArea"></div>
@@ -853,7 +870,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 
 let videoDatabase = [];
 
-// 将此处的 IELTS_VOCAB_STATIC 用于高亮标橘色
+// 雅思核心高頻詞（用於橘色下劃線高亮）
 const IELTS_VOCAB_STATIC = [
     "abandon", "abnormal", "abolish", "abrupt", "absurd", "abundance", "academy", "accelerate", "accommodate", "accompany", 
     "accomplish", "accumulate", "accurate", "accuse", "acknowledge", "acquire", "adapt", "adequate", "adhere", "adjacent", 
@@ -871,42 +888,12 @@ const IELTS_VOCAB_STATIC = [
 ];
 const ieltsRegex = new RegExp(`\\b(${IELTS_VOCAB_STATIC.join('|')})\\b`, 'gi');
 
-/* 核心优化：本地 O(1) 查询字典，可在此直接黏贴替换成 8000 词完整版 JSON */
+// 離線 O(1) 字典庫
 const LOCAL_EN_ZH_DICT = {
-    "abandon": "v. 放弃，抛弃；沉溺于", "abnormal": "adj. 反常的，异常的", "abolish": "v. 废除，废止", "abrupt": "adj. 突然的，意外的",
-    "absurd": "adj. 荒谬的，可笑的", "abundance": "n. 充裕，丰富", "academy": "n. 学院，学会", "accelerate": "v. 加速，促进",
-    "accommodate": "v. 容纳，适应，提供住宿", "accompany": "v. 陪伴，伴随", "accomplish": "v. 完成，实现", "accumulate": "v. 积累，积聚",
-    "accurate": "adj. 准确的，精确的", "accuse": "v. 指责，控告", "acknowledge": "v. 承认，答谢", "acquire": "v. 获得，取得",
-    "adapt": "v. 适应，改编", "adequate": "adj. 充足的，适当的", "adhere": "v. 坚持，依附", "adjacent": "adj. 邻近的，毗连的",
-    "adjust": "v. 调整，使适应", "administer": "v. 管理，执行", "adolescent": "n./adj. 青少年（的）", "adopt": "v. 采纳，收养",
-    "adverse": "adj. 不利的，有害的", "advocate": "v./n. 提倡，拥护（者）", "aesthetic": "adj. 审美的，美学的", "affiliate": "v. 使隶属，合并",
-    "aggravate": "v. 加重，恶化", "aggressive": "adj. 侵略性的，好斗的，有进取心的", "allocate": "v. 分配，拨出", "ambiguous": "adj. 模棱两可的",
-    "amend": "v. 修改，修订", "ample": "adj. 充足的，宽敞的", "analogy": "n. 类比，相似", "anonymous": "adj. 匿名的",
-    "anticipate": "v. 预期，期望", "appall": "v. 使胆寒，使惊骇", "apparatus": "n. 装置，仪器", "apparent": "adj. 显然的，表面上的",
-    "appeal": "v./n. 呼吁，吸引力，上诉", "appetite": "n. 食欲，欲望", "applaud": "v. 鼓掌，赞同", "applicable": "adj. 适用的",
-    "appraise": "v. 评价，估价", "appreciate": "v. 欣赏，感激，增值", "apprehend": "v. 逮捕，理解", "approach": "v./n. 接近，方法",
-    "appropriate": "adj. 适当的 / v. 挪用", "approximate": "adj. 大约的 / v. 接近", "aptitude": "n. 天赋，资质", "arbitrary": "adj. 任意的，武断的",
-    "architect": "n. 建筑师", "archive": "n. 档案 / v. 存档", "array": "n. 阵列，大批", "articulate": "adj. 表达清晰的",
-    "ascend": "v. 上升，攀登", "ascertain": "v. 查明，弄清", "scribe": "v. 归因于 (ascribe)", "assault": "n./v. 攻击，袭击",
-    "assemble": "v. 集合，装配", "assert": "v. 断言，主张", "assess": "v. 评估，评定", "asset": "n. 资产，有用的东西",
-    "assign": "v. 分配，指派", "assimilate": "v. 吸收，同化", "associate": "v. 联合，交往 / n. 伙伴", "assume": "v. 假定，承担",
-    "assure": "v. 保证，使确信", "astonish": "v. 使惊讶", "asylum": "n. 庇护，收容所", "attain": "v. 达到，获得",
-    "attempt": "v./n. 尝试，企图", "attend": "v. 出席，照顾", "attribute": "v. 归因于 / n. 属性", "augment": "v. 增加，提高",
-    "authentic": "adj. 真实的，可靠的", "authoritative": "adj. 权威的，专断的", "authorize": "v. 授权，批准", "autonomy": "n. 自治，自主",
-    "avail": "v. 有益于 / n. 效用", "avert": "v. 避免，转移", "aviation": "n. 航空", "awkward": "adj. 尴尬的，笨拙的",
-    "capacity": "n. 容量，能力", "category": "n. 种类，分类", "civil": "adj. 公民的，民事的", "commission": "n. 委员会，佣金",
-    "complex": "adj. 复杂的 / n. 综合体", "compute": "v. 计算", "conclude": "v. 得出结论，结束", "conduct": "v. 引导，进行 / n. 行为",
-    "consequent": "adj. 随之发生的", "construct": "v. 建造，构造", "consume": "v. 消耗，消费", "credit": "n. 信用，学分",
-    "culture": "n. 文化，修养", "design": "v./n. 设计，计划", "distinct": "adj. 明显的，截然不同的", "element": "n. 元素，成分",
-    "equate": "v. 同等看待", "evaluate": "v. 评价，估价", "feature": "n. 特征，特色", "final": "adj. 最终的",
-    "focus": "v./n. 集中，焦点", "impact": "n./v. 影响，冲击", "injure": "v. 伤害", "institute": "n. 学会，学院 / v. 建立",
-    "invest": "v. 投资", "item": "n. 项目，条款", "journal": "n. 期刊，日记", "maintain": "v. 维持，维修，主张",
-    "normal": "adj. 正常的", "obtain": "v. 获得，得到", "participate": "v. 参与", "perceive": "v. 察觉，感知",
-    "positive": "adj. 积极的，肯定的", "potential": "adj. 潜在的 / n. 潜能", "previous": "adj. 先前的", "primary": "adj. 主要的，初级的",
-    "purchase": "v./n. 购买", "range": "n. 范围 / v. 排列", "region": "n. 地区", "regulate": "v. 调节，规定",
-    "relevant": "adj. 相关的", "reside": "v. 居住", "resource": "n. 资源", "restrict": "v. 限制", "secure": "adj. 安全的 / v. 确保",
-    "seek": "v. 寻找，追求", "select": "v. 选择", "site": "n. 地点，遗址", "strategy": "n. 策略", "survey": "v./n. 调查，勘测",
-    "text": "n. 文本", "tradition": "n. 传统", "transfer": "v./n. 转移，转让"
+    "abandon": "v. 放棄，拋棄；沉溺於", "abnormal": "adj. 反常的，異常的", "abolish": "v. 廢除，廢止", "abrupt": "adj. 突然的，意外的",
+    "absurd": "adj. 荒謬的，可笑的", "abundance": "n. 充裕，豐富", "academy": "n. 學院，學會", "accelerate": "v. 加速，促進",
+    "accommodate": "v. 容納，適應", "accompany": "v. 陪伴，伴隨", "accomplish": "v. 完成，實現", "accumulate": "v. 積累，積聚",
+    "accurate": "adj. 準確的，精確的", "accuse": "v. 指責，控告", "acknowledge": "v. 承認，答謝", "acquire": "v. 獲得，取得"
 };
 
 const i18n = {
@@ -927,20 +914,20 @@ const i18n = {
         tt_ab: "A-B Repeat", tt_mode: "Subtitle Mode (Bilingual/EN/Shadow)"
     },
     zh: {
-        nav_library: "视频库", nav_vocab: "单词本", nav_local: "本地文件", nav_profile: "个人中心",
-        title_history: "观看历史", title_completed: "已学完", title_favorites: "我的收藏", search_placeholder: "搜索影片...",
-        filter_difficulty: "难度", filter_level_all: "所有难度", filter_level_5: "⭐⭐⭐⭐⭐ (困难)", filter_level_4: "⭐⭐⭐⭐ (进阶)", filter_level_3: "⭐⭐⭐ (中等)", filter_level_2: "⭐⭐ (基础)", filter_level_1: "⭐ (入门)",
-        filter_scenario: "场景", filter_topic_all: "所有主题", filter_topic_acad: "学术", filter_topic_daily: "日常生活", filter_topic_bus: "商业", filter_topic_ent: "娱乐",
+        nav_library: "影片庫", nav_vocab: "單字本", nav_local: "本地文件", nav_profile: "個人中心",
+        title_history: "觀看歷史", title_completed: "已學完", title_favorites: "我的收藏", search_placeholder: "搜尋影片...",
+        filter_difficulty: "難度", filter_level_all: "所有難度", filter_level_5: "⭐⭐⭐⭐⭐ (困難)", filter_level_4: "⭐⭐⭐⭐ (進階)", filter_level_3: "⭐⭐⭐ (中等)", filter_level_2: "⭐⭐ (基礎)", filter_level_1: "⭐ (入門)",
+        filter_scenario: "場景", filter_topic_all: "所有主題", filter_topic_acad: "學術", filter_topic_daily: "日常生活", filter_topic_bus: "商業", filter_topic_ent: "娛樂",
         filter_accent: "口音", filter_acc_all: "所有口音", filter_acc_us: "🇺🇸 美式", filter_acc_uk: "🇬🇧 英式", filter_acc_au: "🇦🇺 澳式",
-        empty_title: "未找到影片", empty_desc: "请尝试调整筛选条件，或等待数据加载。",
-        vocab_title: "单词本", vocab_total: "总计", btn_export: "导出 CSV",
-        tt_add: "加入生词本", tt_analyzing: "分析中...", tt_definition: "释义", tt_example: "例句", tt_synonyms: "同义词", word_remove: "移除",
-        loading: "加载中...", card_accent: "口音:",
-        cat_continue: "继续学习", cat_academic: "学术深研", cat_daily: "日常与旅行", cat_business: "商务英语",
-        menu_theme: "外观主题", menu_logout: "退出登录",
-        sidebar_video: "选择视频 (MP4)", sidebar_sub: "选择字幕 (SRT/VTT)", sidebar_launch: "进入学习舱",
-        local_title: "构建沉浸环境", local_desc: "请选择一部 MP4 视频与对应的 SRT/VTT 字幕文件，我们将为您自动生成交互式学习舱。",
-        tt_ab: "A-B 复读", tt_mode: "字幕模式 (双语/纯英文/跟读)"
+        empty_title: "未找到影片", empty_desc: "請嘗試調整篩選條件，或等待數據加載。",
+        vocab_title: "單字本", vocab_total: "總計", btn_export: "匯出 CSV",
+        tt_add: "加入生詞本", tt_analyzing: "分析中...", tt_definition: "釋義", tt_example: "例句", tt_synonyms: "同義詞", word_remove: "移除",
+        loading: "加載中...", card_accent: "口音:",
+        cat_continue: "繼續學習", cat_academic: "學術深研", cat_daily: "日常與旅行", cat_business: "商務英語",
+        menu_theme: "外觀主題", menu_logout: "登出",
+        sidebar_video: "選擇影片 (MP4)", sidebar_sub: "選擇字幕 (SRT/VTT)", sidebar_launch: "進入學習艙",
+        local_title: "構建沉浸環境", local_desc: "請選擇一部 MP4 影片與對應的 SRT/VTT 字幕文件，我們將為您自動生成交互式學習艙。",
+        tt_ab: "A-B 複讀", tt_mode: "字幕模式 (雙語/純英文/跟讀)"
     }
 };
 
@@ -968,6 +955,9 @@ const dom = {
     localSubInputView: document.getElementById('localSubInputView'), localUploadDropzone: document.getElementById('localUploadDropzone')
 };
 
+// ----------------------------------------------------------------
+// 基礎工具
+// ----------------------------------------------------------------
 function showToast(message) {
     const container = document.getElementById('toastContainer');
     const toast = document.createElement('div');
@@ -997,6 +987,119 @@ function resizeImageToBase64(file, maxWidth, maxHeight) {
     });
 }
 
+// ----------------------------------------------------------------
+// IndexedDB 數據存儲系統 (淨化重寫版)
+// ----------------------------------------------------------------
+const DB_NAME = 'StudioProDB_v3'; const DB_VERSION = 2; let db = null;
+
+function openDB() {
+    return new Promise((resolve, reject) => {
+        if (db) { resolve(db); return; } const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
+            const d = e.target.result;
+            if (!d.objectStoreNames.contains('vocab')) { const store = d.createObjectStore('vocab', { keyPath: 'word' }); store.createIndex('addedAt', 'addedAt', { unique: false }); }
+            if (!d.objectStoreNames.contains('stats')) { d.createObjectStore('stats', { keyPath: 'key' }); }
+        };
+        req.onsuccess = (e) => { db = e.target.result; resolve(db); }; 
+        req.onerror = () => { console.warn('IndexedDB failed, falling back to localStorage'); resolve(null); };
+    });
+}
+
+const getVocabLS = () => JSON.parse(localStorage.getItem('vocabPro2')) || [];
+const saveVocabLS = words => { try { localStorage.setItem('vocabPro2', JSON.stringify(words)); } catch(e){} };
+
+async function idbGetAllVocab() { 
+    try { 
+        const d = await openDB(); if (!d) return getVocabLS(); 
+        return new Promise((resolve) => { const tx = d.transaction('vocab', 'readonly'); const req = tx.objectStore('vocab').index('addedAt').getAll(); req.onsuccess = () => resolve((req.result || []).reverse()); req.onerror = () => resolve(getVocabLS()); }); 
+    } catch { return getVocabLS(); } 
+}
+
+async function idbSaveWord(word) { 
+    try { 
+        const d = await openDB(); 
+        if (!d) { let ws = getVocabLS(); if(!ws.some(x=>x.word===word.word)) { ws.unshift(word); saveVocabLS(ws); } return; } 
+        return new Promise((resolve) => { const tx = d.transaction('vocab', 'readwrite'); tx.objectStore('vocab').put(word); tx.oncomplete = resolve; tx.onerror = () => { let ws = getVocabLS(); if(!ws.some(x=>x.word===word.word)) { ws.unshift(word); saveVocabLS(ws); } resolve(); }; }); 
+    } catch { let ws = getVocabLS(); if(!ws.some(x=>x.word===word.word)) { ws.unshift(word); saveVocabLS(ws); } } 
+}
+
+async function idbDeleteWord(wordKey) { 
+    try { 
+        const d = await openDB(); 
+        if (!d) { let ws = getVocabLS().filter(w => w.word !== wordKey); saveVocabLS(ws); return; } 
+        return new Promise((resolve) => { const tx = d.transaction('vocab', 'readwrite'); tx.objectStore('vocab').delete(wordKey); tx.oncomplete = resolve; }); 
+    } catch { let ws = getVocabLS().filter(w => w.word !== wordKey); saveVocabLS(ws); } 
+}
+
+async function migrateOldVocab() { 
+    const oldWords = getVocabLS(); if (!oldWords.length) return; 
+    const d = await openDB(); if (!d) return; 
+    const tx = d.transaction('vocab', 'readwrite'); const store = tx.objectStore('vocab'); 
+    oldWords.forEach(w => { 
+        if (!w.addedAt) w.addedAt = Date.now(); 
+        if (!w.reviewCount) w.reviewCount = 0; 
+        if (!w.nextReview) w.nextReview = getNextReviewDate(0); 
+        store.put(w); 
+    }); 
+    tx.oncomplete = () => console.log('Migration complete'); 
+}
+
+function getNextReviewDate(reviewCount) { const intervals = [1, 3, 7, 14, 30, 60, 120]; const days = intervals[Math.min(reviewCount, intervals.length - 1)]; const d = new Date(); d.setDate(d.getDate() + days); return d.toISOString().split('T')[0]; }
+
+// ----------------------------------------------------------------
+// 學習統計系統
+// ----------------------------------------------------------------
+const STATS_KEY = 'studyStats_v3';
+function getStudyStats() { try { return JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch { return {}; } }
+function saveStudyStats(stats) { try { localStorage.setItem(STATS_KEY, JSON.stringify(stats)); } catch {} }
+
+function recordStudyTime(seconds) { const today = new Date().toISOString().split('T')[0]; const stats = getStudyStats(); if (!stats[today]) stats[today] = { minutes: 0, wordsAdded: 0 }; stats[today].minutes = Math.round((stats[today].minutes || 0) + seconds / 60 * 10) / 10; saveStudyStats(stats); }
+function recordWordAdded() { const today = new Date().toISOString().split('T')[0]; const stats = getStudyStats(); if (!stats[today]) stats[today] = { minutes: 0, wordsAdded: 0 }; stats[today].wordsAdded = (stats[today].wordsAdded || 0) + 1; saveStudyStats(stats); }
+function getStreak() { const stats = getStudyStats(); const today = new Date(); let streak = 0; for (let i = 0; i < 365; i++) { const d = new Date(today); d.setDate(d.getDate() - i); const key = d.toISOString().split('T')[0]; if (stats[key] && stats[key].minutes > 0) streak++; else if (i > 0) break; } return streak; }
+
+async function updateStatsDisplay() {
+    const today = new Date().toISOString().split('T')[0]; const stats = getStudyStats(); const todayStats = stats[today] || { minutes: 0, wordsAdded: 0 }; const allWords = await idbGetAllVocab();
+    const el1 = document.getElementById('statTodayMin'); const el2 = document.getElementById('statNewWords'); const el3 = document.getElementById('statStreak'); const el4 = document.getElementById('statTotalWords');
+    if (el1) el1.textContent = Math.round(todayStats.minutes || 0); if (el2) el2.textContent = todayStats.wordsAdded || 0; if (el3) el3.textContent = getStreak(); if (el4) el4.textContent = allWords.length;
+    updateBadges(allWords.length);
+}
+
+// 統籌角标 (Badge) 更新
+function updateBadges(vocabCount = -1) {
+    const libBadge = document.getElementById('badge-library');
+    if (libBadge) libBadge.innerText = videoDatabase.length;
+
+    if (vocabCount >= 0) {
+        const vocabBadge = document.getElementById('badge-vocab');
+        if (vocabBadge) vocabBadge.innerText = vocabCount;
+    } else {
+        idbGetAllVocab().then(words => {
+            const vocabBadge = document.getElementById('badge-vocab');
+            if (vocabBadge) vocabBadge.innerText = words.length;
+        });
+    }
+
+    const histBadge = document.getElementById('badge-history');
+    const favBadge = document.getElementById('badge-favorites');
+    const compBadge = document.getElementById('badge-completed');
+
+    if (histBadge) histBadge.innerText = videoDatabase.filter(v => v.status === 'history' || (v.progress > 0 && v.progress < 99)).length;
+    if (favBadge) favBadge.innerText = videoDatabase.filter(v => v.favorite === true).length;
+    if (compBadge) compBadge.innerText = videoDatabase.filter(v => v.status === 'completed' || v.progress >= 99).length;
+}
+
+let studyTimerInterval = null; 
+function startStudyTimer() { 
+    if (studyTimerInterval) return; 
+    studyTimerInterval = setInterval(() => { 
+        if (document.getElementById('workspace').classList.contains('active') && !dom.player.paused) { recordStudyTime(5); } 
+    }, 5000); 
+}
+startStudyTimer();
+
+// ----------------------------------------------------------------
+// 身份驗證與登入邏ree
+// ----------------------------------------------------------------
 const authState = { isLoginMode: true };
 const authScreen = document.getElementById('authScreen'); const authForm = document.getElementById('authForm'); const authEmail = document.getElementById('authEmail');
 
@@ -1005,10 +1108,10 @@ if (savedEmail) { authEmail.value = savedEmail; if (savedPassword) { document.ge
 
 document.getElementById('authToggleLink').onclick = (e) => {
     e.preventDefault(); authState.isLoginMode = !authState.isLoginMode;
-    document.getElementById('authTitle').innerText = authState.isLoginMode ? '欢迎回来' : '创建账号';
-    document.getElementById('authSubmitBtn').innerText = authState.isLoginMode ? '登录' : '注册';
-    document.getElementById('authToggleText').innerText = authState.isLoginMode ? '还没有账号？' : '已经有账号了？';
-    e.target.innerText = authState.isLoginMode ? '立即注册' : '立即登录'; document.getElementById('authErrorMsg').style.display = 'none';
+    document.getElementById('authTitle').innerText = authState.isLoginMode ? '歡迎回來' : '創建帳號';
+    document.getElementById('authSubmitBtn').innerText = authState.isLoginMode ? '登入' : '註冊';
+    document.getElementById('authToggleText').innerText = authState.isLoginMode ? '還沒有帳號？' : '已經有帳號了？';
+    e.target.innerText = authState.isLoginMode ? '立即註冊' : '立即登入'; document.getElementById('authErrorMsg').style.display = 'none';
     document.getElementById('authUsername').style.display = authState.isLoginMode ? 'none' : 'block'; document.getElementById('authUsername').required = !authState.isLoginMode;
     document.getElementById('authAvatarGroup').style.display = authState.isLoginMode ? 'none' : 'flex'; document.getElementById('authInviteCode').style.display = authState.isLoginMode ? 'none' : 'block';
     document.getElementById('authInviteCode').required = !authState.isLoginMode; document.getElementById('authRememberGroup').style.display = authState.isLoginMode ? 'flex' : 'none';
@@ -1019,19 +1122,19 @@ authForm.onsubmit = async (e) => {
     const email = authEmail.value.trim(); const password = document.getElementById('authPassword').value; const btn = document.getElementById('authSubmitBtn');
     
     try {
-        btn.disabled = true; btn.innerText = '请稍候...';
+        btn.disabled = true; btn.innerText = '請稍候...';
         if (authState.isLoginMode) {
             const { error } = await supabaseClient.auth.signInWithPassword({ email, password }); if (error) throw error;
             if (document.getElementById('authRemember').checked) { localStorage.setItem('studio_saved_email', email); localStorage.setItem('studio_saved_password', password); } else { localStorage.removeItem('studio_saved_email'); localStorage.removeItem('studio_saved_password'); }
         } else {
             const ic = document.getElementById('authInviteCode').value.trim(); const { data, error: ce } = await supabaseClient.from('invite_codes').select('*').eq('code', ic).maybeSingle();
-            if (ce || !data || data.is_used) throw new Error('邀请码无效或已被使用。');
+            if (ce || !data || data.is_used) throw new Error('邀請碼無效或已被使用。');
             const username = document.getElementById('authUsername').value.trim(); const avatarFile = document.getElementById('authAvatar').files[0];
             let avatarBase64 = null; if (avatarFile) avatarBase64 = await resizeImageToBase64(avatarFile, 200, 200);
             const { error: se } = await supabaseClient.auth.signUp({ email, password, options: { data: { username: username, avatar: avatarBase64 } } }); if (se) throw se;
-            await supabaseClient.from('invite_codes').update({ is_used: true }).eq('code', ic); showToast('注册成功！请登录。'); document.getElementById('authToggleLink').click();
+            await supabaseClient.from('invite_codes').update({ is_used: true }).eq('code', ic); showToast('註冊成功！請登入。'); document.getElementById('authToggleLink').click();
         }
-    } catch (error) { err.innerText = error.message; err.style.display = 'block'; } finally { btn.disabled = false; btn.innerText = authState.isLoginMode ? '登录' : '注册'; }
+    } catch (error) { err.innerText = error.message; err.style.display = 'block'; } finally { btn.disabled = false; btn.innerText = authState.isLoginMode ? '登入' : '註冊'; }
 };
 
 function handleSession(session) {
@@ -1045,14 +1148,24 @@ function handleSession(session) {
 }
 supabaseClient.auth.onAuthStateChange((_e, session) => handleSession(session));
 
+// ----------------------------------------------------------------
+// 數據加載與 UI 渲染
+// ----------------------------------------------------------------
 async function loadVideosFromSupabase() {
     if (!state.user) return;
     try {
         const { data, error } = await supabaseClient.from('videos').select('*').order('created_at', { ascending: false }); if(error) throw error;
         videoDatabase = data.map(v => ({ id: v.id, title: v.title, episode: v.episode || '', rating: v.rating || 5, tags: v.tags || [], accent: v.accent || 'US', creator: v.creator || '', coverUrl: v.cover_url, videoUrl: v.video_url, progress: 0, favorite: false, status: 'new', duration: v.duration || '--:--', date: 'Cloud' }));
         videoDatabase.forEach(v => { const savedPct = localStorage.getItem(`prog_pct_${v.id}`); if(savedPct) { v.progress = parseFloat(savedPct); v.status = v.progress >= 99 ? 'completed' : 'history'; } });
+        updateBadges();
         renderCurrentView();
     } catch(e) { dom.libraryContentArea.innerHTML = `<div class="empty-state"><h3 style="color:var(--red)">Connection Error</h3><p>${e.message}</p></div>`; }
+}
+
+function renderCurrentView() { 
+    if (state.currentTab === 'library') renderGrid(dom.libraryContentArea, 'library'); 
+    else if (state.currentTab === 'profile') { renderGrid(dom.profileContentArea, state.profileSubTab); updateStatsDisplay(); } 
+    else if (state.currentTab === 'vocabulary') renderGlobalVocabAsync(); 
 }
 
 dom.sidebarNav.addEventListener('click', (e) => {
@@ -1061,7 +1174,8 @@ dom.sidebarNav.addEventListener('click', (e) => {
 });
 
 dom.profileTabs.addEventListener('click', (e) => {
-    if(e.target.classList.contains('profile-tab')) { document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active')); e.target.classList.add('active'); state.profileSubTab = e.target.dataset.subtab; renderGrid(dom.profileContentArea, state.profileSubTab); }
+    const tab = e.target.closest('.profile-tab');
+    if(tab) { document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active')); tab.classList.add('active'); state.profileSubTab = tab.dataset.subtab; renderGrid(dom.profileContentArea, state.profileSubTab); }
 });
 
 const getStarsHtml = (rating) => { let html = ''; for(let i=1; i<=5; i++) html += `<svg class="star ${i <= rating ? 'filled' : 'empty'}" viewBox="0 0 24 24" style="width:14px; fill:${i <= rating ? 'var(--orange)' : 'var(--border)'};"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`; return html; };
@@ -1077,7 +1191,7 @@ const renderVideoCard = (v, dict) => `
     </div>
 `;
 
-window.toggleFavorite = (e, id) => { e.stopPropagation(); const video = videoDatabase.find(v => v.id === id); if(video) { video.favorite = !video.favorite; renderCurrentView(); } };
+window.toggleFavorite = (e, id) => { e.stopPropagation(); const video = videoDatabase.find(v => v.id === id); if(video) { video.favorite = !video.favorite; updateBadges(); renderCurrentView(); } };
 
 function renderGrid(container, context) {
     let filtered = videoDatabase; const dict = i18n[state.lang];
@@ -1099,6 +1213,9 @@ function renderGrid(container, context) {
     } else { container.innerHTML = `<div class="video-grid">${filtered.map(v => renderVideoCard(v, dict)).join('')}</div>`; }
 }
 
+// ----------------------------------------------------------------
+// 播放器、字幕與跟讀
+// ----------------------------------------------------------------
 async function loadVideo(id) {
     const videoData = videoDatabase.find(v => v.id === id); if (!videoData) return; state.currentVideoId = id; if (!videoData.videoUrl) { showToast("Video URL is empty."); return; }
     const card = document.getElementById(`card-${id}`); if(card) card.classList.add('loading');
@@ -1112,9 +1229,9 @@ async function loadVideo(id) {
         let finalSubtitles = []; const { data: joinData, error: joinError } = await supabaseClient.from('subtitles').select('*, highlights:subtitle_highlights(*)').eq('video_id', id).order('start', { ascending: true });
         if(joinError) { const { data } = await supabaseClient.from('subtitles').select('*').eq('video_id', id).order('start', { ascending: true }); finalSubtitles = data || []; } else { finalSubtitles = joinData || []; }
         state.subtitles = finalSubtitles; renderTranscript(); dom.homeScreen.classList.add('hidden'); dom.workspace.classList.add('active');
-    } catch (err) { showToast(`Load failed: ${err.message}`); } finally { if(card) card.classList.remove('loading'); }
+    } catch (err) { showToast(`加載失敗: ${err.message}`); } finally { if(card) card.classList.remove('loading'); }
 }
-dom.backToHomeBtn.onclick = () => { dom.workspace.classList.remove('active'); dom.homeScreen.classList.remove('hidden'); dom.player.pause(); };
+dom.backToHomeBtn.onclick = () => { dom.workspace.classList.remove('active'); dom.homeScreen.classList.remove('hidden'); dom.player.pause(); renderCurrentView(); };
 
 function applyLocalHighlights(text, localHls) {
     let res = text; let placeholders = []; let phIndex = 0;
@@ -1162,14 +1279,15 @@ dom.player.addEventListener('timeupdate', () => {
 setInterval(async () => {
     if(!state.currentVideoId || !dom.player.duration) return; const pct = Math.floor((dom.player.currentTime / dom.player.duration) * 100);
     localStorage.setItem(`prog_time_${state.currentVideoId}`, dom.player.currentTime); localStorage.setItem(`prog_pct_${state.currentVideoId}`, pct);
-    const vid = videoDatabase.find(v => v.id === state.currentVideoId); if(vid) vid.progress = pct;
+    const vid = videoDatabase.find(v => v.id === state.currentVideoId); if(vid) { vid.progress = pct; vid.status = pct >= 99 ? 'completed' : 'history'; }
+    updateBadges();
     try { await supabaseClient.from('progress').upsert({ user_id: state.user ? state.user.id : 'guest', video_id: state.currentVideoId, watched_seconds: dom.player.currentTime, progress_percent: pct }); } catch(e){}
 }, 5000);
 
 dom.abRepeatBtn.onclick = () => {
-    if (state.abState === 0) { state.abPointA = dom.player.currentTime; state.abState = 1; dom.abRepeatBtn.classList.add('half-active'); document.getElementById('abText').innerText = 'A'; showToast(`标记 A 点: ${formatTime(state.abPointA)}`); }
-    else if (state.abState === 1) { state.abPointB = dom.player.currentTime; if (state.abPointB <= state.abPointA) { showToast("B 点必须晚于 A 点"); state.abState = 0; dom.abRepeatBtn.classList.remove('half-active'); document.getElementById('abText').innerText = ''; return; } state.abState = 2; dom.abRepeatBtn.classList.remove('half-active'); dom.abRepeatBtn.classList.add('active'); document.getElementById('abText').innerText = 'A-B'; showToast(`循环区间建立: ${formatTime(state.abPointA)} - ${formatTime(state.abPointB)}`); }
-    else { state.abState = 0; dom.abRepeatBtn.classList.remove('active'); document.getElementById('abText').innerText = ''; showToast("已取消复读"); }
+    if (state.abState === 0) { state.abPointA = dom.player.currentTime; state.abState = 1; dom.abRepeatBtn.classList.add('half-active'); document.getElementById('abText').innerText = 'A'; showToast(`標記 A 點: ${formatTime(state.abPointA)}`); }
+    else if (state.abState === 1) { state.abPointB = dom.player.currentTime; if (state.abPointB <= state.abPointA) { showToast("B 點必須晚於 A 點"); state.abState = 0; dom.abRepeatBtn.classList.remove('half-active'); document.getElementById('abText').innerText = ''; return; } state.abState = 2; dom.abRepeatBtn.classList.remove('half-active'); dom.abRepeatBtn.classList.add('active'); document.getElementById('abText').innerText = 'A-B'; showToast(`循環區間建立: ${formatTime(state.abPointA)} - ${formatTime(state.abPointB)}`); }
+    else { state.abState = 0; dom.abRepeatBtn.classList.remove('active'); document.getElementById('abText').innerText = ''; showToast("已取消複讀"); }
 };
 
 const SUBTITLE_ICONS = [
@@ -1178,37 +1296,30 @@ const SUBTITLE_ICONS = [
     `<svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/><line x1="2" y1="22" x2="22" y2="2" stroke="currentColor" stroke-width="2"/></svg>`
 ];
 
-dom.subtitleModeBtn.onclick = () => { state.subtitleMode = (state.subtitleMode + 1) % 3; dom.transcript.className = 'transcript-flow mode-' + state.subtitleMode; dom.subtitleModeBtn.innerHTML = SUBTITLE_ICONS[state.subtitleMode]; if(state.subtitleMode === 0) showToast("已切换至：双语模式"); else if(state.subtitleMode === 1) showToast("已切换至：纯英文模式"); else showToast("已切换至：跟读模式 (文本模糊，悬停可见)"); };
+dom.subtitleModeBtn.onclick = () => { state.subtitleMode = (state.subtitleMode + 1) % 3; dom.transcript.className = 'transcript-flow mode-' + state.subtitleMode; dom.subtitleModeBtn.innerHTML = SUBTITLE_ICONS[state.subtitleMode]; if(state.subtitleMode === 0) showToast("已切換至：雙語模式"); else if(state.subtitleMode === 1) showToast("已切換至：純英文模式"); else showToast("已切換至：跟讀模式 (文本模糊，懸停可見)"); };
 dom.clozeBtn.onclick = () => { state.isClozeMode = !state.isClozeMode; dom.clozeBtn.classList.toggle('active', state.isClozeMode); renderTranscript(); };
 dom.mobileVocabToggle.onclick = () => dom.vocabContainer.classList.add('open'); dom.closeVocabBtn.onclick = () => dom.vocabContainer.classList.remove('open');
 
+const shadowState = { active: false, timer: null, pauseAfter: true, lastPausedIdx: -1 }; const shadowBtn = document.getElementById('shadowModeBtn'); const shadowIndicator = document.getElementById('shadowIndicator');
+function toggleShadowMode() { shadowState.active = !shadowState.active; shadowBtn.classList.toggle('active', shadowState.active); document.getElementById('shadowText').innerText = shadowState.active ? '跟讀' : ''; if (shadowState.active) { shadowIndicator.classList.add('show'); showToast('跟讀模式：播完一句自動暫停 3 秒'); dom.player.addEventListener('timeupdate', handleShadowMode); } else { shadowIndicator.classList.remove('show'); showToast('已退出跟讀模式'); dom.player.removeEventListener('timeupdate', handleShadowMode); clearTimeout(shadowState.timer); shadowState.lastPausedIdx = -1; } }
+function handleShadowMode() { if (!shadowState.active) return; const now = dom.player.currentTime; const idx = state.currentActiveIndex; if (idx < 0) return; const sub = state.subtitles[idx]; if (!sub) return; const endTime = sub.end - 0.1; if (now >= endTime && shadowState.lastPausedIdx !== idx) { shadowState.lastPausedIdx = idx; dom.player.pause(); shadowIndicator.classList.add('show'); clearTimeout(shadowState.timer); shadowState.timer = setTimeout(() => { if (shadowState.active) { dom.player.play(); setTimeout(() => { if (shadowState.active) shadowIndicator.classList.add('show'); else shadowIndicator.classList.remove('show'); }, 100); } }, 3000); } }
+if (shadowBtn) shadowBtn.onclick = toggleShadowMode;
+
+// ----------------------------------------------------------------
+// 字典查詢與彈窗 UI
+// ----------------------------------------------------------------
 async function fetchZhTranslation(word) {
     const lowerWord = word.toLowerCase();
-    
-    // 1. 本地字典极速匹配 (0ms Latency)
     if (LOCAL_EN_ZH_DICT[lowerWord]) return LOCAL_EN_ZH_DICT[lowerWord];
-
-    // 2. Google Translate 无鉴权备用节点
     try {
-        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=${encodeURIComponent(word)}`;
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-TW&dt=t&q=${encodeURIComponent(word)}`;
         const res = await fetch(url);
-        if (res.ok) {
-            const data = await res.json();
-            const translated = data?.[0]?.map(item => item?.[0]).filter(Boolean).join('').trim();
-            if (translated && /[一-龥]/.test(translated)) return translated;
-        }
+        if (res.ok) { const data = await res.json(); const translated = data?.[0]?.map(item => item?.[0]).filter(Boolean).join('').trim(); if (translated && /[一-龥]/.test(translated)) return translated; }
     } catch {}
-
-    // 3. MyMemory API 最终后援
     try {
-        const res2 = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|zh-CN`);
-        if (res2.ok) {
-            const data2 = await res2.json();
-            const zh = data2?.responseData?.translatedText?.trim();
-            if (zh && /[一-龥]/.test(zh)) return zh;
-        }
+        const res2 = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|zh-TW`);
+        if (res2.ok) { const data2 = await res2.json(); const zh = data2?.responseData?.translatedText?.trim(); if (zh && /[一-龥]/.test(zh)) return zh; }
     } catch {}
-
     return null;
 }
 
@@ -1237,7 +1348,6 @@ async function handleSelection() {
         document.getElementById('tooltipZhSection').style.display = 'none';
         dom.saveWordBtn.disabled = true;
 
-        // EAGER RENDERING (瞬间显示本地数据)
         const localZh = LOCAL_EN_ZH_DICT[lowerWord];
         if (localZh && !lowerWord.includes(' ')) {
             document.getElementById('tooltipZhDef').innerText = localZh;
@@ -1249,7 +1359,7 @@ async function handleSelection() {
         try {
             if (text.includes(' ')) {
                 document.getElementById('tooltipPhonetic').innerText = "[Phrase]"; document.getElementById('tooltipDef').innerHTML = "<em>Phrase definition selected.</em>";
-                state.currentWord = { word: lowerWord, phonetic: '', definition: "Phrase / Idea Unit", example: "", synonyms: [] };
+                state.currentWord = { word: lowerWord, phonetic: '', definition: "Phrase / Idea Unit", example: "", synonyms: [], addedAt: Date.now(), reviewCount: 0, nextReview: getNextReviewDate(0) };
                 fetchZhTranslation(lowerWord).then(zh => {
                     if(zh) { state.currentWord.zhDefinition = zh; document.getElementById('tooltipZhDef').innerText = zh; document.getElementById('tooltipZhSection').style.display = 'block'; }
                 });
@@ -1317,75 +1427,36 @@ async function showWordTooltip(word, targetEl) {
     }
 }
 
-const DB_NAME = 'StudioProDB'; const DB_VERSION = 2; let db = null;
-function openDB() {
-    return new Promise((resolve, reject) => {
-        if (db) { resolve(db); return; } const req = indexedDB.open(DB_NAME, DB_VERSION);
-        req.onupgradeneeded = (e) => {
-            const d = e.target.result;
-            if (!d.objectStoreNames.contains('vocab')) { const store = d.createObjectStore('vocab', { keyPath: 'word' }); store.createIndex('addedAt', 'addedAt', { unique: false }); }
-            if (!d.objectStoreNames.contains('stats')) { d.createObjectStore('stats', { keyPath: 'key' }); }
-        };
-        req.onsuccess = (e) => { db = e.target.result; resolve(db); }; req.onerror = () => { console.warn('IndexedDB failed, falling back to localStorage'); resolve(null); };
-    });
-}
-
-async function idbGetAllVocab() { try { const d = await openDB(); if (!d) return getVocabLS(); return new Promise((resolve) => { const tx = d.transaction('vocab', 'readonly'); const req = tx.objectStore('vocab').index('addedAt').getAll(); req.onsuccess = () => resolve((req.result || []).reverse()); req.onerror = () => resolve(getVocabLS()); }); } catch { return getVocabLS(); } }
-async function idbSaveWord(word) { try { const d = await openDB(); if (!d) { saveWordLS(word); return; } return new Promise((resolve) => { const tx = d.transaction('vocab', 'readwrite'); tx.objectStore('vocab').put(word); tx.oncomplete = resolve; tx.onerror = () => saveWordLS(word); }); } catch { saveWordLS(word); } }
-async function idbDeleteWord(wordKey) { try { const d = await openDB(); if (!d) { deleteWordLS(wordKey); return; } return new Promise((resolve) => { const tx = d.transaction('vocab', 'readwrite'); tx.objectStore('vocab').delete(wordKey); tx.oncomplete = resolve; }); } catch { deleteWordLS(wordKey); } }
-
-const getVocabLS = () => JSON.parse(localStorage.getItem('vocabPro2')) || [];
-const saveWordLS = (w) => { const ws = getVocabLS(); if(!ws.some(x=>x.word===w.word)) { ws.unshift(w); localStorage.setItem('vocabPro2', JSON.stringify(ws)); } };
-const deleteWordLS = (key) => { let ws = getVocabLS(); ws = ws.filter(w => w.word !== key); localStorage.setItem('vocabPro2', JSON.stringify(ws)); };
-const getVocab = () => JSON.parse(localStorage.getItem('vocabPro2')) || [];
-const saveVocab = words => { try { localStorage.setItem('vocabPro2', JSON.stringify(words)); } catch(e){} };
-
-function getNextReviewDate(reviewCount) { const intervals = [1, 3, 7, 14, 30, 60, 120]; const days = intervals[Math.min(reviewCount, intervals.length - 1)]; const d = new Date(); d.setDate(d.getDate() + days); return d.toISOString().split('T')[0]; }
-
-const STATS_KEY = 'studyStats_v2';
-function getStudyStats() { try { return JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch { return {}; } }
-function saveStudyStats(stats) { try { localStorage.setItem(STATS_KEY, JSON.stringify(stats)); } catch {} }
-
-function recordStudyTime(seconds) { const today = new Date().toISOString().split('T')[0]; const stats = getStudyStats(); if (!stats[today]) stats[today] = { minutes: 0, wordsAdded: 0 }; stats[today].minutes = Math.round((stats[today].minutes || 0) + seconds / 60 * 10) / 10; saveStudyStats(stats); }
-function recordWordAdded() { const today = new Date().toISOString().split('T')[0]; const stats = getStudyStats(); if (!stats[today]) stats[today] = { minutes: 0, wordsAdded: 0 }; stats[today].wordsAdded = (stats[today].wordsAdded || 0) + 1; saveStudyStats(stats); }
-
-function getStreak() { const stats = getStudyStats(); const today = new Date(); let streak = 0; for (let i = 0; i < 365; i++) { const d = new Date(today); d.setDate(d.getDate() - i); const key = d.toISOString().split('T')[0]; if (stats[key] && stats[key].minutes > 0) streak++; else if (i > 0) break; } return streak; }
-
-async function updateStatsDisplay() {
-    const today = new Date().toISOString().split('T')[0]; const stats = getStudyStats(); const todayStats = stats[today] || { minutes: 0, wordsAdded: 0 }; const allWords = await idbGetAllVocab();
-    const el1 = document.getElementById('statTodayMin'); const el2 = document.getElementById('statNewWords'); const el3 = document.getElementById('statStreak'); const el4 = document.getElementById('statTotalWords');
-    if (el1) el1.textContent = Math.round(todayStats.minutes || 0); if (el2) el2.textContent = todayStats.wordsAdded || 0; if (el3) el3.textContent = getStreak(); if (el4) el4.textContent = allWords.length;
-}
-
-let studyTimerInterval = null; function startStudyTimer() { if (studyTimerInterval) return; studyTimerInterval = setInterval(() => { if (document.getElementById('workspace').classList.contains('active') && !dom.player.paused) { recordStudyTime(5); } }, 5000); }
-startStudyTimer();
-
+// ----------------------------------------------------------------
+// 字典數據操作與導出
+// ----------------------------------------------------------------
 dom.saveWordBtn.onclick = async () => {
     if (!state.currentWord) return;
     const wordObj = { ...state.currentWord, addedAt: state.currentWord.addedAt || Date.now(), reviewCount: state.currentWord.reviewCount || 0, nextReview: state.currentWord.nextReview || getNextReviewDate(0) };
     await idbSaveWord(wordObj);
-    let words = getVocabLS(); if (!words.some(w => w.word === wordObj.word)) { words.unshift(wordObj); saveVocab(words); }
-    recordWordAdded(); renderVocab(); renderGlobalVocabAsync(); updateStatsDisplay(); dom.tooltip.classList.remove('show'); showToast('✅ 已加入单词本');
+    recordWordAdded(); renderVocab(); renderGlobalVocabAsync(); updateStatsDisplay(); dom.tooltip.classList.remove('show'); showToast('✅ 已加入單字本');
 };
 
-function renderVocab() {
-    const words = getVocab(); const dict = i18n[state.lang]; document.getElementById('vocabCount').innerText = words.length;
+async function renderVocab() {
+    const words = await idbGetAllVocab(); const dict = i18n[state.lang]; document.getElementById('vocabCount').innerText = words.length;
     dom.vocabList.innerHTML = words.map((w, i) => `
         <div class="word-item">
-            <div class="word-head"><div class="word-text">${w.word}</div><div class="word-del" onclick="deleteWord(${i})">${dict.word_remove}</div></div>
+            <div class="word-head"><div class="word-text">${w.word}</div><div class="word-del" onclick="deleteWordByKey('${w.word}')">${dict.word_remove}</div></div>
             ${w.zhDefinition ? `<div style="font-size:14px; font-weight:700; color:var(--text-main); margin-bottom:2px;">${w.zhDefinition}</div>` : ''}
             <div class="word-def">${w.definition}</div>
         </div>
     `).join('');
 }
 
-window.deleteWord = async (wordKey) => { await idbDeleteWord(wordKey); let words = getVocabLS(); if (typeof wordKey === 'number') { words.splice(wordKey, 1); } else { words = words.filter(w => w.word !== wordKey); } saveVocab(words); renderVocab(); };
-window.deleteWordByKey = async (key) => { await idbDeleteWord(key); let words = getVocabLS().filter(w => w.word !== key); saveVocab(words); await renderGlobalVocabAsync(); updateStatsDisplay(); };
+window.deleteWordByKey = async (key) => { 
+    await idbDeleteWord(key); 
+    renderVocab(); await renderGlobalVocabAsync(); updateStatsDisplay(); 
+};
 
 async function renderGlobalVocabAsync() {
     const words = await idbGetAllVocab(); const dict = i18n[state.lang]; document.getElementById('globalVocabCount').innerText = words.length; const today = new Date().toISOString().split('T')[0];
     dom.globalVocabList.innerHTML = words.map((w) => {
-        const isDue = w.nextReview && w.nextReview <= today; const reviewBadge = w.nextReview ? `<span class="review-next ${isDue ? 'review-overdue' : ''}">${isDue ? '⚡ 待复习' : `📅 ${w.nextReview}`}</span>` : '';
+        const isDue = w.nextReview && w.nextReview <= today; const reviewBadge = w.nextReview ? `<span class="review-next ${isDue ? 'review-overdue' : ''}">${isDue ? '⚡ 待複習' : `📅 ${w.nextReview}`}</span>` : '';
         return `
         <div class="global-word-card">
             <div style="display:flex; justify-content:space-between; align-items:flex-start;">
@@ -1395,24 +1466,27 @@ async function renderGlobalVocabAsync() {
             ${w.zhDefinition ? `<div style="margin-top:12px; font-size:20px; font-weight:700; color:var(--text-main); letter-spacing:0.5px;">${w.zhDefinition}</div>` : ''}
             <div style="margin-top:${w.zhDefinition ? '6px' : '12px'}; font-size:14px; line-height:1.5;">${w.definition}</div>
             ${w.example ? `<div style="margin-top:8px; font-size:13px; color:var(--text-sub); font-style:italic;">"${w.example}"</div>` : ''}
-            <div style="margin-top:10px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">${reviewBadge}${w.reviewCount ? `<span style="font-size:11px; color:var(--text-sub);">已复习 ${w.reviewCount} 次</span>` : ''}</div>
+            <div style="margin-top:10px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">${reviewBadge}${w.reviewCount ? `<span style="font-size:11px; color:var(--text-sub);">已複習 ${w.reviewCount} 次</span>` : ''}</div>
         </div>`;
     }).join('');
     updateStatsDisplay();
 }
 
 document.getElementById('globalExportAnkiBtn').onclick = async () => {
-    const words = await idbGetAllVocab(); if (!words.length) return showToast('没有单词可导出'); const strip = h => { const t = document.createElement('DIV'); t.innerHTML = h; return t.textContent || ''; };
+    const words = await idbGetAllVocab(); if (!words.length) return showToast('沒有單字可匯出'); const strip = h => { const t = document.createElement('DIV'); t.innerHTML = h; return t.textContent || ''; };
     let txt = ''; words.forEach(w => { const front = w.word + (w.phonetic ? `\n${w.phonetic}` : ''); const back = strip(w.zhDefinition||'') + '\n\n' + strip(w.definition) + (w.example ? `\n\n"${w.example}"` : ''); txt += `${front}\t${back}\n`; });
-    const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain;charset=utf-8;' })); link.download = 'vocabulary_anki.txt'; link.click(); showToast('Anki 文件已导出（导入时选 Tab 分隔）');
+    const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain;charset=utf-8;' })); link.download = 'vocabulary_anki.txt'; link.click(); showToast('Anki 文件已匯出（導入時選 Tab 分隔）');
 };
 
 dom.globalExportVocabBtn.onclick = async () => {
-    const words = await idbGetAllVocab(); if (!words.length) return showToast('没有单词可导出'); const strip = h => { const t = document.createElement('DIV'); t.innerHTML = h; return t.textContent || ''; };
+    const words = await idbGetAllVocab(); if (!words.length) return showToast('沒有單字可匯出'); const strip = h => { const t = document.createElement('DIV'); t.innerHTML = h; return t.textContent || ''; };
     let csv = "Word,Phonetic,Chinese,Definition,Example,ReviewCount,NextReview\n"; words.forEach(w => csv += `"${w.word}","${w.phonetic||''}","${strip(w.zhDefinition||'').replace(/"/g,'""')}","${strip(w.definition).replace(/"/g,'""')}","${(w.example||'').replace(/"/g,'""')}","${w.reviewCount||0}","${w.nextReview||''}"\n`);
     const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'})); link.download = 'vocabulary.csv'; link.click();
 };
 
+// ----------------------------------------------------------------
+// 本地文件處理
+// ----------------------------------------------------------------
 function checkLocalReady() { if (state.localReady.v && state.localReady.s) dom.btnLaunchLocalView.classList.add('active'); }
 function handleLocalFiles(files) {
     Array.from(files).forEach(f => {
@@ -1431,6 +1505,9 @@ dom.localVideoInputView.addEventListener('change', e => handleLocalFiles(e.targe
 dom.btnLaunchLocalView.onclick = () => { if (state.localReady.v && state.localReady.s) { renderTranscript(); dom.homeScreen.classList.add('hidden'); dom.workspace.classList.add('active'); } };
 dom.localUploadDropzone.addEventListener('dragover', e => { e.preventDefault(); dom.localUploadDropzone.classList.add('dragover'); }); dom.localUploadDropzone.addEventListener('dragleave', e => { e.preventDefault(); dom.localUploadDropzone.classList.remove('dragover'); }); dom.localUploadDropzone.addEventListener('drop', e => { e.preventDefault(); dom.localUploadDropzone.classList.remove('dragover'); handleLocalFiles(e.dataTransfer.files); });
 
+// ----------------------------------------------------------------
+// 系統互動控制 (熱鍵, 菜單)
+// ----------------------------------------------------------------
 dom.speedToggleBtn.onclick = (e) => { e.stopPropagation(); dom.speedMenu.classList.toggle('show'); const r=dom.speedToggleBtn.getBoundingClientRect(); dom.speedMenu.style.top = window.innerWidth>1024?`${r.bottom+12}px`:'auto'; dom.speedMenu.style.bottom = window.innerWidth<=1024?`${window.innerHeight-r.top+12}px`:'auto'; dom.speedMenu.style.left=`${r.left+(r.width/2)-50}px`; };
 document.querySelectorAll('.sp-item').forEach(item => item.onclick = () => { const s=parseFloat(item.dataset.speed); dom.player.playbackRate=s; localStorage.setItem('playbackRate',s); dom.speedToggleBtn.innerText=`${s.toFixed(1)}x`; document.querySelectorAll('.sp-item').forEach(i=>i.classList.remove('active')); item.classList.add('active'); dom.speedMenu.classList.remove('show'); });
 document.addEventListener('click', e => { if (!dom.speedMenu.contains(e.target) && e.target !== dom.speedToggleBtn) dom.speedMenu.classList.remove('show'); if (!dom.tooltip.contains(e.target)) dom.tooltip.classList.remove('show'); }); document.addEventListener('touchstart', e => { if (window.innerWidth <= 1024 && !dom.vocabContainer.contains(e.target) && !dom.mobileVocabToggle.contains(e.target)) dom.vocabContainer.classList.remove('open'); }, {passive: true});
@@ -1443,26 +1520,25 @@ function initCustomFilter(btnId, modalId, labelId, filterKey) { const btn = docu
 initCustomFilter('btnFilterRating', 'modalFilterRating', 'labelFilterRating', 'rating'); initCustomFilter('btnFilterTag', 'modalFilterTag', 'labelFilterTag', 'tag'); initCustomFilter('btnFilterAccent', 'modalFilterAccent', 'labelFilterAccent', 'accent');
 dom.searchInput.addEventListener('input', (e) => { state.searchText = e.target.value; renderCurrentView(); });
 
-window.openEditProfile = (type) => { state.editProfileType = type; const modal = document.getElementById('editProfileModal'); const title = document.getElementById('editProfileTitle'); const txtInput = document.getElementById('editProfileInput'); const fileGroup = document.getElementById('editProfileFileGroup'); const fileInput = document.getElementById('editProfileFileInput'); if (type === 'username') { title.innerText = "修改用户名"; txtInput.style.display = 'block'; fileGroup.style.display = 'none'; txtInput.value = state.user.user_metadata?.username || state.user.email.split('@')[0]; } else { title.innerText = "修改头像"; txtInput.style.display = 'none'; fileGroup.style.display = 'flex'; fileInput.value = ''; } modal.classList.add('active'); };
+window.openEditProfile = (type) => { state.editProfileType = type; const modal = document.getElementById('editProfileModal'); const title = document.getElementById('editProfileTitle'); const txtInput = document.getElementById('editProfileInput'); const fileGroup = document.getElementById('editProfileFileGroup'); const fileInput = document.getElementById('editProfileFileInput'); if (type === 'username') { title.innerText = "修改用戶名"; txtInput.style.display = 'block'; fileGroup.style.display = 'none'; txtInput.value = state.user.user_metadata?.username || state.user.email.split('@')[0]; } else { title.innerText = "修改頭像"; txtInput.style.display = 'none'; fileGroup.style.display = 'flex'; fileInput.value = ''; } modal.classList.add('active'); };
 window.closeEditProfile = () => { document.getElementById('editProfileModal').classList.remove('active'); };
-document.getElementById('saveProfileBtn').onclick = async () => { const btn = document.getElementById('saveProfileBtn'); try { btn.innerText = "保存中..."; btn.disabled = true; let updates = {}; if (state.editProfileType === 'username') { const newName = document.getElementById('editProfileInput').value.trim(); if(!newName) throw new Error("用户名不能为空"); updates.username = newName; } else { const file = document.getElementById('editProfileFileInput').files[0]; if(!file) throw new Error("请先选择一张图片"); updates.avatar = await resizeImageToBase64(file, 200, 200); } const { data, error } = await supabaseClient.auth.updateUser({ data: updates }); if (error) throw error; showToast("修改成功！"); handleSession({ user: data.user }); closeEditProfile(); } catch (e) { showToast(e.message); } finally { btn.innerText = "保存"; btn.disabled = false; } };
+document.getElementById('saveProfileBtn').onclick = async () => { const btn = document.getElementById('saveProfileBtn'); try { btn.innerText = "保存中..."; btn.disabled = true; let updates = {}; if (state.editProfileType === 'username') { const newName = document.getElementById('editProfileInput').value.trim(); if(!newName) throw new Error("用戶名不能為空"); updates.username = newName; } else { const file = document.getElementById('editProfileFileInput').files[0]; if(!file) throw new Error("請先選擇一張圖片"); updates.avatar = await resizeImageToBase64(file, 200, 200); } const { data, error } = await supabaseClient.auth.updateUser({ data: updates }); if (error) throw error; showToast("修改成功！"); handleSession({ user: data.user }); closeEditProfile(); } catch (e) { showToast(e.message); } finally { btn.innerText = "保存"; btn.disabled = false; } };
 
-function updateLanguageUIInit() { dom.txtSettingLang.innerText = state.lang === 'en' ? '切换为 中文' : 'Switch to English'; const dict = i18n[state.lang]; document.querySelectorAll('[data-i18n]').forEach(el => { if(dict[el.dataset.i18n]) el.innerText = dict[el.dataset.i18n]; }); document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { if(dict[el.dataset.i18nPlaceholder]) el.placeholder = dict[el.dataset.i18nPlaceholder]; }); document.querySelectorAll('[data-i18n-title]').forEach(el => { if(dict[el.dataset.i18nTitle]) el.title = dict[el.dataset.i18nTitle]; }); renderVocab(); }
+function updateLanguageUIInit() { dom.txtSettingLang.innerText = state.lang === 'en' ? '切換為 中文' : 'Switch to English'; const dict = i18n[state.lang]; document.querySelectorAll('[data-i18n]').forEach(el => { if(dict[el.dataset.i18n]) el.innerText = dict[el.dataset.i18n]; }); document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { if(dict[el.dataset.i18nPlaceholder]) el.placeholder = dict[el.dataset.i18nPlaceholder]; }); document.querySelectorAll('[data-i18n-title]').forEach(el => { if(dict[el.dataset.i18nTitle]) el.title = dict[el.dataset.i18nTitle]; }); renderVocab(); }
 updateLanguageUIInit();
 
 let kbdHintTimer = null; function showKbdHint() { const hint = document.getElementById('kbdHint'); if (!hint) return; hint.classList.add('show'); clearTimeout(kbdHintTimer); kbdHintTimer = setTimeout(() => hint.classList.remove('show'), 3000); }
 document.addEventListener('keydown', (e) => { if (!document.getElementById('workspace').classList.contains('active')) return; if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return; switch (e.code) { case 'Space': e.preventDefault(); if (dom.player.paused) dom.player.play(); else dom.player.pause(); break; case 'ArrowLeft': e.preventDefault(); dom.player.currentTime = Math.max(0, dom.player.currentTime - 5); showKbdHint(); break; case 'ArrowRight': e.preventDefault(); dom.player.currentTime = Math.min(dom.player.duration || 999, dom.player.currentTime + 5); showKbdHint(); break; case 'ArrowUp': e.preventDefault(); { const rates = [0.5, 0.75, 1, 1.25, 1.5, 2]; const cur = dom.player.playbackRate; const idx = rates.indexOf(cur); if (idx < rates.length-1) { dom.player.playbackRate = rates[idx+1]; dom.speedToggleBtn.innerText = `${rates[idx+1].toFixed(2).replace('.00','').replace(/\.(\d)0/,'.$1')}x`; showKbdHint(); } } break; case 'ArrowDown': e.preventDefault(); { const rates = [0.5, 0.75, 1, 1.25, 1.5, 2]; const cur = dom.player.playbackRate; const idx = rates.indexOf(cur); if (idx > 0) { dom.player.playbackRate = rates[idx-1]; dom.speedToggleBtn.innerText = `${rates[idx-1].toFixed(2).replace('.00','').replace(/\.(\d)0/,'.$1')}x`; showKbdHint(); } } break; } });
 
-const shadowState = { active: false, timer: null, pauseAfter: true, lastPausedIdx: -1 }; const shadowBtn = document.getElementById('shadowModeBtn'); const shadowIndicator = document.getElementById('shadowIndicator');
-function toggleShadowMode() { shadowState.active = !shadowState.active; shadowBtn.classList.toggle('active', shadowState.active); document.getElementById('shadowText').innerText = shadowState.active ? '跟读' : ''; if (shadowState.active) { shadowIndicator.classList.add('show'); showToast('跟读模式：播完一句自动暂停 3 秒'); dom.player.addEventListener('timeupdate', handleShadowMode); } else { shadowIndicator.classList.remove('show'); showToast('已退出跟读模式'); dom.player.removeEventListener('timeupdate', handleShadowMode); clearTimeout(shadowState.timer); shadowState.lastPausedIdx = -1; } }
-function handleShadowMode() { if (!shadowState.active) return; const now = dom.player.currentTime; const idx = state.currentActiveIndex; if (idx < 0) return; const sub = state.subtitles[idx]; if (!sub) return; const endTime = sub.end - 0.1; if (now >= endTime && shadowState.lastPausedIdx !== idx) { shadowState.lastPausedIdx = idx; dom.player.pause(); shadowIndicator.classList.add('show'); clearTimeout(shadowState.timer); shadowState.timer = setTimeout(() => { if (shadowState.active) { dom.player.play(); setTimeout(() => { if (shadowState.active) shadowIndicator.classList.add('show'); else shadowIndicator.classList.remove('show'); }, 100); } }, 3000); } }
-if (shadowBtn) shadowBtn.onclick = toggleShadowMode;
-
-async function migrateOldVocab() { const oldWords = getVocabLS(); if (!oldWords.length) return; const d = await openDB(); if (!d) return; const tx = d.transaction('vocab', 'readwrite'); const store = tx.objectStore('vocab'); oldWords.forEach(w => { if (!w.addedAt) w.addedAt = Date.now(); if (!w.reviewCount) w.reviewCount = 0; if (!w.nextReview) w.nextReview = getNextReviewDate(0); store.put(w); }); tx.oncomplete = () => console.log('Migration complete'); }
-
-function renderCurrentView() { if (state.currentTab === 'library') renderGrid(dom.libraryContentArea, 'library'); else if (state.currentTab === 'profile') { renderGrid(dom.profileContentArea, state.profileSubTab); updateStatsDisplay(); } else if (state.currentTab === 'vocabulary') renderGlobalVocabAsync(); }
-
-(async function init() { await migrateOldVocab(); updateStatsDisplay(); if (state.currentTab === 'vocabulary') renderGlobalVocabAsync(); })();
+// ----------------------------------------------------------------
+// 初始化系統
+// ----------------------------------------------------------------
+(async function init() { 
+    await migrateOldVocab(); 
+    updateStatsDisplay(); 
+    if (state.currentTab === 'vocabulary') renderGlobalVocabAsync(); 
+    renderVocab();
+})();
 
 </script>
 </body>
