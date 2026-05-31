@@ -945,6 +945,10 @@
 <div class="tooltip" id="tooltip">
     <div class="tt-word" id="tooltipWord"></div>
     <div class="tt-phonetic" id="tooltipPhonetic"></div>
+    <div class="tt-section" id="tooltipZhSection" style="display:none;">
+        <div class="tt-sec-title" style="color:var(--green);">中文释义</div>
+        <div class="tt-zh-def" id="tooltipZhDef" style="font-size:18px; font-weight:700; color:var(--text-main); margin-top:4px; letter-spacing:0.5px;"></div>
+    </div>
     <div class="tt-section" id="tooltipDefSection"><div class="tt-sec-title" data-i18n="tt_definition">Definition</div><div class="tt-def" id="tooltipDef"></div></div>
     <div class="tt-section" id="tooltipExSection" style="display:none;"><div class="tt-sec-title" data-i18n="tt_example">Example</div><div class="tt-example" id="tooltipExample"></div></div>
     <div class="tt-section" id="tooltipSynSection" style="display:none;"><div class="tt-sec-title" data-i18n="tt_synonyms">Synonyms</div><div class="tt-synonyms" id="tooltipSynonyms"></div></div>
@@ -1534,6 +1538,7 @@ function renderVocab() {
     dom.vocabList.innerHTML = words.map((w, i) => `
         <div class="word-item">
             <div class="word-head"><div class="word-text">${w.word}</div><div class="word-del" onclick="deleteWord(${i})">${dict.word_remove}</div></div>
+            ${w.zhDefinition ? `<div style="font-size:14px; font-weight:700; color:var(--text-main); margin-bottom:2px;">${w.zhDefinition}</div>` : ''}
             <div class="word-def">${w.definition}</div>
         </div>
     `).join('');
@@ -1550,7 +1555,8 @@ function renderGlobalVocab() {
                 </div>
                 <div class="word-del" style="color:var(--red); font-size:13px; cursor:pointer;" onclick="deleteWord(${i}); renderGlobalVocab();">${dict.word_remove}</div>
             </div>
-            <div style="margin-top:12px; font-size:14px; line-height:1.5;">${w.definition}</div>
+            ${w.zhDefinition ? `<div style="margin-top:12px; font-size:20px; font-weight:700; color:var(--text-main); letter-spacing:0.5px;">${w.zhDefinition}</div>` : ''}
+            <div style="margin-top:${w.zhDefinition ? '6px' : '12px'}; font-size:13px; line-height:1.5; color:var(--text-sub);">${w.definition}</div>
             ${w.example ? `<div style="margin-top:8px; font-size:13px; color:var(--text-sub); font-style:italic;">Ex: ${w.example}</div>` : ''}
         </div>
     `).join('');
@@ -1573,7 +1579,7 @@ async function handleSelection() {
         
         dom.tooltip.classList.add('show'); document.getElementById('tooltipWord').innerText = text.toLowerCase();
         document.getElementById('tooltipPhonetic').innerText = i18n[state.lang].tt_analyzing; document.getElementById('tooltipDef').innerHTML = "";
-        document.getElementById('tooltipExSection').style.display = 'none'; document.getElementById('tooltipSynSection').style.display = 'none';
+        document.getElementById('tooltipExSection').style.display = 'none'; document.getElementById('tooltipSynSection').style.display = 'none'; document.getElementById('tooltipZhSection').style.display = 'none';
         dom.saveWordBtn.disabled = true;
 
         try {
@@ -1588,9 +1594,18 @@ async function handleSelection() {
                 const defs = []; let synonyms = []; let example = "";
                 data[0].meanings.forEach(m => { if(m.synonyms) synonyms.push(...m.synonyms); m.definitions.forEach(d => { if(d.example && !example) example = d.example; defs.push(`<strong>${m.partOfSpeech}</strong>: ${d.definition}`); }); });
                 const finalDef = defs.slice(0,2).join('<br><br>');
-                state.currentWord = { word: text.toLowerCase(), phonetic: data[0].phonetic || '', definition: finalDef, example: example, synonyms: [...new Set(synonyms)].slice(0, 5) };
+                state.currentWord = { word: text.toLowerCase(), phonetic: data[0].phonetic || '', definition: finalDef, zhDefinition: '', example: example, synonyms: [...new Set(synonyms)].slice(0, 5), addedAt: Date.now(), reviewCount: 0, nextReview: getNextReviewDate(0) };
                 
+                document.getElementById('tooltipZhSection').style.display = 'none';
                 document.getElementById('tooltipPhonetic').innerText = state.currentWord.phonetic; document.getElementById('tooltipDef').innerHTML = finalDef;
+                
+                fetchZhTranslation(text.toLowerCase()).then(zh => {
+                    if (zh && state.currentWord && state.currentWord.word === text.toLowerCase()) {
+                        state.currentWord.zhDefinition = zh;
+                        document.getElementById('tooltipZhDef').innerText = zh;
+                        document.getElementById('tooltipZhSection').style.display = 'block';
+                    }
+                });
                 if (example) { document.getElementById('tooltipExSection').style.display = 'block'; document.getElementById('tooltipExample').innerText = `"${example}"`; }
                 if (state.currentWord.synonyms.length) { document.getElementById('tooltipSynSection').style.display = 'block'; document.getElementById('tooltipSynonyms').innerHTML = state.currentWord.synonyms.map(s => `<span class="tt-synonym-tag">${s}</span>`).join(''); }
                 dom.saveWordBtn.disabled = false;
@@ -1988,6 +2003,24 @@ document.addEventListener('click', (e) => {
     }
 });
 
+// ================================================================
+// 中文翻译：使用 MyMemory API（免费，无需 key）
+// ================================================================
+async function fetchZhTranslation(word) {
+    try {
+        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|zh`;
+        const res = await fetch(url);
+        if (!res.ok) return null;
+        const data = await res.json();
+        if (data.responseStatus === 200 && data.responseData && data.responseData.translatedText) {
+            const zh = data.responseData.translatedText.trim();
+            // 过滤掉返回了英文或数字乱码的情况
+            if (zh && /[一-龥]/.test(zh)) return zh;
+        }
+        return null;
+    } catch { return null; }
+}
+
 async function showWordTooltip(word, targetEl) {
     const rect = targetEl.getBoundingClientRect();
     let topPos = rect.top - 220;
@@ -2005,6 +2038,7 @@ async function showWordTooltip(word, targetEl) {
     document.getElementById('tooltipDef').innerHTML = '';
     document.getElementById('tooltipExSection').style.display = 'none';
     document.getElementById('tooltipSynSection').style.display = 'none';
+    document.getElementById('tooltipZhSection').style.display = 'none';
     dom.saveWordBtn.disabled = true;
     state.currentWord = null;
     
@@ -2021,10 +2055,19 @@ async function showWordTooltip(word, targetEl) {
             });
         });
         const finalDef = defs.slice(0, 2).join('<br><br>');
-        state.currentWord = { word, phonetic: data[0].phonetic || '', definition: finalDef, example, synonyms: [...new Set(synonyms)].slice(0, 5), addedAt: Date.now(), reviewCount: 0, nextReview: getNextReviewDate(0) };
+        state.currentWord = { word, phonetic: data[0].phonetic || '', definition: finalDef, zhDefinition: '', example, synonyms: [...new Set(synonyms)].slice(0, 5), addedAt: Date.now(), reviewCount: 0, nextReview: getNextReviewDate(0) };
         
         document.getElementById('tooltipPhonetic').innerText = state.currentWord.phonetic;
         document.getElementById('tooltipDef').innerHTML = finalDef;
+        
+        // 异步加载中文翻译（不阻塞英文定义显示）
+        fetchZhTranslation(word).then(zh => {
+            if (zh && state.currentWord && state.currentWord.word === word) {
+                state.currentWord.zhDefinition = zh;
+                document.getElementById('tooltipZhDef').innerText = zh;
+                document.getElementById('tooltipZhSection').style.display = 'block';
+            }
+        });
         if (example) {
             document.getElementById('tooltipExSection').style.display = 'block';
             document.getElementById('tooltipExample').innerText = `"${example}"`;
