@@ -152,7 +152,8 @@
         .header-left { display: flex; flex-direction: column; gap: 16px; flex: 1; }
         .view-title { font-size: 40px; font-weight: 800; letter-spacing: -1.5px; line-height: 1; }
         
-        .search-box { width: 100%; max-width: 600px; position: relative; margin-top: 8px; }
+        /* 將電腦端的 max-width 從 600px 改為 320px，避免過度拉長 */
+        .search-box { width: 100%; max-width: 320px; position: relative; margin-top: 8px; }
         .search-box input {
             width: 100%; height: 50px; border: 1px solid var(--glass-border); outline: none;
             border-radius: 18px; padding: 0 20px 0 48px; font-size: 16px; font-weight: 500;
@@ -485,12 +486,18 @@
             .home-screen { flex-direction: column; }
             .home-main { padding: 20px 16px 120px 16px; }
             
-            .view-header { flex-direction: column; align-items: flex-start; border-bottom: none; gap: 16px;}
+            /* 🍎 缩小各模块之间的全局间距 */
+            .app-view { gap: 12px; }
+            
+            /* 🍎 修复搜索框宽度和头部空隙 */
+            .view-header { flex-direction: column; align-items: flex-start; border-bottom: none; gap: 12px; padding-bottom: 4px; }
+            .header-left { width: 100%; }
             .view-title { font-size: 32px; }
-            .search-box { margin-top: 0; }
+            .search-box { margin-top: 0; max-width: 100%; }
             .search-box input { height: 44px; border-radius: 14px; font-size: 14px; padding-left: 40px; }
 
-            .filter-bar { flex-direction: row; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 8px 12px; border-radius: 16px; gap: 8px; margin-top: 8px; }
+            /* 🍎 移除滤镜栏多余的上方外边距 */
+            .filter-bar { flex-direction: row; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 8px 12px; border-radius: 16px; gap: 8px; margin-top: 0; }
             .filter-bar::-webkit-scrollbar { display: none; }
             .filter-group { flex: 0 0 auto; gap: 0; }
             .filter-label { display: none; }
@@ -833,29 +840,47 @@
 <script>
 const SUPABASE_URL = "https://revbsrjaeoldhhifibdx.supabase.co"; 
 const SUPABASE_ANON_KEY = "sb_publishable_fo8RtO0BL9fBr1uPH8cu1Q_wy5bj5GI"; 
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// 🍎 健壮的 Supabase 初始化：如果 CDN 被拦截或加载失败，自动降级为本地离线模式
+let supabaseClient;
+if (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function') {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} else {
+    console.warn("Supabase CDN 无法访问或加载超时。已自动降级为本地离线模式。");
+    window.addEventListener('DOMContentLoaded', () => {
+        if (typeof showToast === 'function') showToast("云端连接失败，已自动进入本地离线模式");
+    });
+    
+    // 提供完整的 Mock 对象，防止由于未定义属性导致应用崩溃
+    supabaseClient = {
+        auth: {
+            onAuthStateChange: (cb) => {
+                // 本地模式：延迟自动以访客身份登录，方便用户直接体验“本地文件”等功能
+                setTimeout(() => cb('SIGNED_IN', { user: { id: 'local_guest', email: 'guest@local.env', user_metadata: { username: 'Local Guest' } } }), 800);
+            },
+            signInWithPassword: async () => ({ error: new Error("当前处于本地离线模式，无法连接云端。") }),
+            signUp: async () => ({ error: new Error("当前处于本地离线模式，无法连接云端。") }),
+            updateUser: async (data) => ({ data: { user: { email: 'guest@local.env', user_metadata: data.data } }, error: null }),
+            signOut: async () => { window.location.reload(); }
+        },
+        from: (table) => {
+            const chain = {
+                select: () => chain,
+                order: async () => ({ data: [], error: null }),
+                eq: () => chain,
+                maybeSingle: async () => ({ data: null, error: null }),
+                update: () => chain,
+                upsert: async () => ({ data: null, error: null }),
+                then: (resolve) => resolve({ data: [], error: null }) // 使链式调用返回兼容 Promise 结构
+            };
+            return chain;
+        }
+    };
+}
 
 let videoDatabase = [];
 
-// 🍎 静态雅思核心词汇表 (节选核心高频词，作为本地静态 JSON 驱动展示)
-const IELTS_VOCAB_STATIC = [
-    "abandon", "abnormal", "abolish", "abrupt", "absurd", "abundance", "academy", "accelerate", "accommodate", "accompany", 
-    "accomplish", "accumulate", "accurate", "accuse", "acknowledge", "acquire", "adapt", "adequate", "adhere", "adjacent", 
-    "adjust", "administer", "adolescent", "adopt", "adverse", "advocate", "aesthetic", "affiliate", "aggravate", "aggressive", 
-    "allocate", "ambiguous", "amend", "ample", "analogy", "anonymous", "anticipate", "appall", "apparatus", "apparent", 
-    "appeal", "appetite", "applaud", "applicable", "appraise", "appreciate", "apprehend", "approach", "appropriate", "approximate",
-    "aptitude", "arbitrary", "architect", "archive", "array", "articulate", "ascend", "ascertain", "scribe", "assault",
-    "assemble", "assert", "assess", "asset", "assign", "assimilate", "associate", "assume", "assure", "astonish",
-    "asylum", "attain", "attempt", "attend", "attribute", "augment", "authentic", "authoritative", "authorize", "autonomy",
-    "avail", "avert", "aviation", "awkward", "capacity", "category", "civil", "commission", "complex", "compute", "conclude", 
-    "conduct", "consequent", "construct", "consume", "credit", "culture", "design", "distinct", "element", "equate", 
-    "evaluate", "feature", "final", "focus", "impact", "injure", "institute", "invest", "item", "journal", "maintain", 
-    "normal", "obtain", "participate", "perceive", "positive", "potential", "previous", "primary", "purchase", "range", 
-    "region", "regulate", "relevant", "reside", "resource", "restrict", "secure", "seek", "select", "site", "strategy", "survey", "text", "tradition", "transfer"
-];
-// 提前构建 Regex 提高匹配效率
-const ieltsRegex = new RegExp(`\\b(${IELTS_VOCAB_STATIC.join('|')})\\b`, 'gi');
-
+// 🍎 i18n 字典更新 (繁体 -> 简体)
 const i18n = {
     en: {
         nav_library: "Library", nav_vocab: "Vocabulary", nav_local: "Local Files", nav_profile: "Profile",
@@ -871,7 +896,7 @@ const i18n = {
         menu_theme: "Theme", menu_logout: "Log Out",
         sidebar_video: "Select Video (MP4)", sidebar_sub: "Select Subs (SRT/VTT)", sidebar_launch: "Launch Workspace",
         local_title: "Build Your Environment", local_desc: "Select an MP4 video and an SRT/VTT subtitle file to automatically generate an interactive learning workspace.",
-        tt_ab: "A-B Repeat", tt_mode: "Subtitle Mode (Bilingual/EN/Shadow)"
+        tt_ab: "A-B Repeat", tt_mode: "Subtitle Mode (Bilingual/English/Shadowing)"
     },
     zh: {
         nav_library: "视频库", nav_vocab: "单词本", nav_local: "本地文件", nav_profile: "个人中心",
@@ -890,6 +915,9 @@ const i18n = {
         tt_ab: "A-B 复读", tt_mode: "字幕模式 (双语/纯英文/跟读)"
     }
 };
+
+// 🍎 补充雅思词汇正则库，防止渲染时抛出 ReferenceError 异常
+const ieltsRegex = /\b(abandon|abnormal|abolish|abrupt|absurd|abundance|academy|accelerate|accommodate|accompany|accomplish|accord|accumulate|accurate|accuse|accustom|achieve|acknowledge|acquire|adapt|adequate|adhere|adjacent|adjust|administer|adolescent|adopt|adverse|advocate|aesthetic|affiliate|aggravate|agressive|allocate|alter|alternate|ambiguous|ambitious|amend|ample|analogy|analyze|anonymous|anticipate|appall|apparatus|apparent|appeal|appetite|applaud|apply|appoint|appraise|appreciate|apprehend|approach|appropriate|approve|apt|arbitrary|arise|arouse|array|articulate|ascend|ascribe|aspect|assault|assemble|assert|assess|assign|assimilate|assist|associate|assume|assure|astonish|attach|attain|attempt|attend|attribute|authentic|authority|automatic|autonomous|available|avert|avoid|awkward)\b/gi;
 
 const state = { 
     lang: 'zh', currentTab: 'library', profileSubTab: 'history', editProfileType: null,
