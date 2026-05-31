@@ -301,8 +301,8 @@
             flex-wrap: wrap;
         }
         .profile-avatar-wrapper { position: relative; width: 80px; height: 80px; flex-shrink: 0; }
-        .profile-avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; box-shadow: 0 8px 24px rgba(0,122,255,0.3); display: none; }
-        .profile-avatar { width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(135deg, var(--blue), #5E5CE6); display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; font-weight: bold; box-shadow: 0 8px 24px rgba(0,122,255,0.3); }
+        .profile-avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); box-shadow: 0 4px 16px rgba(0,0,0,0.06); display: none; }
+        .profile-avatar { width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(135deg, var(--blue), #5E5CE6); display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; font-weight: bold; border: 1px solid var(--border); box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
         .edit-avatar-btn { position: absolute; bottom: -4px; right: -4px; background: var(--surface); border: 1px solid var(--border); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; box-shadow: var(--shadow); transition: 0.2s; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); }
         .edit-avatar-btn:hover { transform: scale(1.1); background: var(--hover-bg); }
         
@@ -311,7 +311,16 @@
         .edit-btn { font-size: 14px; cursor: pointer; opacity: 0.6; transition: 0.2s; }
         .edit-btn:hover { opacity: 1; transform: scale(1.1); }
         .profile-email { font-size: 15px; font-weight: 500; color: var(--text-sub); margin-bottom: 4px; word-break: break-all;}
-        .profile-status { font-size: 14px; color: var(--text-sub); font-weight: 500; }
+        
+        .profile-status { 
+            display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 800; 
+            color: #5c3a00; background: linear-gradient(135deg, #FFDF40 0%, #FF9900 100%); 
+            padding: 4px 12px; border-radius: 99px; margin-top: 6px;
+            box-shadow: 0 4px 12px rgba(255, 153, 0, 0.3); border: 1px solid rgba(255,255,255,0.4); 
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .profile-status svg { width: 14px; height: 14px; fill: currentColor; }
+        .dark-theme .profile-status { color: #3a2200; border-color: rgba(255,255,255,0.15); }
         
         .profile-settings-list { display: flex; gap: 12px; flex-wrap: wrap;}
         .setting-btn {
@@ -539,6 +548,7 @@
             .vocab-container.open { transform: translateY(0); }
             
             .profile-header-card { flex-direction: column; text-align: center; padding: 24px 16px; }
+            .profile-username { justify-content: center; } /* 新增這一行來置中對齊 */
             .profile-settings-list { justify-content: center; width: 100%;}
             .local-upload-area { padding: 40px 20px; min-height: 300px; }
         }
@@ -706,7 +716,10 @@
                     <div class="profile-info">
                         <div class="profile-username" id="profileUsernameDisplay">User <span class="edit-btn" onclick="openEditProfile('username')">✏️</span></div>
                         <div class="profile-email" id="profileEmailDisplay">user@example.com</div>
-                        <div class="profile-status">Pro Member</div>
+                        <div class="profile-status">
+                            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            Pro Member
+                        </div>
                     </div>
                     <div class="profile-settings-list">
                         <button class="setting-btn" id="btnSettingLang">
