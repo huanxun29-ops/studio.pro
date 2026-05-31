@@ -3,17 +3,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    
-    <!-- 🍎 Safari 沉浸式與全螢幕強化標籤 -->
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-title" content="Studio Pro" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="theme-color" id="themeColorMeta" content="#fdfbfb" />
-    
     <title>Studio Listening Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* 🍎 極簡配色系統與液態玻璃變數 */
         :root {
             --bg: #F5F5F7;
             --surface: rgba(255, 255, 255, 0.45);
@@ -26,9 +18,9 @@
             --green: #34C759;
             --orange: #FF9500;
             --red: #FF3B30;
+            --purple: #AF52DE;
             --hover-bg: rgba(255, 255, 255, 0.5);
             
-            /* 液態玻璃 (淺色) */
             --liquid-bg: rgba(255, 255, 255, 0.65);
             --liquid-border: rgba(255, 255, 255, 0.9);
             --liquid-shadow: 0 16px 40px rgba(0, 0, 0, 0.08), 
@@ -39,7 +31,6 @@
             --safe-bottom: env(safe-area-inset-bottom, 20px);
         }
 
-        /* 🍎 升級版 VisionOS 風格深色模式 */
         .dark-theme {
             --bg: #050505;
             --surface: rgba(22, 22, 24, 0.55);
@@ -52,6 +43,7 @@
             --green: #30D158;
             --orange: #FF9F0A;
             --red: #FF453A;
+            --purple: #BF5AF2;
             --hover-bg: rgba(255, 255, 255, 0.1);
             
             --liquid-border: rgba(255, 255, 255, 0.15);
@@ -64,40 +56,21 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        /* 🚀 核心修復：強制讓最底層的顏色與網格相同，避免任何灰色邊界露出 */
-        html {
-            background-color: #fdfbfb; 
-            transition: background-color 0.4s ease;
-        }
-        html.dark-theme {
-            background-color: #0d0f12; 
-        }
-
-        /* 🚀 核心修復：終極鎖定視口，徹底解決 Safari 底部灰色懸空問題 */
         body {
-            position: fixed; 
-            top: 0; left: 0; right: 0; bottom: 0;
-            width: 100%; height: 100%;
-            overflow: hidden;
-            overscroll-behavior: none; 
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
-            background-color: transparent;
+            background-color: var(--bg);
             color: var(--text-main);
-            transition: color 0.4s ease;
+            height: 100dvh;
+            overflow: hidden;
+            transition: background-color 0.4s ease, color 0.4s ease;
             -webkit-font-smoothing: antialiased;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* 確保所有滾動區域擁有原生滑順感 */
-        .home-main, .transcript-flow, .glass-modal-content, .vocab-list, .global-vocab-list {
-            -webkit-overflow-scrolling: touch;
-        }
-
-        /* --- 🍎 背景：溫暖 Mesh Gradient 與 呼吸氣泡 --- */
         .mesh-bg {
-            position: absolute; 
-            top: -10vh; left: -10vw; 
-            width: 120vw; height: 120vh; /* 故意放大以覆蓋 Safari 縮放時的所有死角 */
-            z-index: -2;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
             background-color: #fdfbfb;
             background-image: 
                 radial-gradient(at 0% 0%, rgba(255, 228, 214, 0.8) 0px, transparent 50%),
@@ -131,9 +104,6 @@
             100% { transform: translateY(-110vh) rotate(15deg) scale(1.1); opacity: 0; }
         }
 
-        /* =========================================
-           🍎 首頁及全域導航 (Home & Global Nav)
-           ========================================= */
         .home-screen {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             display: flex; flex-direction: row; 
@@ -143,7 +113,6 @@
         }
         .home-screen.hidden { opacity: 0; visibility: hidden; transform: scale(0.98); }
         
-        /* 🍎 統一側邊欄 (4個核心入口) */
         .app-sidebar {
             width: 260px; flex-shrink: 0;
             background: var(--surface);
@@ -168,7 +137,6 @@
         .nav-item.active { background: rgba(0, 122, 255, 0.1); color: var(--blue); }
         .dark-theme .nav-item.active { background: rgba(10, 132, 255, 0.15); color: var(--blue); }
 
-        /* 主內容區及視圖容器 */
         .home-main {
             flex: 1; overflow-y: auto; scroll-behavior: smooth;
             padding: 60px 40px; display: flex; flex-direction: column; align-items: center;
@@ -180,13 +148,11 @@
         .app-view.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 公共頭部 */
         .view-header { display: flex; justify-content: space-between; align-items: flex-end; width: 100%; border-bottom: 1px solid var(--border); padding-bottom: 20px;}
         .header-left { display: flex; flex-direction: column; gap: 16px; flex: 1; }
         .view-title { font-size: 40px; font-weight: 800; letter-spacing: -1.5px; line-height: 1; }
         
-        /* 保持電腦端寬度適中 */
-        .search-box { width: 100%; max-width: 320px; position: relative; margin-top: 8px; }
+        .search-box { width: 100%; max-width: 600px; position: relative; margin-top: 8px; }
         .search-box input {
             width: 100%; height: 50px; border: 1px solid var(--glass-border); outline: none;
             border-radius: 18px; padding: 0 20px 0 48px; font-size: 16px; font-weight: 500;
@@ -196,7 +162,6 @@
         .search-box input:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15); }
         .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; fill: var(--text-sub); }
 
-        /* 過濾欄 Filters */
         .filter-bar { 
             display: flex; gap: 16px; flex-wrap: wrap; 
             background: var(--surface); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
@@ -218,7 +183,6 @@
         .custom-filter-btn svg { width: 18px; height: 18px; fill: var(--text-sub); transition: 0.3s; }
         .filter-divider { width: 1px; height: 24px; background: var(--border); margin: 0 8px; }
 
-        /* 懸浮玻璃選單 (Glass Modal for Selects) */
         .glass-modal {
             position: fixed; inset: 0; z-index: 10000;
             display: flex; align-items: center; justify-content: center;
@@ -242,7 +206,6 @@
         .glass-option:active { transform: scale(0.96); background: var(--hover-bg); }
         .glass-option.active { background: var(--text-main); color: var(--bg); }
 
-        /* --- 🍎 影片內容區樣式 --- */
         .category-section { margin-bottom: 40px; }
         .category-header { font-size: 22px; font-weight: 700; color: var(--text-main); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end;}
         .row-scroll {
@@ -316,9 +279,6 @@
         .empty-state svg { width: 48px; height: 48px; fill: var(--border); margin-bottom: 16px; }
         .empty-state h3 { font-size: 18px; color: var(--text-main); margin-bottom: 8px; }
 
-        /* =========================================
-           🍎 個人中心視圖 (Profile View)
-           ========================================= */
         .profile-header-card {
             background: var(--surface); border: 1px solid var(--glass-border); border-radius: 24px;
             backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
@@ -358,9 +318,6 @@
         .profile-tab.active { color: #fff; background: var(--text-main); }
         .dark-theme .profile-tab.active { color: var(--bg); background: var(--text-main); }
 
-        /* =========================================
-           🍎 本地文件視圖 (Local Files View)
-           ========================================= */
         .local-upload-area {
             background: var(--surface); border: 2px dashed var(--glass-border); border-radius: 32px;
             backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
@@ -392,9 +349,6 @@
         .launch-btn.active { opacity: 1; pointer-events: auto; }
         .launch-btn.active:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(0,122,255,0.4); }
 
-        /* =========================================
-           🍎 全域單字本視圖 (Global Vocab View)
-           ========================================= */
         .global-vocab-container {
             background: var(--surface); border: 1px solid var(--glass-border); border-radius: 24px;
             backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
@@ -413,9 +367,6 @@
         .dark-theme .export-btn { background: rgba(255,255,255,0.1); }
         .export-btn:hover { background: rgba(0,0,0,0.1); }
 
-        /* =========================================
-           🍎 Auth, Workspace & Tooltips
-           ========================================= */
         .auth-screen { position: fixed; inset: 0; z-index: 100000; background: var(--bg); display: flex; align-items: center; justify-content: center; transition: opacity 0.4s, visibility 0.4s; }
         .auth-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
         .auth-card { background: var(--liquid-bg); border: 1px solid var(--liquid-border); box-shadow: var(--liquid-shadow); border-radius: 32px; padding: 40px; width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 20px; backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); }
@@ -437,13 +388,8 @@
         .auth-toggle { text-align: center; font-size: 14px; color: var(--text-sub); }
         .auth-toggle a { color: var(--blue); text-decoration: none; font-weight: 600; }
 
-        .workspace { 
-            display: flex; width: 100%; max-width: 1600px; 
-            height: 100%; padding: 32px; gap: 32px; opacity: 0; visibility: hidden; 
-            position: absolute; left: 0; right: 0; top: 0; bottom: 0; margin: auto;
-            transform: translateY(20px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); 
-        }
-        .workspace.active { opacity: 1; visibility: visible; transform: translateY(0); z-index: 200; }
+        .workspace { display: flex; width: 100%; max-width: 1600px; height: 100dvh; padding: 32px; gap: 32px; opacity: 0; visibility: hidden; position: absolute; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .workspace.active { opacity: 1; visibility: visible; transform: translateY(0); position: relative; z-index: 200; }
         .sidebar { width: 45%; min-width: 400px; max-width: 720px; flex-shrink: 0; display: flex; flex-direction: column; gap: 32px; }
         .video-container { border-radius: 24px; overflow: hidden; background: #000; box-shadow: var(--shadow); transform: translateZ(0); }
         video { width: 100%; display: block; outline: none; }
@@ -460,25 +406,51 @@
         .word-item:hover .word-del { opacity: 1; }
 
         .main-content { flex: 1; background: var(--surface); border-radius: 24px; border: 1px solid var(--glass-border); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); position: relative; display: flex; flex-direction: column; box-shadow: var(--shadow); overflow: hidden; }
-        .toolbar-floating { position: absolute; top: 24px; left: 50%; transform: translateX(-50%) scale(1); background: var(--liquid-bg); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%); border: 1px solid var(--liquid-border); box-shadow: var(--liquid-shadow); border-radius: 99px; padding: 6px 8px; display: flex; gap: 4px; z-index: 50; transition: all 0.4s; }
-        .icon-btn { width: 38px; height: 38px; border-radius: 50%; border: none; background: transparent; color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.25s; }
+        .toolbar-floating { position: absolute; top: 24px; left: 50%; transform: translateX(-50%) scale(1); background: var(--liquid-bg); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%); border: 1px solid var(--liquid-border); box-shadow: var(--liquid-shadow); border-radius: 99px; padding: 6px 8px; display: flex; gap: 4px; z-index: 50; transition: all 0.4s; align-items: center;}
+        
+        .icon-btn { width: 38px; height: 38px; border-radius: 50%; border: none; background: transparent; color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.25s; position: relative;}
         .icon-btn:active { transform: scale(0.85); background: var(--hover-bg); }
         .icon-btn:hover { background: var(--hover-bg); }
         .icon-btn.active { background: var(--text-main); color: var(--bg); }
         .icon-btn svg { width: 18px; height: 18px; fill: currentColor; }
+        .icon-btn.half-active { background: var(--purple); color: #fff; } /* For A-B repeat A point */
+        
         .speed-btn-txt { padding: 0 16px; height: 38px; border-radius: 99px; border: none; background: transparent; color: var(--text-main); font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.25s; }
         .speed-btn-txt:active { background: var(--hover-bg); }
         .divider { width: 1px; height: 20px; background: var(--border); margin: auto 4px; }
 
+        /* 🍎 新增功能：字幕容器与模式样式 */
         .transcript-flow { flex: 1; overflow-y: auto; padding: 80px 10% 120px 10%; scroll-behavior: smooth; }
         .transcript-flow::-webkit-scrollbar { display: none; }
-        .lyric-line { margin-bottom: 24px; cursor: pointer; opacity: 0.35; transform: scale(0.98); transform-origin: left center; transition: all 0.4s; border-left: 3px solid transparent; padding-left: 16px; }
-        .lyric-line.active { opacity: 1; transform: scale(1.02); border-left-color: var(--blue); }
-        .lyric-en { font-size: 24px; font-weight: 700; line-height: 1.4; letter-spacing: -0.5px; user-select: text; -webkit-user-select: text; }
+        
+        .lyric-line { margin-bottom: 24px; cursor: pointer; opacity: 0.35; transform: scale(0.98); transform-origin: left center; transition: all 0.4s; border-left: 4px solid transparent; padding-left: 16px; }
+        
+        /* 🍎 升级：更醒目的高亮当前句 */
+        .lyric-line.active { opacity: 1; transform: scale(1.02); border-left-color: var(--blue); background: linear-gradient(90deg, rgba(0, 122, 255, 0.08) 0%, transparent 100%); border-radius: 0 12px 12px 0; padding-top: 8px; padding-bottom: 8px;}
+        .dark-theme .lyric-line.active { background: linear-gradient(90deg, rgba(10, 132, 255, 0.15) 0%, transparent 100%); }
+        
+        .lyric-en { font-size: 24px; font-weight: 700; line-height: 1.4; letter-spacing: -0.5px; user-select: text; -webkit-user-select: text; transition: 0.3s ease; }
         .lyric-zh { font-size: 15px; font-weight: 500; color: var(--text-sub); margin-top: 8px; line-height: 1.5; transition: opacity 0.3s; }
-        .lyric-zh.hidden { display: none; }
+        
+        /* 🍎 雅思词汇高亮 */
+        .ielts-word { border-bottom: 2px dashed var(--orange); color: var(--orange); cursor: help; padding-bottom: 2px; }
+        .dark-theme .ielts-word { color: #FFB340; border-bottom-color: #FFB340; }
+        
         .hl-word { background: rgba(52, 199, 89, 0.15); color: var(--green); border-radius: 6px; padding: 2px 4px; }
         
+        /* 🍎 字幕三种模式逻辑 (Bilingual, English, Shadowing) */
+        /* mode-0: 双语 (默认) */
+        .transcript-flow.mode-0 .lyric-zh { display: block; }
+        
+        /* mode-1: 纯英文 */
+        .transcript-flow.mode-1 .lyric-zh { display: none; }
+        
+        /* mode-2: 跟读 (模糊英文, 隐藏中文, 悬停/激活时清晰) */
+        .transcript-flow.mode-2 .lyric-zh { display: none; }
+        .transcript-flow.mode-2 .lyric-en { filter: blur(6px); opacity: 0.6; }
+        .transcript-flow.mode-2 .lyric-line.active .lyric-en,
+        .transcript-flow.mode-2 .lyric-en:hover { filter: blur(0); opacity: 1; }
+
         .cloze-input { background: rgba(0, 0, 0, 0.05); border: 2px solid transparent; border-bottom: 2px solid var(--text-sub); border-radius: 6px; padding: 0 6px; font-size: inherit; font-family: inherit; font-weight: 700; color: var(--text-main); text-align: center; outline: none; transition: 0.3s; margin: 0 4px; max-width: 100%; }
         .dark-theme .cloze-input { background: rgba(255, 255, 255, 0.1); border-bottom-color: var(--text-sub); }
         .cloze-input:focus { border-color: transparent; border-bottom-color: var(--blue); background: rgba(0, 122, 255, 0.1); }
@@ -501,24 +473,21 @@
         .sp-item { padding: 10px; border-radius: 10px; text-align: center; font-size: 14px; font-weight: 500; cursor: pointer; }
         .sp-item.active { background: var(--text-main); color: var(--bg); }
 
-        /* Custom Toast Notification */
         .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 999999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .toast { background: rgba(0,0,0,0.8); color: white; padding: 12px 24px; border-radius: 99px; font-size: 14px; font-weight: 600; backdrop-filter: blur(10px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(-20px); }
         @keyframes toastIn { to { opacity: 1; transform: translateY(0); } }
         @keyframes toastOut { to { opacity: 0; transform: translateY(-10px); } }
 
-        /* 📱 移動端適配 */
         #mobileVocabToggle { display: none; }
         .vocab-close-mobile { display: none; font-size: 24px; cursor: pointer; color: var(--text-sub); font-weight: 300; }
 
         @media (max-width: 1024px) {
             .home-screen { flex-direction: column; }
-            .home-main { padding: 20px 16px calc(100px + env(safe-area-inset-bottom, 20px)) 16px; } /* 確保內容不會被導覽列遮擋 */
+            .home-main { padding: 20px 16px 120px 16px; }
             
             .view-header { flex-direction: column; align-items: flex-start; border-bottom: none; gap: 16px;}
-            .header-left { width: 100%; }
             .view-title { font-size: 32px; }
-            .search-box { margin-top: 0; max-width: 100%; }
+            .search-box { margin-top: 0; }
             .search-box input { height: 44px; border-radius: 14px; font-size: 14px; padding-left: 40px; }
 
             .filter-bar { flex-direction: row; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 8px 12px; border-radius: 16px; gap: 8px; margin-top: 8px; }
@@ -533,12 +502,10 @@
             .row-scroll .video-card { flex: 0 0 82vw; max-width: 320px; }
             .video-grid { grid-template-columns: 1fr; gap: 20px; }
 
-            /* 🚀 核心修復：改為 position: absolute，緊緊貼合在 home-screen 的最底部，不再懸空 */
             .app-sidebar {
-                width: 100%; border-right: none; 
-                position: absolute; bottom: 0; left: 0;
+                width: 100%; border-right: none; position: fixed; bottom: 0; left: 0;
                 flex-direction: row; align-items: center; justify-content: space-around;
-                padding: 8px 12px calc(12px + env(safe-area-inset-bottom, 20px)) 12px;
+                padding: 8px 12px calc(8px + var(--safe-bottom)) 12px;
                 border-top: 1px solid var(--liquid-border); border-radius: 24px 24px 0 0;
                 background: var(--liquid-bg); box-shadow: var(--liquid-shadow); z-index: 99;
             }
@@ -554,12 +521,12 @@
             video { max-height: 30dvh; object-fit: contain; }
             
             .main-content { border-radius: 0; border: none; box-shadow: none; flex: 1; min-height: 0; background: transparent; }
-            .transcript-flow { padding: 20px 16px calc(100px + env(safe-area-inset-bottom, 20px)) 16px; }
-            .toolbar-floating { top: auto; bottom: calc(24px + env(safe-area-inset-bottom, 20px)); width: auto; padding: 6px 8px; gap: 4px; border-radius: 30px; }
+            .transcript-flow { padding: 20px 16px calc(100px + var(--safe-bottom)) 16px; }
+            .toolbar-floating { top: auto; bottom: calc(24px + var(--safe-bottom)); width: auto; padding: 6px 8px; gap: 4px; border-radius: 30px; }
             
             #mobileVocabToggle { display: flex; }
             .vocab-close-mobile { display: block; }
-            .vocab-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 75%; border-radius: 28px 28px 0 0; z-index: 9999; transform: translateY(100%); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); background: var(--liquid-bg); backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%); }
+            .vocab-container { position: fixed; bottom: 0; left: 0; width: 100%; height: 75dvh; border-radius: 28px 28px 0 0; z-index: 9999; transform: translateY(100%); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); background: var(--liquid-bg); backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%); }
             .vocab-container.open { transform: translateY(0); }
             
             .profile-header-card { flex-direction: column; text-align: center; padding: 24px 16px; }
@@ -580,145 +547,135 @@
 
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- 🍎 登入/註冊介面 -->
+<!-- 登录/注册界面 -->
 <div class="auth-screen hidden" id="authScreen">
     <div class="auth-card">
-        <div class="auth-title" id="authTitle">歡迎回來</div>
+        <div class="auth-title" id="authTitle">欢迎回来</div>
         <form id="authForm" class="auth-form">
-            <input type="email" id="authEmail" class="auth-input" placeholder="信箱" autocomplete="email" required />
-            <input type="password" id="authPassword" class="auth-input" placeholder="密碼" autocomplete="current-password" required />
+            <input type="email" id="authEmail" class="auth-input" placeholder="邮箱" autocomplete="email" required />
+            <input type="password" id="authPassword" class="auth-input" placeholder="密码" autocomplete="current-password" required />
             
-            <input type="text" id="authUsername" class="auth-input" placeholder="使用者名稱 (註冊必填)" style="display: none;" autocomplete="off" />
+            <input type="text" id="authUsername" class="auth-input" placeholder="用户名 (注册必填)" style="display: none;" autocomplete="off" />
             <div class="auth-file-group" id="authAvatarGroup" style="display: none;">
-                <span style="flex-shrink: 0; margin-right: 8px;">上傳頭像</span>
+                <span style="flex-shrink: 0; margin-right: 8px;">上传头像</span>
                 <input type="file" id="authAvatar" accept="image/*" />
             </div>
-
-            <input type="text" id="authInviteCode" class="auth-input" placeholder="邀請碼 (註冊必填)" style="display: none;" autocomplete="off" />
+            <input type="text" id="authInviteCode" class="auth-input" placeholder="邀请码 (注册必填)" style="display: none;" autocomplete="off" />
+            
             <div id="authErrorMsg" class="auth-error-msg"></div>
             <div class="auth-checkbox-group" id="authRememberGroup">
                 <input type="checkbox" id="authRemember" checked />
-                <label for="authRemember">記住信箱</label>
+                <label for="authRemember">记住邮箱</label>
             </div>
-            <button type="submit" class="auth-btn" id="authSubmitBtn">登入</button>
+            <button type="submit" class="auth-btn" id="authSubmitBtn">登录</button>
         </form>
         <div class="auth-toggle">
-            <span id="authToggleText">還沒有帳號？</span> <a href="#" id="authToggleLink">立即註冊</a>
+            <span id="authToggleText">还没有账号？</span> <a href="#" id="authToggleLink">立即注册</a>
         </div>
     </div>
 </div>
 
-<!-- 🍎 首頁全域容器 -->
+<!-- 首页全局容器 -->
 <div class="home-screen" id="homeScreen">
-    
-    <!-- 🍎 統一的 4 Tab 導航列 -->
     <aside class="app-sidebar">
         <div class="app-brand">
             <svg viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11z"/><circle cx="17.5" cy="17.5" r="4.5"/><path d="M3 13.5h8v8H3z"/></svg>
             <span>Studio Pro</span>
         </div>
-        
         <nav class="app-nav" id="sidebarNav">
             <div class="nav-item active" data-tab="library">
                 <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
-                <span data-i18n="nav_library">影片庫</span>
+                <span data-i18n="nav_library">视频库</span>
             </div>
             <div class="nav-item" data-tab="vocabulary">
                 <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                <span data-i18n="nav_vocab">單字本</span>
+                <span data-i18n="nav_vocab">单词本</span>
             </div>
             <div class="nav-item" data-tab="local">
                 <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
-                <span data-i18n="nav_local">本地檔案</span>
+                <span data-i18n="nav_local">本地文件</span>
             </div>
             <div class="nav-item" data-tab="profile">
                 <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                <span data-i18n="nav_profile">個人中心</span>
+                <span data-i18n="nav_profile">个人中心</span>
             </div>
         </nav>
     </aside>
 
-    <!-- 主內容區 -->
     <main class="home-main">
         <div class="home-content-wrapper">
-            
-            <!-- 👁️ 視圖 1: 影片庫 (Library) -->
+            <!-- 视图 1: 视频库 -->
             <div id="view-library" class="app-view active">
                 <div class="view-header">
                     <div class="header-left">
-                        <div class="view-title" data-i18n="nav_library">影片庫</div>
+                        <div class="view-title" data-i18n="nav_library">视频库</div>
                         <div class="search-box">
                             <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                            <input type="text" id="searchInput" placeholder="搜尋影片..." data-i18n-placeholder="search_placeholder">
+                            <input type="text" id="searchInput" placeholder="搜索影片..." data-i18n-placeholder="search_placeholder">
                         </div>
                     </div>
                 </div>
 
                 <div class="filter-bar" id="filterBar">
-                    <div class="filter-group"><span class="filter-label" data-i18n="filter_difficulty">難度</span><div class="custom-filter-btn" id="btnFilterRating"><span id="labelFilterRating" data-i18n="filter_level_all">所有難度</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div><div class="filter-divider"></div>
-                    <div class="filter-group"><span class="filter-label" data-i18n="filter_scenario">場景</span><div class="custom-filter-btn" id="btnFilterTag"><span id="labelFilterTag" data-i18n="filter_topic_all">所有主題</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div><div class="filter-divider"></div>
+                    <div class="filter-group"><span class="filter-label" data-i18n="filter_difficulty">难度</span><div class="custom-filter-btn" id="btnFilterRating"><span id="labelFilterRating" data-i18n="filter_level_all">所有难度</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div><div class="filter-divider"></div>
+                    <div class="filter-group"><span class="filter-label" data-i18n="filter_scenario">场景</span><div class="custom-filter-btn" id="btnFilterTag"><span id="labelFilterTag" data-i18n="filter_topic_all">所有主题</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div><div class="filter-divider"></div>
                     <div class="filter-group"><span class="filter-label" data-i18n="filter_accent">口音</span><div class="custom-filter-btn" id="btnFilterAccent"><span id="labelFilterAccent" data-i18n="filter_acc_all">所有口音</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div>
                 </div>
 
                 <div id="libraryContentArea">
-                    <div class="empty-state"><div class="spinner"></div><h3 data-i18n="loading">載入中...</h3></div>
+                    <div class="empty-state"><div class="spinner"></div><h3 data-i18n="loading">加载中...</h3></div>
                 </div>
             </div>
 
-            <!-- 👁️ 視圖 2: 單字本 (Vocabulary) -->
+            <!-- 视图 2: 单词本 -->
             <div id="view-vocabulary" class="app-view">
                 <div class="view-header">
                     <div class="header-left">
-                        <div class="view-title" data-i18n="nav_vocab">單字本</div>
+                        <div class="view-title" data-i18n="nav_vocab">单词本</div>
                     </div>
-                    <button class="export-btn" id="globalExportVocabBtn" data-i18n="btn_export">匯出 CSV</button>
+                    <button class="export-btn" id="globalExportVocabBtn" data-i18n="btn_export">导出 CSV</button>
                 </div>
                 <div class="global-vocab-container">
                     <div class="global-vocab-header">
-                        <span class="global-vocab-title"><span data-i18n="vocab_total">總計</span>: <span id="globalVocabCount">0</span></span>
+                        <span class="global-vocab-title"><span data-i18n="vocab_total">总计</span>: <span id="globalVocabCount">0</span></span>
                     </div>
-                    <div class="global-vocab-list" id="globalVocabList">
-                        <!-- Words injected here -->
-                    </div>
+                    <div class="global-vocab-list" id="globalVocabList"></div>
                 </div>
             </div>
 
-            <!-- 👁️ 視圖 3: 本地檔案 (Local Files) -->
+            <!-- 视图 3: 本地文件 -->
             <div id="view-local" class="app-view">
                 <div class="view-header">
                     <div class="header-left">
-                        <div class="view-title" data-i18n="nav_local">本地檔案</div>
+                        <div class="view-title" data-i18n="nav_local">本地文件</div>
                     </div>
                 </div>
-                
                 <div class="local-upload-area" id="localUploadDropzone">
                     <svg class="upload-icon" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
-                    <div class="upload-title" data-i18n="local_title">建構沉浸環境</div>
-                    <div class="upload-desc" data-i18n="local_desc">請選擇一部 MP4 影片與對應的 SRT/VTT 字幕檔，我們將為您自動生成互動式學習艙。</div>
+                    <div class="upload-title" data-i18n="local_title">构建沉浸环境</div>
+                    <div class="upload-desc" data-i18n="local_desc">请选择一部 MP4 视频与对应的 SRT/VTT 字幕文件，我们将为您自动生成交互式学习舱。</div>
                     
                     <div class="upload-buttons">
                         <label class="upload-btn" id="btnLocalVideoView">
                             <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-                            <span id="txtLocalVideoView" data-i18n="sidebar_video">選擇影片 (MP4)</span>
+                            <span id="txtLocalVideoView" data-i18n="sidebar_video">选择视频 (MP4)</span>
                             <input type="file" id="localVideoInputView" accept="video/mp4,video/webm">
                         </label>
-                        
                         <label class="upload-btn" id="btnLocalSubView">
                             <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-                            <span id="txtLocalSubView" data-i18n="sidebar_sub">選擇字幕 (SRT/VTT)</span>
+                            <span id="txtLocalSubView" data-i18n="sidebar_sub">选择字幕 (SRT/VTT)</span>
                             <input type="file" id="localSubInputView" accept=".srt,.json,.vtt,.ass">
                         </label>
                     </div>
-                    
-                    <button class="launch-btn" id="btnLaunchLocalView" data-i18n="sidebar_launch">進入學習艙</button>
+                    <button class="launch-btn" id="btnLaunchLocalView" data-i18n="sidebar_launch">进入学习舱</button>
                 </div>
             </div>
 
-            <!-- 👁️ 視圖 4: 個人中心 (Profile / Settings) -->
+            <!-- 视图 4: 个人中心 -->
             <div id="view-profile" class="app-view">
                 <div class="view-header">
                     <div class="header-left">
-                        <div class="view-title" data-i18n="nav_profile">個人中心</div>
+                        <div class="view-title" data-i18n="nav_profile">个人中心</div>
                     </div>
                 </div>
 
@@ -726,15 +683,13 @@
                     <div class="profile-avatar-wrapper">
                         <img src="" class="profile-avatar-img" id="profileAvatarImg" />
                         <div class="profile-avatar" id="profileAvatarText">U</div>
-                        <button class="edit-avatar-btn" onclick="openEditProfile('avatar')" title="修改頭像">✏️</button>
+                        <button class="edit-avatar-btn" onclick="openEditProfile('avatar')" title="修改头像">✏️</button>
                     </div>
-                    
                     <div class="profile-info">
                         <div class="profile-username" id="profileUsernameDisplay">User <span class="edit-btn" onclick="openEditProfile('username')">✏️</span></div>
                         <div class="profile-email" id="profileEmailDisplay">user@example.com</div>
                         <div class="profile-status">Pro Member</div>
                     </div>
-                    
                     <div class="profile-settings-list">
                         <button class="setting-btn" id="btnSettingLang">
                             <svg viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
@@ -742,19 +697,19 @@
                         </button>
                         <button class="setting-btn" id="btnSettingTheme">
                             <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
-                            <span data-i18n="menu_theme">外觀主題</span>
+                            <span data-i18n="menu_theme">外观主题</span>
                         </button>
                         <button class="setting-btn danger" id="btnSettingLogout">
                             <svg viewBox="0 0 24 24"><path fill="currentColor" d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
-                            <span data-i18n="menu_logout">登出</span>
+                            <span data-i18n="menu_logout">退出登录</span>
                         </button>
                     </div>
                 </div>
 
                 <div class="profile-tabs" id="profileTabs">
-                    <div class="profile-tab active" data-subtab="history" data-i18n="title_history">觀看紀錄</div>
+                    <div class="profile-tab active" data-subtab="history" data-i18n="title_history">观看历史</div>
                     <div class="profile-tab" data-subtab="favorites" data-i18n="title_favorites">我的收藏</div>
-                    <div class="profile-tab" data-subtab="completed" data-i18n="title_completed">已學完</div>
+                    <div class="profile-tab" data-subtab="completed" data-i18n="title_completed">已学完</div>
                 </div>
 
                 <div id="profileContentArea"></div>
@@ -764,7 +719,7 @@
     </main>
 </div>
 
-<!-- 🍎 主工作區 -->
+<!-- 🍎 主工作区 -->
 <div class="workspace" id="workspace">
     <div class="sidebar">
         <div class="video-container">
@@ -772,7 +727,7 @@
         </div>
         <div class="vocab-container" id="vocabContainer">
             <div class="vocab-header">
-                <span><span data-i18n="vocab_title">單字本</span> <span id="vocabCount" style="color:var(--text-sub); font-weight:normal; margin-left:6px;">0</span></span>
+                <span><span data-i18n="vocab_title">单词本</span> <span id="vocabCount" style="color:var(--text-sub); font-weight:normal; margin-left:6px;">0</span></span>
                 <span class="vocab-close-mobile" id="closeVocabBtn">✕</span>
             </div>
             <div class="vocab-list" id="vocabList"></div>
@@ -786,22 +741,31 @@
             </button>
             <div class="divider"></div>
             
-            <button class="icon-btn active" id="translateBtn" title="Translation">
-                <svg viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
+            <!-- A-B Repeat Button -->
+            <button class="icon-btn" id="abRepeatBtn" title="A-B Repeat" data-i18n-title="tt_ab">
+                <svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4zm-4-2V9h-1l-2 1v1h1.5v4H13z"/></svg>
+                <span class="ab-btn-text" id="abText"></span>
             </button>
+            
+            <!-- Subtitle Mode Toggle Button (Replaces Translation toggle) -->
+            <button class="icon-btn active" id="subtitleModeBtn" title="Subtitle Mode" data-i18n-title="tt_mode">
+                <!-- SVG dynamically changed in JS, defaults to Bilingual icon -->
+                <svg id="icon-mode-0" viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
+            </button>
+            
             <button class="icon-btn" id="clozeBtn" title="Fill-in-the-blank Mode">
                 <svg viewBox="0 0 24 24"><path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11z"/></svg>
             </button>
-            <button class="icon-btn" id="dictationBtn" title="Dictation Mode">
-                <svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-            </button>
+            
             <button class="icon-btn" id="mobileVocabToggle" title="Vocabulary">
                 <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
             </button>
             <div class="divider"></div>
             <button class="speed-btn-txt" id="speedToggleBtn">1.0x</button>
         </div>
-        <div class="transcript-flow" id="transcript"></div>
+        
+        <!-- 字幕滚动区，默认开启 mode-0 (双语) -->
+        <div class="transcript-flow mode-0" id="transcript"></div>
     </div>
 </div>
 
@@ -819,44 +783,44 @@
     <div class="tt-section" id="tooltipDefSection"><div class="tt-sec-title" data-i18n="tt_definition">Definition</div><div class="tt-def" id="tooltipDef"></div></div>
     <div class="tt-section" id="tooltipExSection" style="display:none;"><div class="tt-sec-title" data-i18n="tt_example">Example</div><div class="tt-example" id="tooltipExample"></div></div>
     <div class="tt-section" id="tooltipSynSection" style="display:none;"><div class="tt-sec-title" data-i18n="tt_synonyms">Synonyms</div><div class="tt-synonyms" id="tooltipSynonyms"></div></div>
-    <button class="tt-btn" id="saveWordBtn" data-i18n="tt_add">加入單字本</button>
+    <button class="tt-btn" id="saveWordBtn" data-i18n="tt_add">加入生词本</button>
 </div>
 
-<!-- 過濾選單 Modals -->
+<!-- Filters Modals -->
 <div class="glass-modal" id="modalFilterRating">
     <div class="glass-modal-content">
-        <div class="glass-option active" data-value="all" data-i18n="filter_level_all">所有難度</div>
-        <div class="glass-option" data-value="5" data-i18n="filter_level_5">⭐⭐⭐⭐⭐ (困難)</div>
-        <div class="glass-option" data-value="4" data-i18n="filter_level_4">⭐⭐⭐⭐ (進階)</div>
+        <div class="glass-option active" data-value="all" data-i18n="filter_level_all">所有难度</div>
+        <div class="glass-option" data-value="5" data-i18n="filter_level_5">⭐⭐⭐⭐⭐ (困难)</div>
+        <div class="glass-option" data-value="4" data-i18n="filter_level_4">⭐⭐⭐⭐ (进阶)</div>
         <div class="glass-option" data-value="3" data-i18n="filter_level_3">⭐⭐⭐ (中等)</div>
-        <div class="glass-option" data-value="2" data-i18n="filter_level_2">⭐⭐ (基礎)</div>
-        <div class="glass-option" data-value="1" data-i18n="filter_level_1">⭐ (入門)</div>
+        <div class="glass-option" data-value="2" data-i18n="filter_level_2">⭐⭐ (基础)</div>
+        <div class="glass-option" data-value="1" data-i18n="filter_level_1">⭐ (入门)</div>
     </div>
 </div>
 <div class="glass-modal" id="modalFilterTag">
     <div class="glass-modal-content">
-        <div class="glass-option active" data-value="all" data-i18n="filter_topic_all">所有主題</div>
-        <div class="glass-option" data-value="Academic" data-i18n="filter_topic_acad">學術</div>
+        <div class="glass-option active" data-value="all" data-i18n="filter_topic_all">所有主题</div>
+        <div class="glass-option" data-value="Academic" data-i18n="filter_topic_acad">学术</div>
         <div class="glass-option" data-value="Daily" data-i18n="filter_topic_daily">日常生活</div>
-        <div class="glass-option" data-value="Business" data-i18n="filter_topic_bus">商業</div>
-        <div class="glass-option" data-value="Entertainment" data-i18n="filter_topic_ent">娛樂</div>
+        <div class="glass-option" data-value="Business" data-i18n="filter_topic_bus">商业</div>
+        <div class="glass-option" data-value="Entertainment" data-i18n="filter_topic_ent">娱乐</div>
     </div>
 </div>
 <div class="glass-modal" id="modalFilterAccent">
     <div class="glass-modal-content">
         <div class="glass-option active" data-value="all" data-i18n="filter_acc_all">所有口音</div>
-        <div class="glass-option" data-value="US" data-i18n="filter_acc_us">🇺🇸 美式英語</div>
-        <div class="glass-option" data-value="UK" data-i18n="filter_acc_uk">🇬🇧 英式英語</div>
-        <div class="glass-option" data-value="AU" data-i18n="filter_acc_au">🇦🇺 澳式英語</div>
+        <div class="glass-option" data-value="US" data-i18n="filter_acc_us">🇺🇸 美式英语</div>
+        <div class="glass-option" data-value="UK" data-i18n="filter_acc_uk">🇬🇧 英式英语</div>
+        <div class="glass-option" data-value="AU" data-i18n="filter_acc_au">🇦🇺 澳式英语</div>
     </div>
 </div>
 
 <div class="glass-modal" id="editProfileModal">
     <div class="glass-modal-content">
-        <h3 id="editProfileTitle" style="margin-bottom: 16px; text-align: center; font-size: 20px; font-weight: 700;">修改資訊</h3>
+        <h3 id="editProfileTitle" style="margin-bottom: 16px; text-align: center; font-size: 20px; font-weight: 700;">修改信息</h3>
         <input type="text" id="editProfileInput" class="auth-input" style="margin-bottom: 16px; font-size: 14px;" />
         <div class="auth-file-group" id="editProfileFileGroup" style="display:none; margin-bottom: 16px;">
-            <span style="flex-shrink: 0; margin-right: 8px;">新頭像圖片</span>
+            <span style="flex-shrink: 0; margin-right: 8px;">新头像图片</span>
             <input type="file" id="editProfileFileInput" accept="image/*" />
         </div>
         <div style="display:flex; gap: 12px;">
@@ -873,6 +837,25 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 
 let videoDatabase = [];
 
+// 🍎 静态雅思核心词汇表 (节选核心高频词，作为本地静态 JSON 驱动展示)
+const IELTS_VOCAB_STATIC = [
+    "abandon", "abnormal", "abolish", "abrupt", "absurd", "abundance", "academy", "accelerate", "accommodate", "accompany", 
+    "accomplish", "accumulate", "accurate", "accuse", "acknowledge", "acquire", "adapt", "adequate", "adhere", "adjacent", 
+    "adjust", "administer", "adolescent", "adopt", "adverse", "advocate", "aesthetic", "affiliate", "aggravate", "aggressive", 
+    "allocate", "ambiguous", "amend", "ample", "analogy", "anonymous", "anticipate", "appall", "apparatus", "apparent", 
+    "appeal", "appetite", "applaud", "applicable", "appraise", "appreciate", "apprehend", "approach", "appropriate", "approximate",
+    "aptitude", "arbitrary", "architect", "archive", "array", "articulate", "ascend", "ascertain", "scribe", "assault",
+    "assemble", "assert", "assess", "asset", "assign", "assimilate", "associate", "assume", "assure", "astonish",
+    "asylum", "attain", "attempt", "attend", "attribute", "augment", "authentic", "authoritative", "authorize", "autonomy",
+    "avail", "avert", "aviation", "awkward", "capacity", "category", "civil", "commission", "complex", "compute", "conclude", 
+    "conduct", "consequent", "construct", "consume", "credit", "culture", "design", "distinct", "element", "equate", 
+    "evaluate", "feature", "final", "focus", "impact", "injure", "institute", "invest", "item", "journal", "maintain", 
+    "normal", "obtain", "participate", "perceive", "positive", "potential", "previous", "primary", "purchase", "range", 
+    "region", "regulate", "relevant", "reside", "resource", "restrict", "secure", "seek", "select", "site", "strategy", "survey", "text", "tradition", "transfer"
+];
+// 提前构建 Regex 提高匹配效率
+const ieltsRegex = new RegExp(`\\b(${IELTS_VOCAB_STATIC.join('|')})\\b`, 'gi');
+
 const i18n = {
     en: {
         nav_library: "Library", nav_vocab: "Vocabulary", nav_local: "Local Files", nav_profile: "Profile",
@@ -888,34 +871,39 @@ const i18n = {
         menu_theme: "Theme", menu_logout: "Log Out",
         sidebar_video: "Select Video (MP4)", sidebar_sub: "Select Subs (SRT/VTT)", sidebar_launch: "Launch Workspace",
         local_title: "Build Your Environment", local_desc: "Select an MP4 video and an SRT/VTT subtitle file to automatically generate an interactive learning workspace.",
-        tt_ab: "A-B Repeat", tt_mode: "Subtitle Mode (Bilingual/English/Shadowing)"
+        tt_ab: "A-B Repeat", tt_mode: "Subtitle Mode (Bilingual/EN/Shadow)"
     },
     zh: {
-        nav_library: "影片庫", nav_vocab: "單字本", nav_local: "本地檔案", nav_profile: "個人中心",
-        title_history: "觀看紀錄", title_completed: "已學完", title_favorites: "我的收藏", search_placeholder: "搜尋影片...",
-        filter_difficulty: "難度", filter_level_all: "所有難度", filter_level_5: "⭐⭐⭐⭐⭐ (困難)", filter_level_4: "⭐⭐⭐⭐ (進階)", filter_level_3: "⭐⭐⭐ (中等)", filter_level_2: "⭐⭐ (基礎)", filter_level_1: "⭐ (入門)",
-        filter_scenario: "場景", filter_topic_all: "所有主題", filter_topic_acad: "學術", filter_topic_daily: "日常生活", filter_topic_bus: "商業", filter_topic_ent: "娛樂",
+        nav_library: "视频库", nav_vocab: "单词本", nav_local: "本地文件", nav_profile: "个人中心",
+        title_history: "观看历史", title_completed: "已学完", title_favorites: "我的收藏", search_placeholder: "搜索影片...",
+        filter_difficulty: "难度", filter_level_all: "所有难度", filter_level_5: "⭐⭐⭐⭐⭐ (困难)", filter_level_4: "⭐⭐⭐⭐ (进阶)", filter_level_3: "⭐⭐⭐ (中等)", filter_level_2: "⭐⭐ (基础)", filter_level_1: "⭐ (入门)",
+        filter_scenario: "场景", filter_topic_all: "所有主题", filter_topic_acad: "学术", filter_topic_daily: "日常生活", filter_topic_bus: "商业", filter_topic_ent: "娱乐",
         filter_accent: "口音", filter_acc_all: "所有口音", filter_acc_us: "🇺🇸 美式", filter_acc_uk: "🇬🇧 英式", filter_acc_au: "🇦🇺 澳式",
-        empty_title: "未找到影片", empty_desc: "請嘗試調整篩選條件，或等待資料載入。",
-        vocab_title: "單字本", vocab_total: "總計", btn_export: "匯出 CSV",
-        tt_add: "加入單字本", tt_analyzing: "分析中...", tt_definition: "釋義", tt_example: "例句", tt_synonyms: "同義詞", word_remove: "移除",
-        loading: "載入中...", card_accent: "口音:",
-        cat_continue: "繼續學習", cat_academic: "學術深研", cat_daily: "日常與旅行", cat_business: "商務英語",
-        menu_theme: "外觀主題", menu_logout: "登出",
-        sidebar_video: "選擇影片 (MP4)", sidebar_sub: "選擇字幕 (SRT/VTT)", sidebar_launch: "進入學習艙",
-        local_title: "建構沉浸環境", local_desc: "請選擇一部 MP4 影片與對應的 SRT/VTT 字幕檔，我們將為您自動生成互動式學習艙。",
-        tt_ab: "A-B 複讀", tt_mode: "字幕模式 (雙語/純英文/跟讀)"
+        empty_title: "未找到影片", empty_desc: "请尝试调整筛选条件，或等待数据加载。",
+        vocab_title: "单词本", vocab_total: "总计", btn_export: "导出 CSV",
+        tt_add: "加入生词本", tt_analyzing: "分析中...", tt_definition: "释义", tt_example: "例句", tt_synonyms: "同义词", word_remove: "移除",
+        loading: "加载中...", card_accent: "口音:",
+        cat_continue: "继续学习", cat_academic: "学术深研", cat_daily: "日常与旅行", cat_business: "商务英语",
+        menu_theme: "外观主题", menu_logout: "退出登录",
+        sidebar_video: "选择视频 (MP4)", sidebar_sub: "选择字幕 (SRT/VTT)", sidebar_launch: "进入学习舱",
+        local_title: "构建沉浸环境", local_desc: "请选择一部 MP4 视频与对应的 SRT/VTT 字幕文件，我们将为您自动生成交互式学习舱。",
+        tt_ab: "A-B 复读", tt_mode: "字幕模式 (双语/纯英文/跟读)"
     }
 };
-
-const ieltsRegex = /\b(abandon|abnormal|abolish|abrupt|absurd|abundance|academy|accelerate|accommodate|accompany|accomplish|accord|accumulate|accurate|accuse|accustom|achieve|acknowledge|acquire|adapt|adequate|adhere|adjacent|adjust|administer|adolescent|adopt|adverse|advocate|aesthetic|affiliate|aggravate|agressive|allocate|alter|alternate|ambiguous|ambitious|amend|ample|analogy|analyze|anonymous|anticipate|appall|apparatus|apparent|appeal|appetite|applaud|apply|appoint|appraise|appreciate|apprehend|approach|appropriate|approve|apt|arbitrary|arise|arouse|array|articulate|ascend|ascribe|aspect|assault|assemble|assert|assess|assign|assimilate|assist|associate|assume|assure|astonish|attach|attain|attempt|attend|attribute|authentic|authority|automatic|autonomous|available|avert|avoid|awkward)\b/gi;
 
 const state = { 
     lang: 'zh', currentTab: 'library', profileSubTab: 'history', editProfileType: null,
     searchText: '', filters: { rating: 'all', tag: 'all', accent: 'all' },
     user: null, currentVideoId: null, subtitles: [], 
-    currentLoopIndex: null, currentActiveIndex: -1, 
-    dictationMode: false, translationVisible: true, isClozeMode: false,
+    currentActiveIndex: -1, 
+    
+    subtitleMode: 0, // 0: Bilingual, 1: English, 2: Shadowing
+    isClozeMode: false,
+    
+    abState: 0, // 0: Off, 1: Point A set, 2: A-B looping
+    abPointA: 0,
+    abPointB: 0,
+    
     currentWord: null, videoObjectURL: null,
     localReady: { v: false, s: false }
 };
@@ -923,7 +911,7 @@ const state = {
 const dom = { 
     player: document.getElementById('player'), transcript: document.getElementById('transcript'), 
     tooltip: document.getElementById('tooltip'), 
-    translateBtn: document.getElementById('translateBtn'), clozeBtn: document.getElementById('clozeBtn'), dictationBtn: document.getElementById('dictationBtn'), 
+    subtitleModeBtn: document.getElementById('subtitleModeBtn'), clozeBtn: document.getElementById('clozeBtn'), abRepeatBtn: document.getElementById('abRepeatBtn'), 
     saveWordBtn: document.getElementById('saveWordBtn'), globalExportVocabBtn: document.getElementById('globalExportVocabBtn'),
     vocabList: document.getElementById('vocabList'), globalVocabList: document.getElementById('globalVocabList'),
     homeScreen: document.getElementById('homeScreen'), workspace: document.getElementById('workspace'), 
@@ -950,27 +938,29 @@ const dom = {
 function showToast(message) {
     const container = document.getElementById('toastContainer');
     const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.innerText = message;
+    toast.className = 'toast'; toast.innerText = message;
     container.appendChild(toast);
     setTimeout(() => { toast.style.animation = 'toastOut 0.3s forwards'; setTimeout(() => toast.remove(), 300); }, 3000);
 }
 
+function formatTime(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+}
+
 function resizeImageToBase64(file, maxWidth, maxHeight) {
     return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
+        const reader = new FileReader(); reader.readAsDataURL(file);
         reader.onload = (e) => {
-            const img = new Image();
-            img.src = e.target.result;
+            const img = new Image(); img.src = e.target.result;
             img.onload = () => {
                 const canvas = document.createElement('canvas');
                 let width = img.width; let height = img.height;
                 if (width > maxWidth) { height *= maxWidth / width; width = maxWidth; }
                 if (height > maxHeight) { width *= maxHeight / height; height = maxHeight; }
                 canvas.width = width; canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
+                const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
                 resolve(canvas.toDataURL('image/jpeg', 0.8));
             };
         };
@@ -988,10 +978,10 @@ if (savedEmail) { authEmail.value = savedEmail; document.getElementById('authRem
 
 document.getElementById('authToggleLink').onclick = (e) => {
     e.preventDefault(); authState.isLoginMode = !authState.isLoginMode;
-    document.getElementById('authTitle').innerText = authState.isLoginMode ? '歡迎回來' : '創建帳號';
-    document.getElementById('authSubmitBtn').innerText = authState.isLoginMode ? '登入' : '註冊';
-    document.getElementById('authToggleText').innerText = authState.isLoginMode ? '還沒有帳號？' : '已經有帳號了？';
-    e.target.innerText = authState.isLoginMode ? '立即註冊' : '立即登入';
+    document.getElementById('authTitle').innerText = authState.isLoginMode ? '欢迎回来' : '创建账号';
+    document.getElementById('authSubmitBtn').innerText = authState.isLoginMode ? '登录' : '注册';
+    document.getElementById('authToggleText').innerText = authState.isLoginMode ? '还没有账号？' : '已经有账号了？';
+    e.target.innerText = authState.isLoginMode ? '立即注册' : '立即登录';
     document.getElementById('authErrorMsg').style.display = 'none';
     
     document.getElementById('authUsername').style.display = authState.isLoginMode ? 'none' : 'block';
@@ -1009,7 +999,7 @@ authForm.onsubmit = async (e) => {
     const btn = document.getElementById('authSubmitBtn');
     
     try {
-        btn.disabled = true; btn.innerText = '請稍候...';
+        btn.disabled = true; btn.innerText = '请稍候...';
         if (authState.isLoginMode) {
             const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
             if (error) throw error;
@@ -1018,7 +1008,7 @@ authForm.onsubmit = async (e) => {
         } else {
             const ic = document.getElementById('authInviteCode').value.trim();
             const { data, error: ce } = await supabaseClient.from('invite_codes').select('*').eq('code', ic).maybeSingle();
-            if (ce || !data || data.is_used) throw new Error('邀請碼無效或已被使用。');
+            if (ce || !data || data.is_used) throw new Error('邀请码无效或已被使用。');
             
             const username = document.getElementById('authUsername').value.trim();
             const avatarFile = document.getElementById('authAvatar').files[0];
@@ -1032,12 +1022,12 @@ authForm.onsubmit = async (e) => {
             if (se) throw se;
             
             await supabaseClient.from('invite_codes').update({ is_used: true }).eq('code', ic);
-            showToast('註冊成功！請登入。'); document.getElementById('authToggleLink').click();
+            showToast('注册成功！请登录。'); document.getElementById('authToggleLink').click();
         }
     } catch (error) {
         err.innerText = error.message; err.style.display = 'block';
     } finally {
-        btn.disabled = false; btn.innerText = authState.isLoginMode ? '登入' : '註冊';
+        btn.disabled = false; btn.innerText = authState.isLoginMode ? '登录' : '注册';
     }
 };
 
@@ -1054,77 +1044,17 @@ function handleSession(session) {
         dom.profileEmailDisplay.innerText = session.user.email;
         
         if (avatar) {
-            dom.profileAvatarImg.src = avatar;
-            dom.profileAvatarImg.style.display = 'block';
-            dom.profileAvatarText.style.display = 'none';
+            dom.profileAvatarImg.src = avatar; dom.profileAvatarImg.style.display = 'block'; dom.profileAvatarText.style.display = 'none';
         } else {
-            dom.profileAvatarImg.style.display = 'none';
-            dom.profileAvatarText.style.display = 'flex';
-            dom.profileAvatarText.innerText = username.charAt(0).toUpperCase();
+            dom.profileAvatarImg.style.display = 'none'; dom.profileAvatarText.style.display = 'flex'; dom.profileAvatarText.innerText = username.charAt(0).toUpperCase();
         }
 
         if (videoDatabase.length === 0) loadVideosFromSupabase();
     } else {
-        state.user = null;
-        authScreen.classList.remove('hidden');
+        state.user = null; authScreen.classList.remove('hidden');
     }
 }
 supabaseClient.auth.onAuthStateChange((_e, session) => handleSession(session));
-
-window.openEditProfile = (type) => {
-    state.editProfileType = type;
-    const modal = document.getElementById('editProfileModal');
-    const title = document.getElementById('editProfileTitle');
-    const txtInput = document.getElementById('editProfileInput');
-    const fileGroup = document.getElementById('editProfileFileGroup');
-    const fileInput = document.getElementById('editProfileFileInput');
-    
-    if (type === 'username') {
-        title.innerText = "修改使用者名稱";
-        txtInput.style.display = 'block';
-        fileGroup.style.display = 'none';
-        txtInput.value = state.user.user_metadata?.username || state.user.email.split('@')[0];
-    } else {
-        title.innerText = "修改頭像";
-        txtInput.style.display = 'none';
-        fileGroup.style.display = 'flex';
-        fileInput.value = '';
-    }
-    modal.classList.add('active');
-};
-
-window.closeEditProfile = () => {
-    document.getElementById('editProfileModal').classList.remove('active');
-};
-
-document.getElementById('saveProfileBtn').onclick = async () => {
-    const btn = document.getElementById('saveProfileBtn');
-    try {
-        btn.innerText = "保存中..."; btn.disabled = true;
-        let updates = {};
-        
-        if (state.editProfileType === 'username') {
-            const newName = document.getElementById('editProfileInput').value.trim();
-            if(!newName) throw new Error("使用者名稱不能為空");
-            updates.username = newName;
-        } else {
-            const file = document.getElementById('editProfileFileInput').files[0];
-            if(!file) throw new Error("請先選擇一張圖片");
-            updates.avatar = await resizeImageToBase64(file, 200, 200);
-        }
-        
-        const { data, error } = await supabaseClient.auth.updateUser({ data: updates });
-        if (error) throw error;
-        
-        showToast("修改成功！");
-        handleSession({ user: data.user });
-        closeEditProfile();
-    } catch (e) {
-        showToast(e.message);
-    } finally {
-        btn.innerText = "保存"; btn.disabled = false;
-    }
-};
 
 async function loadVideosFromSupabase() {
     if (!state.user) return;
@@ -1153,12 +1083,9 @@ dom.sidebarNav.addEventListener('click', (e) => {
     const item = e.target.closest('.nav-item');
     if (item) {
         document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
-        item.classList.add('active');
-        state.currentTab = item.dataset.tab;
-        
+        item.classList.add('active'); state.currentTab = item.dataset.tab;
         document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
         document.getElementById(`view-${state.currentTab}`).classList.add('active');
-        
         renderCurrentView();
     }
 });
@@ -1166,27 +1093,21 @@ dom.sidebarNav.addEventListener('click', (e) => {
 dom.profileTabs.addEventListener('click', (e) => {
     if(e.target.classList.contains('profile-tab')) {
         document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
-        e.target.classList.add('active');
-        state.profileSubTab = e.target.dataset.subtab;
+        e.target.classList.add('active'); state.profileSubTab = e.target.dataset.subtab;
         renderGrid(dom.profileContentArea, state.profileSubTab);
     }
 });
 
 function renderCurrentView() {
-    if (state.currentTab === 'library') {
-        renderGrid(dom.libraryContentArea, 'library');
-    } else if (state.currentTab === 'profile') {
-        renderGrid(dom.profileContentArea, state.profileSubTab);
-    } else if (state.currentTab === 'vocabulary') {
-        renderGlobalVocab();
-    }
+    if (state.currentTab === 'library') renderGrid(dom.libraryContentArea, 'library');
+    else if (state.currentTab === 'profile') renderGrid(dom.profileContentArea, state.profileSubTab);
+    else if (state.currentTab === 'vocabulary') renderGlobalVocab();
 }
 
 const getStarsHtml = (rating) => {
     let html = '';
-    for(let i=1; i<=5; i++) {
-        html += `<svg class="star ${i <= rating ? 'filled' : 'empty'}" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`;
-    } return html;
+    for(let i=1; i<=5; i++) html += `<svg class="star ${i <= rating ? 'filled' : 'empty'}" viewBox="0 0 24 24" style="width:14px; fill:${i <= rating ? 'var(--orange)' : 'var(--border)'};"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`;
+    return html;
 };
 
 const renderVideoCard = (v, dict) => `
@@ -1196,39 +1117,29 @@ const renderVideoCard = (v, dict) => `
         <div class="card-top" style="background-image: url('${v.coverUrl}')"><div class="card-duration">${v.duration}</div></div>
         <div class="card-middle">
             <div class="card-ep-group"><div class="card-ep">${v.episode}</div><div class="card-title">${v.title}</div></div>
-            <div class="card-rating">${getStarsHtml(v.rating)}</div>
+            <div class="card-rating" style="display:flex; gap:2px;">${getStarsHtml(v.rating)}</div>
         </div>
         <div class="card-bottom"><div class="card-tags">${(v.tags || []).map(t => `<span class="card-tag">${t}</span>`).join('')}</div></div>
         ${v.progress > 0 ? `<div class="card-progress" style="width: ${v.progress}%"></div>` : ''}
     </div>
 `;
 
-window.toggleFavorite = (e, id) => {
-    e.stopPropagation(); 
-    const video = videoDatabase.find(v => v.id === id);
-    if(video) { video.favorite = !video.favorite; renderCurrentView(); }
-};
+window.toggleFavorite = (e, id) => { e.stopPropagation(); const video = videoDatabase.find(v => v.id === id); if(video) { video.favorite = !video.favorite; renderCurrentView(); } };
 
 function renderGrid(container, context) {
-    let filtered = videoDatabase;
-    const dict = i18n[state.lang];
+    let filtered = videoDatabase; const dict = i18n[state.lang];
 
     if (context === 'library') {
         if (state.searchText) filtered = filtered.filter(v => v.title.toLowerCase().includes(state.searchText.toLowerCase()));
         if (state.filters.rating !== 'all') filtered = filtered.filter(v => v.rating === parseInt(state.filters.rating));
         if (state.filters.tag !== 'all') filtered = filtered.filter(v => v.tags && v.tags.includes(state.filters.tag));
         if (state.filters.accent !== 'all') filtered = filtered.filter(v => v.accent === state.filters.accent);
-    } else if (context === 'history') {
-        filtered = filtered.filter(v => v.status === 'history' || v.progress > 0 && v.progress < 99);
-    } else if (context === 'completed') {
-        filtered = filtered.filter(v => v.status === 'completed' || v.progress >= 99);
-    } else if (context === 'favorites') {
-        filtered = filtered.filter(v => v.favorite === true);
-    }
+    } else if (context === 'history') { filtered = filtered.filter(v => v.status === 'history' || v.progress > 0 && v.progress < 99);
+    } else if (context === 'completed') { filtered = filtered.filter(v => v.status === 'completed' || v.progress >= 99);
+    } else if (context === 'favorites') { filtered = filtered.filter(v => v.favorite === true); }
 
     if (filtered.length === 0) {
-        container.innerHTML = `<div class="empty-state" style="margin-top:40px;"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg><h3>${dict.empty_title}</h3><p>${dict.empty_desc}</p></div>`;
-        return;
+        container.innerHTML = `<div class="empty-state" style="margin-top:40px;"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg><h3>${dict.empty_title}</h3><p>${dict.empty_desc}</p></div>`; return;
     }
 
     let isFiltering = state.searchText || state.filters.rating !== 'all' || state.filters.tag !== 'all' || state.filters.accent !== 'all';
@@ -1243,32 +1154,8 @@ function renderGrid(container, context) {
         if (daily.length > 0) html += `<div class="category-section"><div class="category-header">${dict.cat_daily}</div><div class="row-scroll">${daily.map(v => renderVideoCard(v, dict)).join('')}</div></div>`;
         
         container.innerHTML = html || `<div class="video-grid">${filtered.map(v => renderVideoCard(v, dict)).join('')}</div>`;
-    } else {
-        container.innerHTML = `<div class="video-grid">${filtered.map(v => renderVideoCard(v, dict)).join('')}</div>`;
-    }
+    } else { container.innerHTML = `<div class="video-grid">${filtered.map(v => renderVideoCard(v, dict)).join('')}</div>`; }
 }
-
-function initCustomFilter(btnId, modalId, labelId, filterKey) {
-    const btn = document.getElementById(btnId); const modal = document.getElementById(modalId); const label = document.getElementById(labelId);
-    if(!btn || !modal) return;
-    btn.onclick = () => modal.classList.add('active');
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.classList.remove('active');
-        else if (e.target.classList.contains('glass-option')) {
-            modal.querySelectorAll('.glass-option').forEach(el => el.classList.remove('active'));
-            e.target.classList.add('active');
-            state.filters[filterKey] = e.target.dataset.value;
-            const i18nKey = e.target.getAttribute('data-i18n');
-            label.innerText = i18nKey ? i18n[state.lang][i18nKey] : e.target.innerText;
-            modal.classList.remove('active');
-            renderCurrentView();
-        }
-    });
-}
-initCustomFilter('btnFilterRating', 'modalFilterRating', 'labelFilterRating', 'rating');
-initCustomFilter('btnFilterTag', 'modalFilterTag', 'labelFilterTag', 'tag');
-initCustomFilter('btnFilterAccent', 'modalFilterAccent', 'labelFilterAccent', 'accent');
-dom.searchInput.addEventListener('input', (e) => { state.searchText = e.target.value; renderCurrentView(); });
 
 async function loadVideo(id) {
     const videoData = videoDatabase.find(v => v.id === id);
@@ -1276,6 +1163,13 @@ async function loadVideo(id) {
     if (!videoData.videoUrl) { showToast("Video URL is empty."); return; }
 
     const card = document.getElementById(`card-${id}`); if(card) card.classList.add('loading');
+    
+    // 重置 A-B 状态
+    state.abState = 0;
+    dom.abRepeatBtn.classList.remove('active');
+    dom.abRepeatBtn.classList.remove('half-active');
+    document.getElementById('abText').innerText = '';
+
     try {
         if(state.videoObjectURL) { URL.revokeObjectURL(state.videoObjectURL); state.videoObjectURL = null; }
         dom.player.src = videoData.videoUrl;
@@ -1301,27 +1195,58 @@ async function loadVideo(id) {
     finally { if(card) card.classList.remove('loading'); }
 }
 
-function applyLocalHighlights(text, highlights) {
-    if (!highlights || !highlights.length) return text;
-    let res = text; let placeholders = [];
-    [...highlights].sort((a, b) => b.text.length - a.text.length).forEach(hl => {
-        const regex = new RegExp(`\\b${hl.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
-        res = res.replace(regex, match => {
-            if (state.isClozeMode) { placeholders.push(`<input type="text" class="cloze-input" data-answer="${match.toLowerCase()}" style="width: ${Math.max(match.length * 14 + 16, 40)}px;" autocomplete="off" />`); } 
-            else { placeholders.push(`<span class="${hl.type === 'phrase' ? 'hl-phrase' : 'hl-word'}">${match}</span>`); }
-            return `__PH__${placeholders.length - 1}__`;
+dom.backToHomeBtn.onclick = () => { dom.workspace.classList.remove('active'); dom.homeScreen.classList.remove('hidden'); dom.player.pause(); };
+
+// 🍎 强大的高亮处理器：支持挖空、短语高亮，以及本地雅思词汇标红。
+function applyLocalHighlights(text, localHls) {
+    let res = text;
+    let placeholders = [];
+    let phIndex = 0;
+
+    const addPlaceholder = (html) => {
+        const key = `__PH_${phIndex++}__`;
+        placeholders.push({ key, html });
+        return key;
+    };
+
+    // 1. 处理特定的短语高亮或填空 (优先级最高)
+    if (localHls && localHls.length) {
+        [...localHls].sort((a, b) => b.text.length - a.text.length).forEach(hl => {
+            const regex = new RegExp(`\\b${hl.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
+            res = res.replace(regex, match => {
+                let html;
+                if (state.isClozeMode) {
+                    html = `<input type="text" class="cloze-input" data-answer="${match.toLowerCase()}" style="width: ${Math.max(match.length * 14 + 16, 40)}px;" autocomplete="off" />`;
+                } else {
+                    html = `<span class="${hl.type === 'phrase' ? 'hl-phrase' : 'hl-word'}">${match}</span>`;
+                }
+                return addPlaceholder(html);
+            });
         });
-    });
-    placeholders.forEach((html, i) => { res = res.replace(`__PH__${i}__`, html); });
+    }
+
+    // 2. 处理雅思静态词库高亮 (仅作用于非占位符的普通文本)
+    const parts = res.split(/(__PH_\d+__)/);
+    res = parts.map(part => {
+        if (part.startsWith('__PH_')) return part;
+        return part.replace(ieltsRegex, match => addPlaceholder(`<span class="ielts-word" title="IELTS Vocabulary">${match}</span>`));
+    }).join('');
+
+    // 3. 还原占位符
+    placeholders.forEach(ph => { res = res.replace(ph.key, ph.html); });
+    
     return res;
 }
 
 let lyricNodes = [];
 function renderTranscript() {
+    // 确保应用当前的 mode class
+    dom.transcript.className = 'transcript-flow mode-' + state.subtitleMode;
+
     dom.transcript.innerHTML = state.subtitles.map((item, i) => `
         <div class="lyric-line" data-index="${i}">
             <div class="lyric-en">${applyLocalHighlights(item.en, item.highlights)}</div>
-            ${item.zh ? `<div class="lyric-zh ${state.translationVisible ? '' : 'hidden'}">${item.zh}</div>` : ''}
+            ${item.zh ? `<div class="lyric-zh">${item.zh}</div>` : ''}
         </div>
     `).join('');
     lyricNodes = Array.from(document.querySelectorAll('.lyric-line'));
@@ -1330,32 +1255,19 @@ function renderTranscript() {
     });
 }
 
-dom.transcript.addEventListener('focusin', (e) => {
-    if (e.target.classList.contains('cloze-input')) {
-        dom.player.pause();
-    }
-});
-
-dom.transcript.addEventListener('input', (e) => {
-    if (e.target.classList.contains('cloze-input')) {
-        const inputVal = e.target.value.toLowerCase().trim();
-        const answer = e.target.dataset.answer.toLowerCase();
-        
-        if (inputVal === answer) {
-            e.target.classList.add('correct');
-            e.target.blur();
-            dom.player.play();
-        } else {
-            e.target.classList.remove('correct');
-        }
-    }
-});
-
+// 🍎 精准的自动滚动居中逻辑与时间更新
 let isThrottled = false;
 dom.player.addEventListener('timeupdate', () => {
     if (isThrottled) return; isThrottled = true;
     requestAnimationFrame(() => {
         const now = dom.player.currentTime; 
+        
+        // 处理 A-B 复读逻辑
+        if (state.abState === 2 && now >= state.abPointB) {
+            dom.player.currentTime = state.abPointA;
+            dom.player.play();
+        }
+
         if(state.subtitles.length && lyricNodes.length) {
             let activeIdx = -1; let l = 0, r = state.subtitles.length - 1;
             while(l <= r) {
@@ -1366,12 +1278,16 @@ dom.player.addEventListener('timeupdate', () => {
             if (activeIdx !== state.currentActiveIndex) {
                 if (state.currentActiveIndex !== -1 && lyricNodes[state.currentActiveIndex]) lyricNodes[state.currentActiveIndex].classList.remove('active');
                 if (activeIdx !== -1 && lyricNodes[activeIdx]) {
-                    lyricNodes[activeIdx].classList.add('active');
-                    dom.transcript.scrollTo({ top: lyricNodes[activeIdx].offsetTop - (window.innerWidth <= 1024 ? 140 : dom.transcript.clientHeight / 2), behavior: 'smooth' });
+                    const node = lyricNodes[activeIdx];
+                    node.classList.add('active');
+                    
+                    // 🍎 完美的绝对居中计算
+                    const container = dom.transcript;
+                    const scrollPos = node.offsetTop - (container.clientHeight / 2) + (node.clientHeight / 2);
+                    container.scrollTo({ top: scrollPos, behavior: 'smooth' });
                 }
                 state.currentActiveIndex = activeIdx;
             }
-            if (activeIdx !== -1 && state.dictationMode && now >= state.subtitles[activeIdx].end - 0.1) dom.player.pause();
         }
         isThrottled = false;
     });
@@ -1384,6 +1300,58 @@ setInterval(async () => {
     const vid = videoDatabase.find(v => v.id === state.currentVideoId); if(vid) vid.progress = pct;
     try { await supabaseClient.from('progress').upsert({ user_id: state.user ? state.user.id : 'guest', video_id: state.currentVideoId, watched_seconds: dom.player.currentTime, progress_percent: pct }); } catch(e){}
 }, 5000);
+
+// 🍎 升级的 A-B 复读控制
+dom.abRepeatBtn.onclick = () => {
+    if (state.abState === 0) {
+        state.abPointA = dom.player.currentTime;
+        state.abState = 1;
+        dom.abRepeatBtn.classList.add('half-active');
+        document.getElementById('abText').innerText = 'A';
+        showToast(`标记 A 点: ${formatTime(state.abPointA)}`);
+    } else if (state.abState === 1) {
+        state.abPointB = dom.player.currentTime;
+        if (state.abPointB <= state.abPointA) {
+            showToast("B 点必须晚于 A 点"); return;
+        }
+        state.abState = 2;
+        dom.abRepeatBtn.classList.remove('half-active');
+        dom.abRepeatBtn.classList.add('active');
+        document.getElementById('abText').innerText = 'A-B';
+        showToast(`循环区间建立: ${formatTime(state.abPointA)} - ${formatTime(state.abPointB)}`);
+    } else {
+        state.abState = 0;
+        dom.abRepeatBtn.classList.remove('active');
+        document.getElementById('abText').innerText = '';
+        showToast("已取消复读");
+    }
+};
+
+// 🍎 字幕模式循环切换 (0:双语 -> 1:纯英文 -> 2:跟读/遮挡)
+const SUBTITLE_ICONS = [
+    // Bilingual (EN + ZH icon representation)
+    `<svg viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>`,
+    // English Only (Single text block)
+    `<svg viewBox="0 0 24 24"><path d="M4 9h16v2H4zm0 4h10v2H4z"/></svg>`,
+    // Shadowing (Eye with dash or blurred representation)
+    `<svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/><line x1="2" y1="22" x2="22" y2="2" stroke="currentColor" stroke-width="2"/></svg>`
+];
+
+dom.subtitleModeBtn.onclick = () => {
+    state.subtitleMode = (state.subtitleMode + 1) % 3;
+    dom.transcript.className = 'transcript-flow mode-' + state.subtitleMode;
+    dom.subtitleModeBtn.innerHTML = SUBTITLE_ICONS[state.subtitleMode];
+    
+    // UI Update feedback
+    if(state.subtitleMode === 0) showToast("已切换至：双语模式");
+    else if(state.subtitleMode === 1) showToast("已切换至：纯英文模式");
+    else showToast("已切换至：跟读模式 (文本模糊，悬停可见)");
+};
+
+dom.clozeBtn.onclick = () => { state.isClozeMode = !state.isClozeMode; dom.clozeBtn.classList.toggle('active', state.isClozeMode); renderTranscript(); };
+dom.mobileVocabToggle.onclick = () => dom.vocabContainer.classList.add('open');
+dom.closeVocabBtn.onclick = () => dom.vocabContainer.classList.remove('open');
+
 
 const getVocab = () => JSON.parse(localStorage.getItem('vocabPro2')) || [];
 const saveVocab = words => { try { localStorage.setItem('vocabPro2', JSON.stringify(words)); } catch(e){} };
@@ -1461,11 +1429,11 @@ async function handleSelection() {
 dom.saveWordBtn.onclick = () => {
     if (!state.currentWord) return;
     let words = getVocab(); if (!words.some(w => w.word === state.currentWord.word)) { words.unshift(state.currentWord); saveVocab(words); renderVocab(); }
-    dom.tooltip.classList.remove('show'); showToast('已加入單字本');
+    dom.tooltip.classList.remove('show'); showToast('已加入单词本');
 };
 
 const handleExport = () => {
-    const words = getVocab(); if(!words.length) return showToast('沒有單字可匯出');
+    const words = getVocab(); if(!words.length) return showToast('没有单词可导出');
     const strip = h => { const t=document.createElement('DIV'); t.innerHTML=h; return t.textContent||''; };
     let csv = "Word,Definition,Example\n";
     words.forEach(w => csv += `"${w.word}","${strip(w.definition).replace(/"/g,'""')}","${(w.example||"").replace(/"/g,'""')}"\n`);
@@ -1506,46 +1474,74 @@ dom.localUploadDropzone.addEventListener('dragover', e => { e.preventDefault(); 
 dom.localUploadDropzone.addEventListener('dragleave', e => { e.preventDefault(); dom.localUploadDropzone.classList.remove('dragover'); });
 dom.localUploadDropzone.addEventListener('drop', e => { e.preventDefault(); dom.localUploadDropzone.classList.remove('dragover'); handleLocalFiles(e.dataTransfer.files); });
 
-
-dom.translateBtn.onclick = () => { state.translationVisible = !state.translationVisible; dom.translateBtn.classList.toggle('active'); document.querySelectorAll('.lyric-zh').forEach(el => el.classList.toggle('hidden', !state.translationVisible)); };
-dom.clozeBtn.onclick = () => { state.isClozeMode = !state.isClozeMode; dom.clozeBtn.classList.toggle('active', state.isClozeMode); renderTranscript(); };
-dom.dictationBtn.onclick = () => { state.dictationMode = !state.dictationMode; dom.dictationBtn.classList.toggle('active'); };
-dom.mobileVocabToggle.onclick = () => dom.vocabContainer.classList.add('open');
-dom.closeVocabBtn.onclick = () => dom.vocabContainer.classList.remove('open');
-
 dom.speedToggleBtn.onclick = (e) => { e.stopPropagation(); dom.speedMenu.classList.toggle('show'); const r=dom.speedToggleBtn.getBoundingClientRect(); dom.speedMenu.style.top = window.innerWidth>1024?`${r.bottom+12}px`:'auto'; dom.speedMenu.style.bottom = window.innerWidth<=1024?`${window.innerHeight-r.top+12}px`:'auto'; dom.speedMenu.style.left=`${r.left+(r.width/2)-50}px`; };
 document.querySelectorAll('.sp-item').forEach(item => item.onclick = () => { const s=parseFloat(item.dataset.speed); dom.player.playbackRate=s; localStorage.setItem('playbackRate',s); dom.speedToggleBtn.innerText=`${s.toFixed(1)}x`; document.querySelectorAll('.sp-item').forEach(i=>i.classList.remove('active')); item.classList.add('active'); dom.speedMenu.classList.remove('show'); });
 
 document.addEventListener('click', e => { if (!dom.speedMenu.contains(e.target) && e.target !== dom.speedToggleBtn) dom.speedMenu.classList.remove('show'); if (!dom.tooltip.contains(e.target)) dom.tooltip.classList.remove('show'); });
 document.addEventListener('touchstart', e => { if (window.innerWidth <= 1024 && !dom.vocabContainer.contains(e.target) && !dom.mobileVocabToggle.contains(e.target)) dom.vocabContainer.classList.remove('open'); }, {passive: true});
 
-const toggleTheme = () => { 
-    document.body.classList.toggle('dark-theme'); 
-    document.documentElement.classList.toggle('dark-theme');
-    const isDark = document.body.classList.contains('dark-theme');
-    document.getElementById('themeColorMeta').content = isDark ? '#0d0f12' : '#fdfbfb';
-};
-dom.btnSettingTheme.onclick = toggleTheme;
-
-const toggleLang = () => {
+// Settings Handlers (Profile View)
+dom.btnSettingTheme.onclick = () => { document.body.classList.toggle('dark-theme'); };
+dom.btnSettingLang.onclick = () => {
     state.lang = state.lang === 'en' ? 'zh' : 'en';
-    dom.txtSettingLang.innerText = state.lang === 'en' ? '切換為 中文' : 'Switch to English';
-    const dict = i18n[state.lang];
-    document.querySelectorAll('[data-i18n]').forEach(el => { if(dict[el.dataset.i18n]) el.innerText = dict[el.dataset.i18n]; });
-    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { if(dict[el.dataset.i18nPlaceholder]) el.placeholder = dict[el.dataset.i18nPlaceholder]; });
+    updateLanguageUIInit();
     renderCurrentView(); renderVocab(); renderGlobalVocab();
 };
-dom.btnSettingLang.onclick = toggleLang;
 dom.btnSettingLogout.onclick = async () => { await supabaseClient.auth.signOut(); window.location.reload(); };
 
-updateLanguageUIInit();
+function initCustomFilter(btnId, modalId, labelId, filterKey) {
+    const btn = document.getElementById(btnId); const modal = document.getElementById(modalId); const label = document.getElementById(labelId);
+    if(!btn || !modal) return;
+    btn.onclick = () => modal.classList.add('active');
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('active');
+        else if (e.target.classList.contains('glass-option')) {
+            modal.querySelectorAll('.glass-option').forEach(el => el.classList.remove('active'));
+            e.target.classList.add('active'); state.filters[filterKey] = e.target.dataset.value;
+            const i18nKey = e.target.getAttribute('data-i18n'); label.innerText = i18nKey ? i18n[state.lang][i18nKey] : e.target.innerText;
+            modal.classList.remove('active'); renderCurrentView();
+        }
+    });
+}
+initCustomFilter('btnFilterRating', 'modalFilterRating', 'labelFilterRating', 'rating');
+initCustomFilter('btnFilterTag', 'modalFilterTag', 'labelFilterTag', 'tag');
+initCustomFilter('btnFilterAccent', 'modalFilterAccent', 'labelFilterAccent', 'accent');
+dom.searchInput.addEventListener('input', (e) => { state.searchText = e.target.value; renderCurrentView(); });
+
+// Init profile edit
+window.openEditProfile = (type) => {
+    state.editProfileType = type; const modal = document.getElementById('editProfileModal'); const title = document.getElementById('editProfileTitle');
+    const txtInput = document.getElementById('editProfileInput'); const fileGroup = document.getElementById('editProfileFileGroup'); const fileInput = document.getElementById('editProfileFileInput');
+    if (type === 'username') { title.innerText = "修改用户名"; txtInput.style.display = 'block'; fileGroup.style.display = 'none'; txtInput.value = state.user.user_metadata?.username || state.user.email.split('@')[0]; }
+    else { title.innerText = "修改头像"; txtInput.style.display = 'none'; fileGroup.style.display = 'flex'; fileInput.value = ''; }
+    modal.classList.add('active');
+};
+window.closeEditProfile = () => { document.getElementById('editProfileModal').classList.remove('active'); };
+document.getElementById('saveProfileBtn').onclick = async () => {
+    const btn = document.getElementById('saveProfileBtn');
+    try {
+        btn.innerText = "保存中..."; btn.disabled = true; let updates = {};
+        if (state.editProfileType === 'username') {
+            const newName = document.getElementById('editProfileInput').value.trim();
+            if(!newName) throw new Error("用户名不能为空"); updates.username = newName;
+        } else {
+            const file = document.getElementById('editProfileFileInput').files[0];
+            if(!file) throw new Error("请先选择一张图片"); updates.avatar = await resizeImageToBase64(file, 200, 200);
+        }
+        const { data, error } = await supabaseClient.auth.updateUser({ data: updates }); if (error) throw error;
+        showToast("修改成功！"); handleSession({ user: data.user }); closeEditProfile();
+    } catch (e) { showToast(e.message); } finally { btn.innerText = "保存"; btn.disabled = false; }
+};
+
 function updateLanguageUIInit() {
-    dom.txtSettingLang.innerText = state.lang === 'en' ? '切換為 中文' : 'Switch to English';
+    dom.txtSettingLang.innerText = state.lang === 'en' ? '切换为 中文' : 'Switch to English';
     const dict = i18n[state.lang];
     document.querySelectorAll('[data-i18n]').forEach(el => { if(dict[el.dataset.i18n]) el.innerText = dict[el.dataset.i18n]; });
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { if(dict[el.dataset.i18nPlaceholder]) el.placeholder = dict[el.dataset.i18nPlaceholder]; });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => { if(dict[el.dataset.i18nTitle]) el.title = dict[el.dataset.i18nTitle]; });
     renderVocab();
 }
+updateLanguageUIInit();
 </script>
 </body>
 </html>
