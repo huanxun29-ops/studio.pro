@@ -56,52 +56,15 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
         html { background-color: var(--bg); transition: background-color 0.4s ease; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif; background-color: var(--bg); color: var(--text-main); height: 100dvh; width: 100vw; overflow: hidden; transition: background-color 0.4s ease, color 0.4s ease; -webkit-font-smoothing: antialiased; display: flex; align-items: center; justify-content: center; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
-            background-color: var(--bg); color: var(--text-main);
-            height: 100dvh; width: 100vw; overflow: hidden;
-            transition: background-color 0.4s ease, color 0.4s ease;
-            -webkit-font-smoothing: antialiased;
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        .mesh-bg {
-            position: fixed; top: -10vh; left: -10vw; width: 120vw; height: 120vh; z-index: -2;
-            background-color: #fdfbfb;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(255, 228, 214, 0.8) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(226, 234, 255, 0.8) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(255, 241, 219, 0.8) 0px, transparent 50%),
-                radial-gradient(at 0% 100%, rgba(253, 233, 244, 0.8) 0px, transparent 50%);
-            transition: 0.8s ease;
-        }
-        .dark-theme .mesh-bg {
-            background-color: #0d0f12;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(40, 30, 20, 0.6) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(20, 30, 50, 0.6) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(30, 20, 30, 0.6) 0px, transparent 50%),
-                radial-gradient(at 0% 100%, rgba(20, 30, 30, 0.6) 0px, transparent 50%);
-        }
+        .mesh-bg { position: fixed; top: -10vh; left: -10vw; width: 120vw; height: 120vh; z-index: -2; background-color: #fdfbfb; background-image: radial-gradient(at 0% 0%, rgba(255, 228, 214, 0.8) 0px, transparent 50%), radial-gradient(at 100% 0%, rgba(226, 234, 255, 0.8) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(255, 241, 219, 0.8) 0px, transparent 50%), radial-gradient(at 0% 100%, rgba(253, 233, 244, 0.8) 0px, transparent 50%); transition: 0.8s ease; }
+        .dark-theme .mesh-bg { background-color: #0d0f12; background-image: radial-gradient(at 0% 0%, rgba(40, 30, 20, 0.6) 0px, transparent 50%), radial-gradient(at 100% 0%, rgba(20, 30, 50, 0.6) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(30, 20, 30, 0.6) 0px, transparent 50%), radial-gradient(at 0% 100%, rgba(20, 30, 30, 0.6) 0px, transparent 50%); }
         
         .bubbles-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; overflow: hidden; pointer-events: none; }
-        .bubble {
-            position: absolute; bottom: -100px;
-            background: var(--surface); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-            border: 1px solid var(--glass-border); box-shadow: var(--shadow);
-            border-radius: 50px; padding: 12px 28px;
-            color: var(--text-sub); font-size: 14px; font-weight: 500; letter-spacing: 1px;
-            animation: float-up linear infinite; opacity: 0;
-        }
-        @keyframes float-up {
-            0% { transform: translateY(0) rotate(-5deg) scale(0.9); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-120vh) rotate(15deg) scale(1.1); opacity: 0; }
-        }
+        .bubble { position: absolute; bottom: -100px; background: var(--surface); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--glass-border); box-shadow: var(--shadow); border-radius: 50px; padding: 12px 28px; color: var(--text-sub); font-size: 14px; font-weight: 500; letter-spacing: 1px; animation: float-up linear infinite; opacity: 0; }
+        @keyframes float-up { 0% { transform: translateY(0) rotate(-5deg) scale(0.9); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-120vh) rotate(15deg) scale(1.1); opacity: 0; } }
 
         .auth-screen { position: fixed; inset: 0; z-index: 100000; background: var(--bg); display: flex; align-items: center; justify-content: center; transition: opacity 0.4s ease, visibility 0.4s ease; }
         .auth-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
@@ -111,11 +74,9 @@
         .auth-input { width: 100%; height: 50px; border: 1px solid var(--glass-border); outline: none; border-radius: 16px; padding: 0 20px; font-size: 16px; font-weight: 500; background: var(--surface); color: var(--text-main); transition: all 0.3s ease; }
         .auth-input:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15); transform: translateY(-2px); }
         .auth-error-msg { color: var(--red); font-size: 13px; font-weight: 600; margin-top: -10px; margin-bottom: -5px; padding-left: 8px; display: none; white-space: pre-wrap; }
-        
         .auth-file-group { display: flex; align-items: center; justify-content: space-between; border: 1px dashed var(--glass-border); border-radius: 16px; padding: 12px 20px; background: var(--surface); color: var(--text-sub); font-size: 14px; transition: all 0.3s ease; }
         .auth-file-group:hover { border-color: var(--blue); }
         .auth-file-group input[type="file"] { max-width: 160px; font-size: 12px; color: var(--text-main); cursor: pointer; }
-        
         .auth-checkbox-group { display: flex; align-items: center; gap: 8px; padding-left: 4px; }
         .auth-checkbox-group input { width: 16px; height: 16px; cursor: pointer; accent-color: var(--blue); }
         .auth-checkbox-group label { font-size: 14px; color: var(--text-sub); cursor: pointer; user-select: none; }
@@ -126,31 +87,14 @@
         .auth-toggle a { color: var(--blue); text-decoration: none; font-weight: 600; transition: opacity 0.2s; }
         .auth-toggle a:hover { opacity: 0.8; }
 
-        .home-screen {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            display: flex; flex-direction: row; 
-            z-index: 100; background: transparent; 
-            transition: opacity 0.5s ease, visibility 0.5s ease, transform 0.5s ease;
-            overflow: hidden;
-        }
+        .home-screen { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: row; z-index: 100; background: transparent; transition: opacity 0.5s ease, visibility 0.5s ease, transform 0.5s ease; overflow: hidden; }
         .home-screen.hidden { opacity: 0; visibility: hidden; transform: scale(0.98); }
         
-        .app-sidebar {
-            width: 260px; flex-shrink: 0;
-            background: var(--surface); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-            border-right: 1px solid var(--glass-border);
-            display: flex; flex-direction: column;
-            padding: calc(40px + var(--safe-top)) 20px 40px 20px; z-index: 10;
-        }
+        .app-sidebar { width: 260px; flex-shrink: 0; background: var(--surface); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; padding: calc(40px + var(--safe-top)) 20px 40px 20px; z-index: 10; }
         .app-brand { display: flex; align-items: center; gap: 12px; font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 40px; padding: 0 12px; }
         .app-brand svg { width: 28px; height: 28px; fill: var(--blue); }
-        
         .app-nav { display: flex; flex-direction: column; gap: 8px; flex: 1; }
-        .nav-item {
-            display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 16px;
-            font-size: 15px; font-weight: 600; color: var(--text-sub);
-            cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
-        }
+        .nav-item { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 16px; font-size: 15px; font-weight: 600; color: var(--text-sub); cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1); }
         .nav-item svg { width: 20px; height: 20px; fill: currentColor; transition: transform 0.3s; }
         .nav-item:hover { background: rgba(0,0,0,0.04); color: var(--text-main); transform: translateX(4px); }
         .dark-theme .nav-item:hover { background: rgba(255,255,255,0.08); }
@@ -158,14 +102,10 @@
         .dark-theme .nav-item.active { background: rgba(10, 132, 255, 0.15); color: var(--blue); }
         .nav-item.active svg { transform: scale(1.1); }
 
-        .home-main {
-            flex: 1; overflow-y: auto; scroll-behavior: smooth;
-            padding: calc(60px + var(--safe-top)) 40px 60px 40px; display: flex; flex-direction: column; align-items: center;
-        }
+        .home-main { flex: 1; overflow-y: auto; scroll-behavior: smooth; padding: calc(60px + var(--safe-top)) 40px 60px 40px; display: flex; flex-direction: column; align-items: center; }
         .home-main::-webkit-scrollbar { width: 8px; }
         .home-main::-webkit-scrollbar-track { background: transparent; }
         .home-main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-        
         .home-content-wrapper { max-width: 1200px; width: 100%; display: flex; flex-direction: column; gap: 32px; }
 
         .app-view { display: none; flex-direction: column; width: 100%; gap: 24px; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -178,43 +118,24 @@
         .view-title { font-size: 40px; font-weight: 800; letter-spacing: -1.5px; line-height: 1; flex-shrink: 0; }
         
         .search-box { width: 100%; max-width: none; flex: 1; position: relative; }
-        .search-box input {
-            width: 100%; height: 50px; border: 1px solid var(--glass-border); outline: none; border-radius: 18px; padding: 0 20px 0 48px; 
-            font-size: 16px; font-weight: 500; background: var(--surface); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-            color: var(--text-main); box-shadow: var(--shadow); transition: all 0.3s ease;
-        }
+        .search-box input { width: 100%; height: 50px; border: 1px solid var(--glass-border); outline: none; border-radius: 18px; padding: 0 20px 0 48px; font-size: 16px; font-weight: 500; background: var(--surface); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); color: var(--text-main); box-shadow: var(--shadow); transition: all 0.3s ease; }
         .search-box input:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15); transform: translateY(-1px); }
         .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; fill: var(--text-sub); transition: fill 0.3s; }
         .search-box input:focus + .search-icon { fill: var(--blue); }
 
-        .filter-bar { 
-            display: flex; gap: 16px; flex-wrap: wrap; background: var(--surface); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-            padding: 16px; border-radius: 20px; border: 1px solid var(--glass-border); box-shadow: var(--shadow); transition: all 0.3s; width: 100%;
-        }
+        .filter-bar { display: flex; gap: 16px; flex-wrap: wrap; background: var(--surface); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); padding: 16px; border-radius: 20px; border: 1px solid var(--glass-border); box-shadow: var(--shadow); transition: all 0.3s; width: 100%; }
         .filter-group { display: flex; align-items: center; gap: 12px; }
         .filter-label { font-size: 13px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; }
-        
-        .custom-filter-btn {
-            display: flex; align-items: center; gap: 6px; padding: 8px 16px; height: 38px; border-radius: 12px;
-            background: rgba(0,0,0,0.04); font-size: 14px; font-weight: 600; color: var(--text-main); cursor: pointer; transition: all 0.2s ease; border: 1px solid transparent;
-        }
+        .custom-filter-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; height: 38px; border-radius: 12px; background: rgba(0,0,0,0.04); font-size: 14px; font-weight: 600; color: var(--text-main); cursor: pointer; transition: all 0.2s ease; border: 1px solid transparent; }
         .dark-theme .custom-filter-btn { background: rgba(255,255,255,0.08); }
         .custom-filter-btn:hover { background: rgba(0,0,0,0.08); transform: translateY(-1px); }
         .dark-theme .custom-filter-btn:hover { background: rgba(255,255,255,0.15); }
         .custom-filter-btn svg { width: 18px; height: 18px; fill: var(--text-sub); transition: transform 0.3s; }
         .filter-divider { width: 1px; height: 24px; background: var(--border); margin: 0 8px; }
 
-        .glass-modal {
-            position: fixed; inset: 0; z-index: 10000; display: flex; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.3); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-            opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
+        .glass-modal { position: fixed; inset: 0; z-index: 10000; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
         .glass-modal.active { opacity: 1; visibility: visible; }
-        .glass-modal-content {
-            background: var(--liquid-bg); border: 1px solid var(--liquid-border); box-shadow: var(--liquid-shadow); 
-            border-radius: 24px; padding: 20px; width: 300px; max-width: 85vw; max-height: 80vh; overflow-y: auto;
-            transform: scale(0.95) translateY(10px); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
+        .glass-modal-content { background: var(--liquid-bg); border: 1px solid var(--liquid-border); box-shadow: var(--liquid-shadow); border-radius: 24px; padding: 20px; width: 300px; max-width: 85vw; max-height: 80vh; overflow-y: auto; transform: scale(0.95) translateY(10px); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .glass-modal-content::-webkit-scrollbar { display: none; }
         .glass-modal.active .glass-modal-content { transform: scale(1) translateY(0); }
         .glass-option { padding: 14px 16px; border-radius: 14px; font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 4px; cursor: pointer; transition: all 0.2s; text-align: center; }
@@ -232,32 +153,20 @@
         .row-scroll .video-card { flex: 0 0 320px; scroll-snap-align: start; }
         .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 32px; width: 100%; }
         
-        .video-card {
-            background: var(--surface); border: 1px solid var(--glass-border); border-radius: 24px;
-            backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-            overflow: hidden; cursor: pointer; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-            box-shadow: var(--shadow); position: relative; display: flex; flex-direction: column;
-            transform: translateZ(0); isolation: isolate;
-        }
-        .dark-theme .video-card::before {
-            content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
-            background: linear-gradient(180deg, rgba(255,255,255,0.08), transparent 25%); z-index: 2;
-        }
+        .video-card { background: var(--surface); border: 1px solid var(--glass-border); border-radius: 24px; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); overflow: hidden; cursor: pointer; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: var(--shadow); position: relative; display: flex; flex-direction: column; transform: translateZ(0); isolation: isolate; }
+        .dark-theme .video-card::before { content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; background: linear-gradient(180deg, rgba(255,255,255,0.08), transparent 25%); z-index: 2; }
         .video-card:hover { transform: translateY(-8px) translateZ(0); box-shadow: 0 24px 48px rgba(0,0,0,0.12); border-color: var(--blue); }
         .video-card:active { transform: translateY(-2px) scale(0.98) translateZ(0); }
         
-        .favorite-btn {
-            position: absolute; top: 12px; left: 12px; width: 36px; height: 36px; border-radius: 50%;
-            background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-            display: flex; align-items: center; justify-content: center; z-index: 5;
-            cursor: pointer; border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s;
-        }
+        .favorite-btn { position: absolute; top: 12px; left: 12px; width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 5; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s; }
         .favorite-btn svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 2; transition: all 0.3s; }
         .favorite-btn:hover { background: rgba(0,0,0,0.6); transform: scale(1.1); }
         .favorite-btn.active svg { fill: var(--red); stroke: var(--red); }
         .favorite-btn.active:hover svg { transform: scale(1.15); }
 
-        .card-top { position: relative; aspect-ratio: 16/9; background: #e0e0e0; background-size: cover; background-position: center; border-bottom: 1px solid var(--border); z-index: 1; border-top-left-radius: 23px; border-top-right-radius: 23px; }
+        .card-top { position: relative; aspect-ratio: 16/9; background: var(--border); border-bottom: 1px solid var(--border); z-index: 1; border-top-left-radius: 23px; border-top-right-radius: 23px; overflow: hidden; }
+        .card-top img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s ease; }
+        .video-card:hover .card-top img { transform: scale(1.05); }
         .card-duration { position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,0.7); color: #fff; font-size: 12px; font-weight: 700; padding: 4px 8px; border-radius: 8px; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); letter-spacing: 0.5px; }
         .card-middle { display: flex; justify-content: space-between; align-items: flex-start; padding: 20px 20px 12px 20px; gap: 12px; z-index: 1; }
         .card-ep-group { display: flex; flex-direction: column; gap: 4px; }
@@ -268,15 +177,15 @@
         .card-tags { display: flex; gap: 8px; flex-wrap: wrap; }
         .card-tag { padding: 6px 12px; background: rgba(0, 122, 255, 0.08); color: var(--blue); border-radius: 99px; font-size: 13px; font-weight: 600; }
         .dark-theme .card-tag { background: rgba(10, 132, 255, 0.15); }
-        .card-progress { position: absolute; bottom: 0; left: 0; height: 4px; background: var(--green); transition: width 0.3s; z-index: 3; border-bottom-left-radius: 24px; }
-        .card-overlay {
-            position: absolute; inset: 0; background: rgba(255,255,255,0.8); backdrop-filter: blur(4px);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: 0.3s; z-index: 10; border-radius: inherit;
-        }
+        
+        .card-progress-wrapper { position: absolute; bottom: 0; left: 0; right: 0; height: 6px; background: rgba(0,0,0,0.06); border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; overflow: hidden; z-index: 3; }
+        .dark-theme .card-progress-wrapper { background: rgba(255,255,255,0.1); }
+        .card-progress { height: 100%; background: var(--green); transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 0 10px rgba(52,199,89,0.5); }
+        .card-progress-text { position: absolute; right: 12px; bottom: 12px; font-size: 11px; font-weight: 800; color: var(--green); background: rgba(52,199,89,0.15); padding: 3px 8px; border-radius: 8px; z-index: 4; }
+        
+        .card-overlay { position: absolute; inset: 0; background: rgba(255,255,255,0.8); backdrop-filter: blur(4px); display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 10; border-radius: inherit; }
         .dark-theme .card-overlay { background: rgba(0,0,0,0.7); }
         .video-card.loading .card-overlay { opacity: 1; pointer-events: all; }
-        
         .spinner { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 8px; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -284,11 +193,7 @@
         .empty-state svg { width: 48px; height: 48px; fill: var(--border); margin-bottom: 16px; }
         .empty-state h3 { font-size: 18px; color: var(--text-main); margin-bottom: 8px; }
 
-        .profile-header-card {
-            background: var(--surface); border: 1px solid var(--glass-border); border-radius: 24px;
-            backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-            padding: 32px; display: flex; align-items: center; gap: 24px; box-shadow: var(--shadow); flex-wrap: wrap; transition: transform 0.3s;
-        }
+        .profile-header-card { background: var(--surface); border: 1px solid var(--glass-border); border-radius: 24px; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); padding: 32px; display: flex; align-items: center; gap: 24px; box-shadow: var(--shadow); flex-wrap: wrap; transition: transform 0.3s; }
         .profile-avatar-wrapper { position: relative; width: 80px; height: 80px; flex-shrink: 0; }
         .profile-avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); box-shadow: 0 4px 16px rgba(0,0,0,0.06); display: none; }
         .profile-avatar { width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(135deg, var(--blue), #5E5CE6); display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; font-weight: bold; border: 1px solid var(--border); box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
@@ -301,26 +206,14 @@
         .edit-btn:hover { opacity: 1; transform: scale(1.2) rotate(5deg); }
         .profile-email { font-size: 15px; font-weight: 500; color: var(--text-sub); margin-bottom: 4px; word-break: break-all;}
         
-        .profile-status { 
-            display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: #4a2e00; 
-            background: linear-gradient(135deg, #FFDF40 0%, #FFB900 50%, #FF9900 100%); 
-            padding: 6px 14px; border-radius: 99px; margin-top: 6px;
-            box-shadow: 0 4px 12px rgba(255, 153, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.8); 
-            border: 1px solid rgba(255, 215, 0, 0.6); text-transform: uppercase; letter-spacing: 0.5px; position: relative; overflow: hidden;
-        }
-        .profile-status::after {
-            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent); transform: skewX(-20deg); animation: gold-shimmer 3s infinite;
-        }
+        .profile-status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: #4a2e00; background: linear-gradient(135deg, #FFDF40 0%, #FFB900 50%, #FF9900 100%); padding: 6px 14px; border-radius: 99px; margin-top: 6px; box-shadow: 0 4px 12px rgba(255, 153, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.8); border: 1px solid rgba(255, 215, 0, 0.6); text-transform: uppercase; letter-spacing: 0.5px; position: relative; overflow: hidden; }
+        .profile-status::after { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent); transform: skewX(-20deg); animation: gold-shimmer 3s infinite; }
         @keyframes gold-shimmer { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
         .profile-status svg { width: 16px; height: 16px; fill: currentColor; z-index: 1; }
         .dark-theme .profile-status { color: #3a2200; border-color: rgba(255, 215, 0, 0.3); box-shadow: 0 4px 12px rgba(255, 153, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.4); }
         
         .profile-settings-list { display: flex; gap: 12px; flex-wrap: wrap;}
-        .setting-btn {
-            display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 12px;
-            background: rgba(0,0,0,0.04); color: var(--text-main); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; border: none; outline: none;
-        }
+        .setting-btn { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 12px; background: rgba(0,0,0,0.04); color: var(--text-main); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; border: none; outline: none; }
         .dark-theme .setting-btn { background: rgba(255,255,255,0.08); }
         .setting-btn:hover { background: rgba(0,0,0,0.08); transform: translateY(-1px); }
         .dark-theme .setting-btn:hover { background: rgba(255,255,255,0.15); }
@@ -335,11 +228,7 @@
         .profile-tab.active { color: #fff; background: var(--text-main); }
         .dark-theme .profile-tab.active { color: var(--bg); background: var(--text-main); }
 
-        .local-upload-area {
-            background: var(--surface); border: 2px dashed var(--glass-border); border-radius: 32px;
-            backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-            padding: 60px 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 24px; transition: all 0.3s ease; min-height: 400px;
-        }
+        .local-upload-area { background: var(--surface); border: 2px dashed var(--glass-border); border-radius: 32px; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); padding: 60px 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 24px; transition: all 0.3s ease; min-height: 400px; }
         .local-upload-area.dragover { border-color: var(--blue); background: rgba(0, 122, 255, 0.05); transform: scale(1.02); }
         .upload-icon { width: 64px; height: 64px; fill: var(--text-sub); margin-bottom: 8px; transition: 0.3s;}
         .local-upload-area.dragover .upload-icon { fill: var(--blue); transform: translateY(-10px); }
@@ -347,11 +236,7 @@
         .upload-desc { font-size: 15px; color: var(--text-sub); max-width: 400px; line-height: 1.5; }
         
         .upload-buttons { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
-        .upload-btn {
-            position: relative; display: flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 16px 24px; border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s;
-            background: rgba(0,0,0,0.05); color: var(--text-main); overflow: hidden; border: 1px solid transparent; min-width: 200px;
-        }
+        .upload-btn { position: relative; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 16px 24px; border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; background: rgba(0,0,0,0.05); color: var(--text-main); overflow: hidden; border: 1px solid transparent; min-width: 200px; }
         .dark-theme .upload-btn { background: rgba(255,255,255,0.08); }
         .upload-btn:hover { background: rgba(0,0,0,0.08); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .upload-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
@@ -364,10 +249,7 @@
         .launch-btn.active:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 12px 24px rgba(0,122,255,0.4); }
         .launch-btn.active:active { transform: translateY(0) scale(0.98); }
 
-        .global-vocab-container {
-            background: var(--surface); border: 1px solid var(--glass-border); border-radius: 24px;
-            backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); box-shadow: var(--shadow); overflow: hidden; flex: 1; display: flex; flex-direction: column;
-        }
+        .global-vocab-container { background: var(--surface); border: 1px solid var(--glass-border); border-radius: 24px; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); box-shadow: var(--shadow); overflow: hidden; flex: 1; display: flex; flex-direction: column; }
         .global-vocab-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .global-vocab-title { font-size: 18px; font-weight: 700; }
         .global-vocab-list { padding: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; overflow-y: auto; }
@@ -385,7 +267,7 @@
         .workspace { display: flex; width: 100%; max-width: 1600px; height: 100dvh; padding: 32px; gap: 32px; opacity: 0; visibility: hidden; position: absolute; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
         .workspace.active { opacity: 1; visibility: visible; transform: translateY(0); position: relative; z-index: 200; }
         .sidebar { width: 45%; min-width: 400px; max-width: 720px; flex-shrink: 0; display: flex; flex-direction: column; gap: 32px; }
-        .video-container { border-radius: 24px; overflow: hidden; background: #000; box-shadow: var(--shadow); transform: translateZ(0); }
+        .video-container { border-radius: 24px; overflow: hidden; background: #000; box-shadow: var(--shadow); transform: translateZ(0); position: relative;}
         video { width: 100%; display: block; outline: none; }
 
         .vocab-container { flex: 1; background: var(--surface); border-radius: 24px; border: 1px solid var(--glass-border); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow); }
@@ -420,15 +302,20 @@
         .transcript-flow { flex: 1; overflow-y: auto; padding: 80px 10% 120px 10%; scroll-behavior: smooth; }
         .transcript-flow::-webkit-scrollbar { display: none; }
         
-        .lyric-line { margin-bottom: 24px; cursor: pointer; opacity: 0.35; transform: scale(0.98); transform-origin: left center; transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1); border-left: 4px solid transparent; padding-left: 16px; }
+        .lyric-line { margin-bottom: 24px; cursor: pointer; opacity: 0.35; transform: scale(0.98); transform-origin: left center; transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1); border-left: 4px solid transparent; padding-left: 16px; content-visibility: auto; contain-intrinsic-size: 80px; }
         .lyric-line.active { opacity: 1; transform: scale(1.04); border-left-color: var(--blue); background: linear-gradient(90deg, rgba(0, 122, 255, 0.06) 0%, transparent 100%); border-radius: 0 12px 12px 0; padding: 12px 16px; margin-left: -8px; }
         .dark-theme .lyric-line.active { background: linear-gradient(90deg, rgba(10, 132, 255, 0.12) 0%, transparent 100%); }
         
         .lyric-en { font-size: 24px; font-weight: 700; line-height: 1.4; letter-spacing: -0.5px; user-select: text; -webkit-user-select: text; transition: 0.3s ease; }
         .lyric-zh { font-size: 15px; font-weight: 500; color: var(--text-sub); margin-top: 8px; line-height: 1.5; transition: opacity 0.3s; }
         
-        .ielts-word { border-bottom: 2px dashed var(--orange); color: var(--orange); cursor: help; padding-bottom: 2px; transition: color 0.2s; }
-        .ielts-word:hover { color: var(--text-main); }
+        /* 交互式单词样式 */
+        .word-clickable { display: inline-block; cursor: pointer; transition: background 0.2s, color 0.2s; border-radius: 4px; padding: 0 2px; margin: 0 -2px; }
+        .word-clickable:hover { background: rgba(0, 122, 255, 0.15); color: var(--blue); }
+        .dark-theme .word-clickable:hover { background: rgba(10, 132, 255, 0.25); }
+        
+        .ielts-word { border-bottom: 2px dashed var(--orange); color: var(--orange); padding-bottom: 0px; }
+        .ielts-word:hover { color: var(--text-main); border-bottom-color: var(--blue); }
         .dark-theme .ielts-word { color: #FFB340; border-bottom-color: #FFB340; }
         .dark-theme .ielts-word:hover { color: #fff; }
         
@@ -496,14 +383,7 @@
             .row-scroll .video-card { flex: 0 0 82vw; max-width: 320px; }
             .video-grid { grid-template-columns: 1fr; gap: 20px; }
 
-            .app-sidebar {
-                width: 100%; border-right: none; position: fixed; bottom: 0; left: 0;
-                flex-direction: row; align-items: center; justify-content: space-around;
-                padding: 8px 12px calc(8px + var(--safe-bottom)) 12px;
-                border-top: 1px solid var(--liquid-border); border-radius: 24px 24px 0 0;
-                background: var(--liquid-bg); box-shadow: var(--liquid-shadow); z-index: 99;
-                transition: transform 0.3s ease;
-            }
+            .app-sidebar { width: 100%; border-right: none; position: fixed; bottom: 0; left: 0; flex-direction: row; align-items: center; justify-content: space-around; padding: 8px 12px calc(8px + var(--safe-bottom)) 12px; border-top: 1px solid var(--liquid-border); border-radius: 24px 24px 0 0; background: var(--liquid-bg); box-shadow: var(--liquid-shadow); z-index: 99; transition: transform 0.3s ease; }
             .app-brand { display: none; }
             .app-nav { flex-direction: row; width: 100%; justify-content: space-around; gap: 4px; flex: 1; }
             .nav-item { flex: 1; flex-direction: column; gap: 4px; font-size: 11px; padding: 8px 0; border-radius: 12px; justify-content: center; position: relative; }
@@ -546,7 +426,6 @@
         
         .tt-review-info { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
         .tt-review-badge { background: rgba(0,122,255,0.1); color: var(--blue); padding: 3px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; }
-        
         .review-next { display: inline-flex; align-items: center; gap: 4px; margin-top: 8px; padding: 4px 10px; background: rgba(52,199,89,0.1); color: var(--green); border-radius: 8px; font-size: 11px; font-weight: 600; }
         .review-overdue { background: rgba(255,59,48,0.1); color: var(--red); }
         
@@ -563,6 +442,14 @@
         .dark-theme .profile-tab .count-badge { background: rgba(255,255,255,0.1); }
         .profile-tab.active .count-badge { background: rgba(255,255,255,0.2); color: #fff; }
         .dark-theme .profile-tab.active .count-badge { background: rgba(0,0,0,0.2); color: var(--bg); }
+        
+        /* 增加双击快进提示动画 */
+        .seek-overlay { position: absolute; top: 0; bottom: 0; width: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: bold; background: rgba(0,0,0,0.3); opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 20; }
+        .seek-overlay.left { left: 0; border-top-right-radius: 50%; border-bottom-right-radius: 50%; background: radial-gradient(circle at left, rgba(255,255,255,0.3) 0%, transparent 70%); }
+        .seek-overlay.right { right: 0; border-top-left-radius: 50%; border-bottom-left-radius: 50%; background: radial-gradient(circle at right, rgba(255,255,255,0.3) 0%, transparent 70%); }
+        .seek-overlay.active { opacity: 1; animation: popIcon 0.4s ease forwards; }
+        @keyframes popIcon { 0% { transform: scale(0.8); } 50% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 0; } }
+
     </style>
 </head>
 <body>
@@ -769,8 +656,15 @@
 
 <div class="workspace" id="workspace">
     <div class="sidebar">
-        <div class="video-container">
-            <video id="player" controls playsinline="true" webkit-playsinline="true" x5-playsinline="true"></video>
+        <div class="video-container" id="videoContainer">
+            <video id="player" playsinline="true" webkit-playsinline="true" x5-playsinline="true"></video>
+            <!-- 双击快进提示动画层 -->
+            <div class="seek-overlay left" id="seekOverlayLeft">⏪ -10s</div>
+            <div class="seek-overlay right" id="seekOverlayRight">+10s ⏩</div>
+            <!-- 自定义精简控件（移动端体验更好）-->
+            <div style="position:absolute; bottom:0; left:0; right:0; height:40px; background:linear-gradient(transparent, rgba(0,0,0,0.7)); display:flex; align-items:center; padding:0 12px; gap:12px; pointer-events:none; opacity:0; transition:opacity 0.3s;" id="videoControls">
+                <div style="width:10px; height:10px; border-radius:50%; background:var(--blue); pointer-events:auto;" id="playPauseIndicator"></div>
+            </div>
         </div>
         <div class="vocab-container" id="vocabContainer">
             <div class="vocab-header">
@@ -783,25 +677,25 @@
 
     <div class="main-content">
         <div class="toolbar-floating" id="toolbar">
-            <button class="icon-btn" id="backToHomeBtn" title="Back">
+            <button class="icon-btn" id="backToHomeBtn" title="返回" data-i18n-title="btn_cancel">
                 <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
             </button>
             <div class="divider"></div>
             
-            <button class="icon-btn" id="abRepeatBtn" title="A-B Repeat" data-i18n-title="tt_ab">
+            <button class="icon-btn" id="abRepeatBtn" title="A-B 复读" data-i18n-title="tt_ab">
                 <svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4zm-4-2V9h-1l-2 1v1h1.5v4H13z"/></svg>
                 <span class="ab-btn-text" id="abText"></span>
             </button>
             
-            <button class="icon-btn active" id="subtitleModeBtn" title="Subtitle Mode" data-i18n-title="tt_mode">
+            <button class="icon-btn active" id="subtitleModeBtn" title="字幕模式" data-i18n-title="tt_mode">
                 <svg id="icon-mode-0" viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
             </button>
             
-            <button class="icon-btn" id="clozeBtn" title="Fill-in-the-blank Mode">
+            <button class="icon-btn" id="clozeBtn" title="填空模式">
                 <svg viewBox="0 0 24 24"><path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11z"/></svg>
             </button>
             
-            <button class="icon-btn" id="mobileVocabToggle" title="Vocabulary">
+            <button class="icon-btn" id="mobileVocabToggle" title="单词本">
                 <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
             </button>
             <button class="icon-btn" id="shadowModeBtn" title="跟读模式">
@@ -889,7 +783,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 
 let videoDatabase = [];
 
-// 雅思核心高频词（用于橘色下划线高亮）
+// 扩展后的核心高频词库（用于橘色下划线高亮），包含了原有并增加了一些
 const IELTS_VOCAB_STATIC = [
     "abandon", "abnormal", "abolish", "abrupt", "absurd", "abundance", "academy", "accelerate", "accommodate", "accompany", 
     "accomplish", "accumulate", "accurate", "accuse", "acknowledge", "acquire", "adapt", "adequate", "adhere", "adjacent", 
@@ -903,8 +797,10 @@ const IELTS_VOCAB_STATIC = [
     "conduct", "consequent", "construct", "consume", "credit", "culture", "design", "distinct", "element", "equate", 
     "evaluate", "feature", "final", "focus", "impact", "injure", "institute", "invest", "item", "journal", "maintain", 
     "normal", "obtain", "participate", "perceive", "positive", "potential", "previous", "primary", "purchase", "range", 
-    "region", "regulate", "relevant", "reside", "resource", "restrict", "secure", "seek", "select", "site", "strategy", "survey", "text", "tradition", "transfer"
+    "region", "regulate", "relevant", "reside", "resource", "restrict", "secure", "seek", "select", "site", "strategy", "survey", "text", "tradition", "transfer",
+    "gravitate", "gravitating", "perspective", "profound", "comprehensive", "sustainable", "initiative", "inevitable", "controversy", "crucial"
 ];
+// 匹配雅思词，使用 \b 边界，忽略大小写
 const ieltsRegex = new RegExp(`\\b(${IELTS_VOCAB_STATIC.join('|')})\\b`, 'gi');
 
 // 离线 O(1) 字典库 (全简体)
@@ -912,38 +808,39 @@ const LOCAL_EN_ZH_DICT = {
     "abandon": "v. 放弃，抛弃；沉溺于", "abnormal": "adj. 反常的，异常的", "abolish": "v. 废除，废止", "abrupt": "adj. 突然的，意外的",
     "absurd": "adj. 荒谬的，可笑的", "abundance": "n. 充裕，丰富", "academy": "n. 学院，学会", "accelerate": "v. 加速，促进",
     "accommodate": "v. 容纳，适应", "accompany": "v. 陪伴，伴随", "accomplish": "v. 完成，实现", "accumulate": "v. 积累，积聚",
-    "accurate": "adj. 准确的，精确的", "accuse": "v. 指责，控告", "acknowledge": "v. 承认，答谢", "acquire": "v. 获得，取得"
+    "accurate": "adj. 准确的，精确的", "accuse": "v. 指责，控告", "acknowledge": "v. 承认，答谢", "acquire": "v. 获得，取得",
+    "gravitating": "v. 受吸引，倾向于 (gravitate 的现在分词)", "gravitate": "v. 受吸引，倾向于",
+    "perspective": "n. 观点，视角", "profound": "adj. 深刻的，深远的", "crucial": "adj. 关键的，至关重要的"
 };
 
-// 国际化语言包 (全简体)
+// 国际化语言包
 const i18n = {
     en: {
-        auth_welcome: "Welcome Back", auth_email: "Email", auth_password: "Password", auth_username: "Username (Required for Sign Up)",
-        auth_avatar: "Upload Avatar", auth_invite: "Invite Code (Required)", auth_remember: "Remember me", auth_login_btn: "Login",
+        auth_welcome: "Welcome Back", auth_email: "Email", auth_password: "Password", auth_username: "Username",
+        auth_avatar: "Upload Avatar", auth_invite: "Invite Code", auth_remember: "Remember me", auth_login_btn: "Login",
         auth_no_account: "Don't have an account?", auth_register_link: "Sign Up Now",
         nav_library: "Library", nav_vocab: "Vocabulary", nav_local: "Local Files", nav_profile: "Profile",
         title_history: "History", title_completed: "Completed", title_favorites: "Favorites", search_placeholder: "Search videos...",
-        filter_difficulty: "Difficulty", filter_level_all: "All Levels", filter_level_5: "⭐⭐⭐⭐⭐ (Hard)", filter_level_4: "⭐⭐⭐⭐ (Advanced)", filter_level_3: "⭐⭐⭐ (Intermediate)", filter_level_2: "⭐⭐ (Basic)", filter_level_1: "⭐ (Beginner)",
-        filter_scenario: "Scenario", filter_topic_all: "All Topics", filter_topic_acad: "Academic", filter_topic_daily: "Daily Life", filter_topic_bus: "Business", filter_topic_ent: "Entertainment",
+        filter_difficulty: "Difficulty", filter_level_all: "All Levels", filter_level_5: "⭐⭐⭐⭐⭐", filter_level_4: "⭐⭐⭐⭐", filter_level_3: "⭐⭐⭐", filter_level_2: "⭐⭐", filter_level_1: "⭐",
+        filter_scenario: "Scenario", filter_topic_all: "All Topics", filter_topic_acad: "Academic", filter_topic_daily: "Daily", filter_topic_bus: "Business", filter_topic_ent: "Entertainment",
         filter_accent: "Accent", filter_acc_all: "All Accents", filter_acc_us: "🇺🇸 US", filter_acc_uk: "🇬🇧 UK", filter_acc_au: "🇦🇺 AU",
         empty_title: "No videos found", empty_desc: "Try adjusting your filters, or check connection.",
         vocab_title: "Vocabulary", vocab_total: "Total", btn_export_csv: "Export CSV", btn_export_anki: "Export Anki",
-        tt_add: "Add to Vocab", tt_analyzing: "Analyzing...", tt_definition: "Definition", tt_example: "Example", tt_synonyms: "Synonyms", tt_zh_def: "Chinese Translation", word_remove_btn: "Remove", word_remove: "Remove",
-        loading: "Loading...", card_accent: "Accent:",
-        cat_continue: "Continue Watching", cat_academic: "Academic", cat_daily: "Daily & Travel", cat_business: "Business",
+        tt_add: "Add to Vocab", tt_analyzing: "Analyzing...", tt_definition: "Definition", tt_example: "Example", tt_synonyms: "Synonyms", tt_zh_def: "Chinese", word_remove_btn: "Remove",
+        loading: "Loading...", cat_continue: "Continue Watching", cat_academic: "Academic", cat_daily: "Daily & Travel",
         menu_theme: "Theme", menu_logout: "Log Out",
         sidebar_video: "Select Video (MP4)", sidebar_sub: "Select Subs (SRT/VTT)", sidebar_launch: "Launch Workspace",
-        local_title: "Build Your Environment", local_desc: "Select an MP4 video and an SRT/VTT subtitle file to automatically generate an interactive learning workspace.",
-        tt_ab: "A-B Repeat", tt_mode: "Subtitle Mode (Bilingual/EN/Shadow)",
+        local_title: "Build Your Environment", local_desc: "Select an MP4 video and an SRT/VTT subtitle file.",
+        tt_ab: "A-B Repeat", tt_mode: "Subtitle Mode",
         stat_today_min: "Today (min)", stat_new_words: "New Words", stat_streak: "Streak (Days)", stat_total_words: "Total Vocab",
-        shadow_indicator: "Shadow Mode — Please Shadow", kbd_shortcuts: "Keyboard Shortcuts", kbd_play_pause: "Play/Pause", kbd_rewind: "Rewind 5s", kbd_forward: "Forward 5s", kbd_speed: "Playback Speed",
+        shadow_indicator: "Shadow Mode — Please Shadow", kbd_shortcuts: "Keyboard Shortcuts", kbd_play_pause: "Play/Pause", kbd_rewind: "Rewind 5s", kbd_forward: "Forward 5s", kbd_speed: "Speed",
         shadow_text: "Shadow", review_due: "⚡ Due", review_next: "📅 ", review_times: "Reviewed",
-        msg_added: "✅ Added to vocabulary", msg_no_export: "No vocabulary to export", msg_anki_success: "Anki file exported (Use Tab separator when importing)",
-        edit_info: "Edit Information", edit_new_avatar: "New Avatar Image", btn_cancel: "Cancel", btn_save: "Save"
+        msg_added: "✅ Added to vocabulary", msg_no_export: "No vocabulary to export", msg_anki_success: "Anki file exported",
+        edit_info: "Edit Info", edit_new_avatar: "New Avatar", btn_cancel: "Cancel", btn_save: "Save"
     },
     zh: {
-        auth_welcome: "欢迎回来", auth_email: "邮箱", auth_password: "密码", auth_username: "用户名 (注册必填)",
-        auth_avatar: "上传头像", auth_invite: "邀请码 (注册必填)", auth_remember: "记住密码", auth_login_btn: "登录",
+        auth_welcome: "欢迎回来", auth_email: "邮箱", auth_password: "密码", auth_username: "用户名",
+        auth_avatar: "上传头像", auth_invite: "邀请码", auth_remember: "记住密码", auth_login_btn: "登录",
         auth_no_account: "还没有账号？", auth_register_link: "立即注册",
         nav_library: "视频库", nav_vocab: "单词本", nav_local: "本地文件", nav_profile: "个人中心",
         title_history: "观看历史", title_completed: "已学完", title_favorites: "我的收藏", search_placeholder: "搜索影片...",
@@ -952,15 +849,14 @@ const i18n = {
         filter_accent: "口音", filter_acc_all: "所有口音", filter_acc_us: "🇺🇸 美式", filter_acc_uk: "🇬🇧 英式", filter_acc_au: "🇦🇺 澳式",
         empty_title: "未找到影片", empty_desc: "请尝试调整筛选条件，或等待数据加载。",
         vocab_title: "单词本", vocab_total: "总计", btn_export_csv: "导出 CSV", btn_export_anki: "导出 Anki",
-        tt_add: "加入单词本", tt_analyzing: "分析中...", tt_definition: "释义", tt_example: "例句", tt_synonyms: "同义词", tt_zh_def: "中文释义", word_remove_btn: "移除", word_remove: "移除",
-        loading: "加载中...", card_accent: "口音:",
-        cat_continue: "继续学习", cat_academic: "学术深研", cat_daily: "日常与旅行", cat_business: "商务英语",
+        tt_add: "加入单词本", tt_analyzing: "分析中...", tt_definition: "释义", tt_example: "例句", tt_synonyms: "同义词", tt_zh_def: "中文释义", word_remove_btn: "移除",
+        loading: "加载中...", cat_continue: "继续学习", cat_academic: "学术深研", cat_daily: "日常与旅行",
         menu_theme: "外观主题", menu_logout: "退出登录",
         sidebar_video: "选择视频 (MP4)", sidebar_sub: "选择字幕 (SRT/VTT)", sidebar_launch: "进入学习舱",
         local_title: "构建沉浸环境", local_desc: "请选择一部 MP4 视频与对应的 SRT/VTT 字幕文件，我们将为您自动生成交互式学习舱。",
         tt_ab: "A-B 复读", tt_mode: "字幕模式 (双语/纯英文/跟读)",
         stat_today_min: "今日学习(分钟)", stat_new_words: "新学单词", stat_streak: "连续学习(天)", stat_total_words: "单词本总计",
-        shadow_indicator: "跟读模式 — 请跟读", kbd_shortcuts: "快捷键", kbd_play_pause: "播放/暂停", kbd_rewind: "后退 5s", kbd_forward: "前进 5s", kbd_speed: "调速",
+        shadow_indicator: "跟读模式 — 播放完毕，请跟读", kbd_shortcuts: "快捷键", kbd_play_pause: "播放/暂停", kbd_rewind: "后退 5s", kbd_forward: "前进 5s", kbd_speed: "调速",
         shadow_text: "跟读", review_due: "⚡ 待复习", review_next: "📅 ", review_times: "已复习",
         msg_added: "✅ 已加入单词本", msg_no_export: "没有单词可导出", msg_anki_success: "Anki 文件已导出（导入时选 Tab 分隔）",
         edit_info: "修改信息", edit_new_avatar: "新头像图片", btn_cancel: "取消", btn_save: "保存"
@@ -988,8 +884,19 @@ const dom = {
     profileAvatarText: document.getElementById('profileAvatarText'), profileAvatarImg: document.getElementById('profileAvatarImg'), btnSettingLang: document.getElementById('btnSettingLang'), txtSettingLang: document.getElementById('txtSettingLang'),
     btnSettingTheme: document.getElementById('btnSettingTheme'), btnSettingLogout: document.getElementById('btnSettingLogout'), btnLocalVideoView: document.getElementById('btnLocalVideoView'), btnLocalSubView: document.getElementById('btnLocalSubView'),
     txtLocalVideoView: document.getElementById('txtLocalVideoView'), txtLocalSubView: document.getElementById('txtLocalSubView'), btnLaunchLocalView: document.getElementById('btnLaunchLocalView'), localVideoInputView: document.getElementById('localVideoInputView'),
-    localSubInputView: document.getElementById('localSubInputView'), localUploadDropzone: document.getElementById('localUploadDropzone')
+    localSubInputView: document.getElementById('localSubInputView'), localUploadDropzone: document.getElementById('localUploadDropzone'),
+    videoContainer: document.getElementById('videoContainer'), seekOverlayLeft: document.getElementById('seekOverlayLeft'), seekOverlayRight: document.getElementById('seekOverlayRight')
 };
+
+// --- 初始化与外观主题记忆 ---
+(function(){ 
+    const saved = localStorage.getItem('theme'); 
+    if(saved === 'dark') { document.body.classList.add('dark-theme'); document.documentElement.classList.add('dark-theme'); } 
+    dom.btnSettingTheme.onclick = () => { 
+        document.body.classList.toggle('dark-theme'); document.documentElement.classList.toggle('dark-theme'); 
+        localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light'); 
+    };
+})();
 
 // ----------------------------------------------------------------
 // 基础工具
@@ -1024,25 +931,25 @@ function resizeImageToBase64(file, maxWidth, maxHeight) {
 }
 
 // ----------------------------------------------------------------
-// IndexedDB 数据存储系统
+// IndexedDB 数据存储系统 (高效单据存储)
 // ----------------------------------------------------------------
-const DB_NAME = 'StudioProDB_v3'; const DB_VERSION = 2; let db = null;
+const DB_NAME = 'StudioProDB_v4'; const DB_VERSION = 1; let db = null;
 
 function openDB() {
-    return new Promise((resolve, reject) => {
-        if (db) { resolve(db); return; } const req = indexedDB.open(DB_NAME, DB_VERSION);
+    return new Promise((resolve) => {
+        if (db) { resolve(db); return; } 
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
         req.onupgradeneeded = (e) => {
             const d = e.target.result;
             if (!d.objectStoreNames.contains('vocab')) { const store = d.createObjectStore('vocab', { keyPath: 'word' }); store.createIndex('addedAt', 'addedAt', { unique: false }); }
-            if (!d.objectStoreNames.contains('stats')) { d.createObjectStore('stats', { keyPath: 'key' }); }
         };
         req.onsuccess = (e) => { db = e.target.result; resolve(db); }; 
-        req.onerror = () => { console.warn('IndexedDB failed, falling back to localStorage'); resolve(null); };
+        req.onerror = () => { console.warn('IndexedDB failed'); resolve(null); };
     });
 }
 
-const getVocabLS = () => JSON.parse(localStorage.getItem('vocabPro2')) || [];
-const saveVocabLS = words => { try { localStorage.setItem('vocabPro2', JSON.stringify(words)); } catch(e){} };
+const getVocabLS = () => JSON.parse(localStorage.getItem('vocabPro3')) || [];
+const saveVocabLS = words => { try { localStorage.setItem('vocabPro3', JSON.stringify(words)); } catch(e){} };
 
 async function idbGetAllVocab() { 
     try { 
@@ -1054,9 +961,9 @@ async function idbGetAllVocab() {
 async function idbSaveWord(word) { 
     try { 
         const d = await openDB(); 
-        if (!d) { let ws = getVocabLS(); if(!ws.some(x=>x.word===word.word)) { ws.unshift(word); saveVocabLS(ws); } return; } 
-        return new Promise((resolve) => { const tx = d.transaction('vocab', 'readwrite'); tx.objectStore('vocab').put(word); tx.oncomplete = resolve; tx.onerror = () => { let ws = getVocabLS(); if(!ws.some(x=>x.word===word.word)) { ws.unshift(word); saveVocabLS(ws); } resolve(); }; }); 
-    } catch { let ws = getVocabLS(); if(!ws.some(x=>x.word===word.word)) { ws.unshift(word); saveVocabLS(ws); } } 
+        if (!d) { let ws = getVocabLS(); ws = ws.filter(x=>x.word!==word.word); ws.unshift(word); saveVocabLS(ws); return; } 
+        return new Promise((resolve) => { const tx = d.transaction('vocab', 'readwrite'); tx.objectStore('vocab').put(word); tx.oncomplete = resolve; }); 
+    } catch { let ws = getVocabLS(); ws = ws.filter(x=>x.word!==word.word); ws.unshift(word); saveVocabLS(ws); } 
 }
 
 async function idbDeleteWord(wordKey) { 
@@ -1067,30 +974,17 @@ async function idbDeleteWord(wordKey) {
     } catch { let ws = getVocabLS().filter(w => w.word !== wordKey); saveVocabLS(ws); } 
 }
 
-async function migrateOldVocab() { 
-    const oldWords = getVocabLS(); if (!oldWords.length) return; 
-    const d = await openDB(); if (!d) return; 
-    const tx = d.transaction('vocab', 'readwrite'); const store = tx.objectStore('vocab'); 
-    oldWords.forEach(w => { 
-        if (!w.addedAt) w.addedAt = Date.now(); 
-        if (!w.reviewCount) w.reviewCount = 0; 
-        if (!w.nextReview) w.nextReview = getNextReviewDate(0); 
-        store.put(w); 
-    }); 
-    tx.oncomplete = () => console.log('Migration complete'); 
-}
-
 function getNextReviewDate(reviewCount) { const intervals = [1, 3, 7, 14, 30, 60, 120]; const days = intervals[Math.min(reviewCount, intervals.length - 1)]; const d = new Date(); d.setDate(d.getDate() + days); return d.toISOString().split('T')[0]; }
 
 // ----------------------------------------------------------------
 // 学习统计系统
 // ----------------------------------------------------------------
-const STATS_KEY = 'studyStats_v3';
+const STATS_KEY = 'studyStats_v4';
 function getStudyStats() { try { return JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch { return {}; } }
 function saveStudyStats(stats) { try { localStorage.setItem(STATS_KEY, JSON.stringify(stats)); } catch {} }
 
-function recordStudyTime(seconds) { const today = new Date().toISOString().split('T')[0]; const stats = getStudyStats(); if (!stats[today]) stats[today] = { minutes: 0, wordsAdded: 0 }; stats[today].minutes = Math.round((stats[today].minutes || 0) + seconds / 60 * 10) / 10; saveStudyStats(stats); }
-function recordWordAdded() { const today = new Date().toISOString().split('T')[0]; const stats = getStudyStats(); if (!stats[today]) stats[today] = { minutes: 0, wordsAdded: 0 }; stats[today].wordsAdded = (stats[today].wordsAdded || 0) + 1; saveStudyStats(stats); }
+function recordStudyTime(seconds) { const today = new Date().toISOString().split('T')[0]; const stats = getStudyStats(); if (!stats[today]) stats[today] = { minutes: 0, wordsAdded: 0 }; stats[today].minutes = Math.round((stats[today].minutes || 0) + seconds / 60 * 10) / 10; saveStudyStats(stats); updateStatsDisplay(); }
+function recordWordAdded() { const today = new Date().toISOString().split('T')[0]; const stats = getStudyStats(); if (!stats[today]) stats[today] = { minutes: 0, wordsAdded: 0 }; stats[today].wordsAdded = (stats[today].wordsAdded || 0) + 1; saveStudyStats(stats); updateStatsDisplay(); }
 function getStreak() { const stats = getStudyStats(); const today = new Date(); let streak = 0; for (let i = 0; i < 365; i++) { const d = new Date(today); d.setDate(d.getDate() - i); const key = d.toISOString().split('T')[0]; if (stats[key] && stats[key].minutes > 0) streak++; else if (i > 0) break; } return streak; }
 
 async function updateStatsDisplay() {
@@ -1100,47 +994,26 @@ async function updateStatsDisplay() {
     updateBadges(allWords.length);
 }
 
-// 统筹角标 (Badge) 更新
 function updateBadges(vocabCount = -1) {
-    const libBadge = document.getElementById('badge-library');
-    if (libBadge) libBadge.innerText = videoDatabase.length;
+    const libBadge = document.getElementById('badge-library'); if (libBadge) libBadge.innerText = videoDatabase.length;
+    if (vocabCount >= 0) { const vocabBadge = document.getElementById('badge-vocab'); if (vocabBadge) vocabBadge.innerText = vocabCount; } 
+    else { idbGetAllVocab().then(words => { const vocabBadge = document.getElementById('badge-vocab'); if (vocabBadge) vocabBadge.innerText = words.length; }); }
 
-    if (vocabCount >= 0) {
-        const vocabBadge = document.getElementById('badge-vocab');
-        if (vocabBadge) vocabBadge.innerText = vocabCount;
-    } else {
-        idbGetAllVocab().then(words => {
-            const vocabBadge = document.getElementById('badge-vocab');
-            if (vocabBadge) vocabBadge.innerText = words.length;
-        });
-    }
-
-    const histBadge = document.getElementById('badge-history');
-    const favBadge = document.getElementById('badge-favorites');
-    const compBadge = document.getElementById('badge-completed');
-
+    const histBadge = document.getElementById('badge-history'); const favBadge = document.getElementById('badge-favorites'); const compBadge = document.getElementById('badge-completed');
     if (histBadge) histBadge.innerText = videoDatabase.filter(v => v.status === 'history' || (v.progress > 0 && v.progress < 99)).length;
     if (favBadge) favBadge.innerText = videoDatabase.filter(v => v.favorite === true).length;
     if (compBadge) compBadge.innerText = videoDatabase.filter(v => v.status === 'completed' || v.progress >= 99).length;
 }
 
-let studyTimerInterval = null; 
-function startStudyTimer() { 
-    if (studyTimerInterval) return; 
-    studyTimerInterval = setInterval(() => { 
-        if (document.getElementById('workspace').classList.contains('active') && !dom.player.paused) { recordStudyTime(5); } 
-    }, 5000); 
-}
-startStudyTimer();
+// 自动计录学习时间
+setInterval(() => { if (dom.workspace.classList.contains('active') && !dom.player.paused) { recordStudyTime(5); } }, 5000);
 
 // ----------------------------------------------------------------
 // 身份验证与登录逻辑
 // ----------------------------------------------------------------
 const authState = { isLoginMode: true };
-const authScreen = document.getElementById('authScreen'); const authForm = document.getElementById('authForm'); const authEmail = document.getElementById('authEmail');
-
 const savedEmail = localStorage.getItem('studio_saved_email'); const savedPassword = localStorage.getItem('studio_saved_password');
-if (savedEmail) { authEmail.value = savedEmail; if (savedPassword) { document.getElementById('authPassword').value = savedPassword; } document.getElementById('authRemember').checked = true; }
+if (savedEmail) { dom.authEmail.value = savedEmail; if (savedPassword) { document.getElementById('authPassword').value = savedPassword; } document.getElementById('authRemember').checked = true; }
 
 document.getElementById('authToggleLink').onclick = (e) => {
     e.preventDefault(); authState.isLoginMode = !authState.isLoginMode;
@@ -1155,10 +1028,9 @@ document.getElementById('authToggleLink').onclick = (e) => {
     document.getElementById('authInviteCode').required = !authState.isLoginMode; document.getElementById('authRememberGroup').style.display = authState.isLoginMode ? 'flex' : 'none';
 };
 
-authForm.onsubmit = async (e) => {
+document.getElementById('authForm').onsubmit = async (e) => {
     e.preventDefault(); const err = document.getElementById('authErrorMsg'); err.style.display = 'none';
-    const email = authEmail.value.trim(); const password = document.getElementById('authPassword').value; const btn = document.getElementById('authSubmitBtn');
-    
+    const email = document.getElementById('authEmail').value.trim(); const password = document.getElementById('authPassword').value; const btn = document.getElementById('authSubmitBtn');
     try {
         btn.disabled = true; btn.innerText = i18n[state.lang].loading;
         if (authState.isLoginMode) {
@@ -1177,17 +1049,17 @@ authForm.onsubmit = async (e) => {
 
 function handleSession(session) {
     if (session) {
-        state.user = session.user; authScreen.classList.add('hidden');
+        state.user = session.user; document.getElementById('authScreen').classList.add('hidden');
         const meta = session.user.user_metadata || {}; const username = meta.username || session.user.email.split('@')[0]; const avatar = meta.avatar;
         dom.profileUsernameDisplay.innerHTML = `${username} <span class="edit-btn" onclick="openEditProfile('username')">✏️</span>`; dom.profileEmailDisplay.innerText = session.user.email;
         if (avatar) { dom.profileAvatarImg.src = avatar; dom.profileAvatarImg.style.display = 'block'; dom.profileAvatarText.style.display = 'none'; } else { dom.profileAvatarImg.style.display = 'none'; dom.profileAvatarText.style.display = 'flex'; dom.profileAvatarText.innerText = username.charAt(0).toUpperCase(); }
         if (videoDatabase.length === 0) loadVideosFromSupabase();
-    } else { state.user = null; authScreen.classList.remove('hidden'); }
+    } else { state.user = null; document.getElementById('authScreen').classList.remove('hidden'); }
 }
 supabaseClient.auth.onAuthStateChange((_e, session) => handleSession(session));
 
 // ----------------------------------------------------------------
-// 数据加载与 UI 渲染
+// 视图渲染与视频库加载
 // ----------------------------------------------------------------
 async function loadVideosFromSupabase() {
     if (!state.user) return;
@@ -1195,8 +1067,7 @@ async function loadVideosFromSupabase() {
         const { data, error } = await supabaseClient.from('videos').select('*').order('created_at', { ascending: false }); if(error) throw error;
         videoDatabase = data.map(v => ({ id: v.id, title: v.title, episode: v.episode || '', rating: v.rating || 5, tags: v.tags || [], accent: v.accent || 'US', creator: v.creator || '', coverUrl: v.cover_url, videoUrl: v.video_url, progress: 0, favorite: false, status: 'new', duration: v.duration || '--:--', date: 'Cloud' }));
         videoDatabase.forEach(v => { const savedPct = localStorage.getItem(`prog_pct_${v.id}`); if(savedPct) { v.progress = parseFloat(savedPct); v.status = v.progress >= 99 ? 'completed' : 'history'; } });
-        updateBadges();
-        renderCurrentView();
+        updateBadges(); renderCurrentView();
     } catch(e) { dom.libraryContentArea.innerHTML = `<div class="empty-state"><h3 style="color:var(--red)">Connection Error</h3><p>${e.message}</p></div>`; }
 }
 
@@ -1222,10 +1093,13 @@ const renderVideoCard = (v, dict) => `
     <div class="video-card" id="card-${v.id}" onclick="loadVideo('${v.id}')">
         <div class="card-overlay"><div class="spinner"></div><span style="font-size:13px; font-weight:600;">${dict.loading}</span></div>
         <div class="favorite-btn ${v.favorite ? 'active' : ''}" onclick="toggleFavorite(event, '${v.id}')"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
-        <div class="card-top" style="background-image: url('${v.coverUrl}')"><div class="card-duration">${v.duration}</div></div>
+        <div class="card-top">
+            <img src="${v.coverUrl}" loading="lazy" alt="cover"/>
+            <div class="card-duration">${v.duration}</div>
+        </div>
         <div class="card-middle"><div class="card-ep-group"><div class="card-ep">${v.episode}</div><div class="card-title">${v.title}</div></div><div class="card-rating" style="display:flex; gap:2px;">${getStarsHtml(v.rating)}</div></div>
         <div class="card-bottom"><div class="card-tags">${(v.tags || []).map(t => `<span class="card-tag">${t}</span>`).join('')}</div></div>
-        ${v.progress > 0 ? `<div class="card-progress" style="width: ${v.progress}%"></div>` : ''}
+        ${v.progress > 0 ? `<div class="card-progress-wrapper"><div class="card-progress" style="width: ${v.progress}%"></div><div class="card-progress-text">${v.progress}%</div></div>` : ''}
     </div>
 `;
 
@@ -1252,7 +1126,7 @@ function renderGrid(container, context) {
 }
 
 // ----------------------------------------------------------------
-// 播放器、字幕与跟读
+// 播放器、字幕与核心闭环系统 (全量重构)
 // ----------------------------------------------------------------
 async function loadVideo(id) {
     const videoData = videoDatabase.find(v => v.id === id); if (!videoData) return; state.currentVideoId = id; if (!videoData.videoUrl) { showToast("Video URL is empty."); return; }
@@ -1266,41 +1140,81 @@ async function loadVideo(id) {
         
         let finalSubtitles = []; const { data: joinData, error: joinError } = await supabaseClient.from('subtitles').select('*, highlights:subtitle_highlights(*)').eq('video_id', id).order('start', { ascending: true });
         if(joinError) { const { data } = await supabaseClient.from('subtitles').select('*').eq('video_id', id).order('start', { ascending: true }); finalSubtitles = data || []; } else { finalSubtitles = joinData || []; }
-        state.subtitles = finalSubtitles; renderTranscript(); dom.homeScreen.classList.add('hidden'); dom.workspace.classList.add('active');
+        state.subtitles = finalSubtitles; renderTranscript(); dom.homeScreen.classList.add('hidden'); dom.workspace.classList.add('active'); dom.player.play();
     } catch (err) { showToast(`加载失败: ${err.message}`); } finally { if(card) card.classList.remove('loading'); }
 }
 dom.backToHomeBtn.onclick = () => { dom.workspace.classList.remove('active'); dom.homeScreen.classList.remove('hidden'); dom.player.pause(); renderCurrentView(); };
 
+// 全新字幕处理：所有普通单词也会被包裹，支持点击
 function applyLocalHighlights(text, localHls) {
     let res = text; let placeholders = []; let phIndex = 0;
     const addPlaceholder = (html) => { const key = `__PH_${phIndex++}__`; placeholders.push({ key, html }); return key; };
+    
+    // 1. 处理数据库配置好的 Phrase / Hightlights
     if (localHls && localHls.length) {
         [...localHls].sort((a, b) => b.text.length - a.text.length).forEach(hl => {
             const regex = new RegExp(`\\b${hl.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
             res = res.replace(regex, match => {
-                let html; if (state.isClozeMode) { html = `<input type="text" class="cloze-input" data-answer="${match.toLowerCase()}" style="width: ${Math.max(match.length * 14 + 16, 40)}px;" autocomplete="off" />`; } else { html = `<span class="${hl.type === 'phrase' ? 'hl-phrase' : 'hl-word'}">${match}</span>`; } return addPlaceholder(html);
+                let html; if (state.isClozeMode) { html = `<input type="text" class="cloze-input" data-answer="${match.toLowerCase()}" style="width: ${Math.max(match.length * 14 + 16, 40)}px;" autocomplete="off" />`; } else { html = `<span class="${hl.type === 'phrase' ? 'hl-phrase' : 'hl-word'} word-clickable" data-word="${match}">${match}</span>`; } return addPlaceholder(html);
             });
         });
     }
-    const parts = res.split(/(__PH_\d+__)/);
-    res = parts.map(part => { if (part.startsWith('__PH_')) return part; return part.replace(ieltsRegex, match => addPlaceholder(`<span class="ielts-word" title="IELTS Vocabulary">${match}</span>`)); }).join('');
-    placeholders.forEach(ph => { res = res.replace(ph.key, ph.html); }); return res;
+    
+    // 2. 处理自动识别的雅思高频词
+    let parts = res.split(/(__PH_\d+__)/);
+    res = parts.map(part => { 
+        if (part.startsWith('__PH_')) return part; 
+        return part.replace(ieltsRegex, match => addPlaceholder(`<span class="ielts-word word-clickable" data-word="${match}" title="核心词汇">${match}</span>`)); 
+    }).join('');
+
+    // 3. 将其余所有大于等于 2 个字母的常规单词变成可点击实体 (生词闭环核心)
+    parts = res.split(/(__PH_\d+__)/);
+    res = parts.map(part => {
+        if (part.startsWith('__PH_')) return part;
+        return part.replace(/([a-zA-Z\'-]{2,})/g, match => addPlaceholder(`<span class="word-clickable" data-word="${match}">${match}</span>`));
+    }).join('');
+
+    // 恢复占位符
+    placeholders.forEach(ph => { res = res.replace(ph.key, ph.html); }); 
+    return res;
 }
 
 let lyricNodes = [];
 function renderTranscript() {
     dom.transcript.className = 'transcript-flow mode-' + state.subtitleMode;
+    // content-visibility 已经由 CSS 提供性能保障，无需复杂虚拟列表
     dom.transcript.innerHTML = state.subtitles.map((item, i) => `<div class="lyric-line" data-index="${i}"><div class="lyric-en">${applyLocalHighlights(item.en, item.highlights)}</div>${item.zh ? `<div class="lyric-zh">${item.zh}</div>` : ''}</div>`).join('');
     lyricNodes = Array.from(document.querySelectorAll('.lyric-line'));
-    lyricNodes.forEach((node, i) => { node.onclick = (e) => { if (e.target.tagName === 'INPUT') return; dom.player.currentTime = state.subtitles[i].start; dom.player.play(); }; });
 }
+
+// 统一代理 Transcript 点击事件：分发给单词查词 or 句子跳转
+dom.transcript.onclick = (e) => {
+    if (e.target.tagName === 'INPUT') return;
+    const wordEl = e.target.closest('.word-clickable');
+    if (wordEl) {
+        // 如果点击的是单词，显示字典，并且不触发句子跳转
+        e.stopPropagation();
+        showWordTooltip(wordEl.dataset.word, wordEl);
+        return;
+    }
+    // 否则点击句子空白处，执行跳转播放
+    const line = e.target.closest('.lyric-line');
+    if (line) {
+        const i = parseInt(line.dataset.index);
+        dom.player.currentTime = state.subtitles[i].start;
+        dom.player.play();
+    }
+};
 
 let isThrottled = false;
 dom.player.addEventListener('timeupdate', () => {
     if (isThrottled) return; isThrottled = true;
     requestAnimationFrame(() => {
         const now = dom.player.currentTime; 
+        // A-B Repeat Logic
         if (state.abState === 2 && now >= state.abPointB) { dom.player.currentTime = state.abPointA; dom.player.play(); }
+        
+        // Active Subtitle Sync
         if(state.subtitles.length && lyricNodes.length) {
             let activeIdx = -1; let l = 0, r = state.subtitles.length - 1;
             while(l <= r) { const m = Math.floor((l+r)/2); if(now >= state.subtitles[m].start && now <= state.subtitles[m].end) { activeIdx = m; break; } if(now < state.subtitles[m].start) r = m - 1; else l = m + 1; }
@@ -1314,6 +1228,7 @@ dom.player.addEventListener('timeupdate', () => {
     });
 });
 
+// 自动保存进度
 setInterval(async () => {
     if(!state.currentVideoId || !dom.player.duration) return; const pct = Math.floor((dom.player.currentTime / dom.player.duration) * 100);
     localStorage.setItem(`prog_time_${state.currentVideoId}`, dom.player.currentTime); localStorage.setItem(`prog_pct_${state.currentVideoId}`, pct);
@@ -1338,9 +1253,24 @@ dom.subtitleModeBtn.onclick = () => { state.subtitleMode = (state.subtitleMode +
 dom.clozeBtn.onclick = () => { state.isClozeMode = !state.isClozeMode; dom.clozeBtn.classList.toggle('active', state.isClozeMode); renderTranscript(); };
 dom.mobileVocabToggle.onclick = () => dom.vocabContainer.classList.add('open'); dom.closeVocabBtn.onclick = () => dom.vocabContainer.classList.remove('open');
 
-const shadowState = { active: false, timer: null, pauseAfter: true, lastPausedIdx: -1 }; const shadowBtn = document.getElementById('shadowModeBtn'); const shadowIndicator = document.getElementById('shadowIndicator');
-function toggleShadowMode() { shadowState.active = !shadowState.active; shadowBtn.classList.toggle('active', shadowState.active); const dict = i18n[state.lang]; document.getElementById('shadowText').innerText = shadowState.active ? dict.shadow_text : ''; if (shadowState.active) { shadowIndicator.classList.add('show'); showToast('跟读模式：播完一句自动暂停 3 秒'); dom.player.addEventListener('timeupdate', handleShadowMode); } else { shadowIndicator.classList.remove('show'); showToast('已退出跟读模式'); dom.player.removeEventListener('timeupdate', handleShadowMode); clearTimeout(shadowState.timer); shadowState.lastPausedIdx = -1; } }
-function handleShadowMode() { if (!shadowState.active) return; const now = dom.player.currentTime; const idx = state.currentActiveIndex; if (idx < 0) return; const sub = state.subtitles[idx]; if (!sub) return; const endTime = sub.end - 0.1; if (now >= endTime && shadowState.lastPausedIdx !== idx) { shadowState.lastPausedIdx = idx; dom.player.pause(); shadowIndicator.classList.add('show'); clearTimeout(shadowState.timer); shadowState.timer = setTimeout(() => { if (shadowState.active) { dom.player.play(); setTimeout(() => { if (shadowState.active) shadowIndicator.classList.add('show'); else shadowIndicator.classList.remove('show'); }, 100); } }, 3000); } }
+// 智能跟读系统
+const shadowState = { active: false, timer: null, lastPausedIdx: -1 }; 
+const shadowBtn = document.getElementById('shadowModeBtn'); const shadowIndicator = document.getElementById('shadowIndicator');
+function toggleShadowMode() { 
+    shadowState.active = !shadowState.active; shadowBtn.classList.toggle('active', shadowState.active); const dict = i18n[state.lang]; document.getElementById('shadowText').innerText = shadowState.active ? dict.shadow_text : ''; 
+    if (shadowState.active) { 
+        showToast('跟读模式已开：播完一句自动暂停 3 秒'); dom.player.addEventListener('timeupdate', handleShadowMode); 
+    } else { 
+        shadowIndicator.classList.remove('show'); showToast('已退出跟读模式'); dom.player.removeEventListener('timeupdate', handleShadowMode); clearTimeout(shadowState.timer); shadowState.lastPausedIdx = -1; 
+    } 
+}
+function handleShadowMode() { 
+    if (!shadowState.active) return; const now = dom.player.currentTime; const idx = state.currentActiveIndex; if (idx < 0) return; const sub = state.subtitles[idx]; if (!sub) return; const endTime = sub.end - 0.1; 
+    if (now >= endTime && shadowState.lastPausedIdx !== idx) { 
+        shadowState.lastPausedIdx = idx; dom.player.pause(); shadowIndicator.classList.add('show'); clearTimeout(shadowState.timer); 
+        shadowState.timer = setTimeout(() => { if (shadowState.active) { shadowIndicator.classList.remove('show'); dom.player.play(); } }, 3000); 
+    } 
+}
 if (shadowBtn) shadowBtn.onclick = toggleShadowMode;
 
 // ----------------------------------------------------------------
@@ -1361,76 +1291,7 @@ async function fetchZhTranslation(word) {
     return null;
 }
 
-let selTimeout;
-document.addEventListener('selectionchange', () => { clearTimeout(selTimeout); selTimeout = setTimeout(handleSelection, 300); });
-
-async function handleSelection() {
-    const text = window.getSelection().toString().trim();
-    if (text && /^[a-zA-Z\s'-]{2,60}$/.test(text) && dom.workspace.classList.contains('active')) {
-        if(dom.tooltip.classList.contains('show')) return;
-        if(window.innerWidth > 1024) {
-            const rect = window.getSelection().getRangeAt(0).getBoundingClientRect();
-            let topPos = rect.top - 200; let leftPos = rect.left + (rect.width/2) - 160;
-            if (topPos < 20) topPos = rect.bottom + 10;
-            if (leftPos < 10) leftPos = 10; if (leftPos + 320 > window.innerWidth) leftPos = window.innerWidth - 330;
-            dom.tooltip.style.left = `${leftPos}px`; dom.tooltip.style.top = `${topPos}px`;
-        }
-        
-        dom.tooltip.classList.add('show'); 
-        const lowerWord = text.toLowerCase(); const dict = i18n[state.lang];
-        document.getElementById('tooltipWord').innerText = lowerWord;
-        document.getElementById('tooltipPhonetic').innerText = dict.tt_analyzing; 
-        document.getElementById('tooltipDef').innerHTML = "";
-        document.getElementById('tooltipExSection').style.display = 'none'; 
-        document.getElementById('tooltipSynSection').style.display = 'none'; 
-        document.getElementById('tooltipZhSection').style.display = 'none';
-        dom.saveWordBtn.disabled = true;
-
-        const localZh = LOCAL_EN_ZH_DICT[lowerWord];
-        if (localZh && !lowerWord.includes(' ')) {
-            document.getElementById('tooltipZhDef').innerText = localZh;
-            document.getElementById('tooltipZhSection').style.display = 'block';
-            state.currentWord = { word: lowerWord, phonetic: '', definition: 'Loading...', zhDefinition: localZh, example: '', synonyms: [], addedAt: Date.now(), reviewCount: 0, nextReview: getNextReviewDate(0) };
-            dom.saveWordBtn.disabled = false;
-        }
-
-        try {
-            if (text.includes(' ')) {
-                document.getElementById('tooltipPhonetic').innerText = "[Phrase]"; document.getElementById('tooltipDef').innerHTML = "<em>Phrase definition selected.</em>";
-                state.currentWord = { word: lowerWord, phonetic: '', definition: "Phrase / Idea Unit", example: "", synonyms: [], addedAt: Date.now(), reviewCount: 0, nextReview: getNextReviewDate(0) };
-                fetchZhTranslation(lowerWord).then(zh => {
-                    if(zh) { state.currentWord.zhDefinition = zh; document.getElementById('tooltipZhDef').innerText = zh; document.getElementById('tooltipZhSection').style.display = 'block'; }
-                });
-                dom.saveWordBtn.disabled = false;
-            } else {
-                const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${text}`);
-                if (!res.ok) throw new Error(); const data = await res.json();
-                const defs = []; let synonyms = []; let example = "";
-                data[0].meanings.forEach(m => { if(m.synonyms) synonyms.push(...m.synonyms); m.definitions.forEach(d => { if(d.example && !example) example = d.example; defs.push(`<strong>${m.partOfSpeech}</strong>: ${d.definition}`); }); });
-                const finalDef = defs.slice(0,2).join('<br><br>');
-                
-                state.currentWord = { word: lowerWord, phonetic: data[0].phonetic || '', definition: finalDef, zhDefinition: localZh || '', example: example, synonyms: [...new Set(synonyms)].slice(0, 5), addedAt: Date.now(), reviewCount: 0, nextReview: getNextReviewDate(0) };
-                document.getElementById('tooltipPhonetic').innerText = state.currentWord.phonetic; document.getElementById('tooltipDef').innerHTML = finalDef;
-                
-                if (!localZh) {
-                    fetchZhTranslation(lowerWord).then(zh => {
-                        if (zh && state.currentWord && state.currentWord.word === lowerWord) { state.currentWord.zhDefinition = zh; document.getElementById('tooltipZhDef').innerText = zh; document.getElementById('tooltipZhSection').style.display = 'block'; }
-                    });
-                }
-                
-                if (example) { document.getElementById('tooltipExSection').style.display = 'block'; document.getElementById('tooltipExample').innerText = `"${example}"`; }
-                if (state.currentWord.synonyms.length) { document.getElementById('tooltipSynSection').style.display = 'block'; document.getElementById('tooltipSynonyms').innerHTML = state.currentWord.synonyms.map(s => `<span class="tt-synonym-tag">${s}</span>`).join(''); }
-                dom.saveWordBtn.disabled = false;
-            }
-        } catch { 
-            if (!localZh) { document.getElementById('tooltipPhonetic').innerHTML = `<span style="color:#ff3b30">Not found in lexicon</span>`; state.currentWord = null; } 
-            else { document.getElementById('tooltipPhonetic').innerHTML = `<span style="color:var(--text-sub)">Local Cache Used</span>`; }
-        }
-    }
-}
-
-document.addEventListener('click', (e) => { const ieltsEl = e.target.closest('.ielts-word'); if (ieltsEl) { e.stopPropagation(); const word = ieltsEl.textContent.trim().toLowerCase(); showWordTooltip(word, ieltsEl); return; } });
-
+// 统一的查词展示系统 (被点击调用)
 async function showWordTooltip(word, targetEl) {
     const lowerWord = word.toLowerCase(); const dict = i18n[state.lang]; const rect = targetEl.getBoundingClientRect();
     let topPos = rect.top - 220; let leftPos = rect.left + rect.width / 2 - 160;
@@ -1442,26 +1303,47 @@ async function showWordTooltip(word, targetEl) {
     dom.saveWordBtn.disabled = true; state.currentWord = null;
 
     const localZh = LOCAL_EN_ZH_DICT[lowerWord];
-    if (localZh) {
+    if (localZh && !lowerWord.includes(' ')) {
         document.getElementById('tooltipZhDef').innerText = localZh; document.getElementById('tooltipZhSection').style.display = 'block';
         state.currentWord = { word: lowerWord, phonetic: '', definition: 'Loading...', zhDefinition: localZh, example: '', synonyms: [], addedAt: Date.now(), reviewCount: 0, nextReview: getNextReviewDate(0) };
         dom.saveWordBtn.disabled = false;
     }
     
     try {
-        const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`); if (!res.ok) throw new Error(); const data = await res.json();
-        const defs = []; let synonyms = []; let example = '';
-        data[0].meanings.forEach(m => { if (m.synonyms) synonyms.push(...m.synonyms); m.definitions.forEach(d => { if (d.example && !example) example = d.example; defs.push(`<strong>${m.partOfSpeech}</strong>: ${d.definition}`); }); });
-        const finalDef = defs.slice(0, 2).join('<br><br>');
-        state.currentWord = { word, phonetic: data[0].phonetic || '', definition: finalDef, zhDefinition: localZh || '', example, synonyms: [...new Set(synonyms)].slice(0, 5), addedAt: Date.now(), reviewCount: 0, nextReview: getNextReviewDate(0) };
-        document.getElementById('tooltipPhonetic').innerText = state.currentWord.phonetic; document.getElementById('tooltipDef').innerHTML = finalDef;
-        
-        if (!localZh) { fetchZhTranslation(word).then(zh => { if (zh && state.currentWord && state.currentWord.word === word) { state.currentWord.zhDefinition = zh; document.getElementById('tooltipZhDef').innerText = zh; document.getElementById('tooltipZhSection').style.display = 'block'; } }); }
-        if (example) { document.getElementById('tooltipExSection').style.display = 'block'; document.getElementById('tooltipExample').innerText = `"${example}"`; }
-        if (state.currentWord.synonyms.length) { document.getElementById('tooltipSynSection').style.display = 'block'; document.getElementById('tooltipSynonyms').innerHTML = state.currentWord.synonyms.map(s => `<span class="tt-synonym-tag">${s}</span>`).join(''); }
-        dom.saveWordBtn.disabled = false;
+        if (lowerWord.includes(' ')) {
+             document.getElementById('tooltipPhonetic').innerText = "[Phrase]"; document.getElementById('tooltipDef').innerHTML = "<em>Phrase definition.</em>";
+             state.currentWord = { word: lowerWord, phonetic: '', definition: "Phrase / Idea Unit", example: "", synonyms: [], addedAt: Date.now(), reviewCount: 0, nextReview: getNextReviewDate(0) };
+             fetchZhTranslation(lowerWord).then(zh => { if(zh) { state.currentWord.zhDefinition = zh; document.getElementById('tooltipZhDef').innerText = zh; document.getElementById('tooltipZhSection').style.display = 'block'; } });
+             dom.saveWordBtn.disabled = false;
+        } else {
+            const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${lowerWord}`); if (!res.ok) throw new Error(); const data = await res.json();
+            const defs = []; let synonyms = []; let example = '';
+            data[0].meanings.forEach(m => { if (m.synonyms) synonyms.push(...m.synonyms); m.definitions.forEach(d => { if (d.example && !example) example = d.example; defs.push(`<strong>${m.partOfSpeech}</strong>: ${d.definition}`); }); });
+            const finalDef = defs.slice(0, 2).join('<br><br>');
+            state.currentWord = { word: lowerWord, phonetic: data[0].phonetic || '', definition: finalDef, zhDefinition: localZh || '', example, synonyms: [...new Set(synonyms)].slice(0, 5), addedAt: Date.now(), reviewCount: 0, nextReview: getNextReviewDate(0) };
+            document.getElementById('tooltipPhonetic').innerText = state.currentWord.phonetic; document.getElementById('tooltipDef').innerHTML = finalDef;
+            
+            if (!localZh) { fetchZhTranslation(lowerWord).then(zh => { if (zh && state.currentWord && state.currentWord.word === lowerWord) { state.currentWord.zhDefinition = zh; document.getElementById('tooltipZhDef').innerText = zh; document.getElementById('tooltipZhSection').style.display = 'block'; } }); }
+            if (example) { document.getElementById('tooltipExSection').style.display = 'block'; document.getElementById('tooltipExample').innerText = `"${example}"`; }
+            if (state.currentWord.synonyms.length) { document.getElementById('tooltipSynSection').style.display = 'block'; document.getElementById('tooltipSynonyms').innerHTML = state.currentWord.synonyms.map(s => `<span class="tt-synonym-tag">${s}</span>`).join(''); }
+            dom.saveWordBtn.disabled = false;
+        }
     } catch {
         if (!localZh) { document.getElementById('tooltipPhonetic').innerHTML = '<span style="color:#ff3b30">Not found in lexicon</span>'; } else { document.getElementById('tooltipPhonetic').innerHTML = `<span style="color:var(--text-sub)">Local Cache Used</span>`; }
+    }
+}
+
+// 补充：保留对划选词汇的支持 (对于较长短语)
+let selTimeout;
+document.addEventListener('selectionchange', () => { clearTimeout(selTimeout); selTimeout = setTimeout(handleSelection, 300); });
+async function handleSelection() {
+    const text = window.getSelection().toString().trim();
+    if (text && /^[a-zA-Z\s'-]{2,60}$/.test(text) && text.includes(' ') && dom.workspace.classList.contains('active')) {
+        if(dom.tooltip.classList.contains('show')) return;
+        const range = window.getSelection().getRangeAt(0);
+        const span = document.createElement('span'); range.insertNode(span);
+        showWordTooltip(text, span);
+        span.parentNode.removeChild(span);
     }
 }
 
@@ -1472,13 +1354,13 @@ dom.saveWordBtn.onclick = async () => {
     if (!state.currentWord) return;
     const wordObj = { ...state.currentWord, addedAt: state.currentWord.addedAt || Date.now(), reviewCount: state.currentWord.reviewCount || 0, nextReview: state.currentWord.nextReview || getNextReviewDate(0) };
     await idbSaveWord(wordObj);
-    recordWordAdded(); renderVocab(); renderGlobalVocabAsync(); updateStatsDisplay(); dom.tooltip.classList.remove('show'); 
+    recordWordAdded(); renderVocab(); renderGlobalVocabAsync(); dom.tooltip.classList.remove('show'); 
     showToast(i18n[state.lang].msg_added);
 };
 
 async function renderVocab() {
     const words = await idbGetAllVocab(); const dict = i18n[state.lang]; document.getElementById('vocabCount').innerText = words.length;
-    dom.vocabList.innerHTML = words.map((w, i) => `
+    dom.vocabList.innerHTML = words.map((w) => `
         <div class="word-item">
             <div class="word-head"><div class="word-text">${w.word}</div><div class="word-del" onclick="deleteWordByKey('${w.word}')">${dict.word_remove_btn}</div></div>
             ${w.zhDefinition ? `<div style="font-size:14px; font-weight:700; color:var(--text-main); margin-bottom:2px;">${w.zhDefinition}</div>` : ''}
@@ -1487,10 +1369,7 @@ async function renderVocab() {
     `).join('');
 }
 
-window.deleteWordByKey = async (key) => { 
-    await idbDeleteWord(key); 
-    renderVocab(); await renderGlobalVocabAsync(); updateStatsDisplay(); 
-};
+window.deleteWordByKey = async (key) => { await idbDeleteWord(key); renderVocab(); await renderGlobalVocabAsync(); };
 
 async function renderGlobalVocabAsync() {
     const words = await idbGetAllVocab(); const dict = i18n[state.lang]; document.getElementById('globalVocabCount').innerText = words.length; const today = new Date().toISOString().split('T')[0];
@@ -1545,15 +1424,38 @@ dom.btnLaunchLocalView.onclick = () => { if (state.localReady.v && state.localRe
 dom.localUploadDropzone.addEventListener('dragover', e => { e.preventDefault(); dom.localUploadDropzone.classList.add('dragover'); }); dom.localUploadDropzone.addEventListener('dragleave', e => { e.preventDefault(); dom.localUploadDropzone.classList.remove('dragover'); }); dom.localUploadDropzone.addEventListener('drop', e => { e.preventDefault(); dom.localUploadDropzone.classList.remove('dragover'); handleLocalFiles(e.dataTransfer.files); });
 
 // ----------------------------------------------------------------
-// 系统互动控制 (热键, 菜单)
+// 系统互动控制 (热键, 双击, 菜单)
 // ----------------------------------------------------------------
 dom.speedToggleBtn.onclick = (e) => { e.stopPropagation(); dom.speedMenu.classList.toggle('show'); const r=dom.speedToggleBtn.getBoundingClientRect(); dom.speedMenu.style.top = window.innerWidth>1024?`${r.bottom+12}px`:'auto'; dom.speedMenu.style.bottom = window.innerWidth<=1024?`${window.innerHeight-r.top+12}px`:'auto'; dom.speedMenu.style.left=`${r.left+(r.width/2)-50}px`; };
 document.querySelectorAll('.sp-item').forEach(item => item.onclick = () => { const s=parseFloat(item.dataset.speed); dom.player.playbackRate=s; localStorage.setItem('playbackRate',s); dom.speedToggleBtn.innerText=`${s.toFixed(1)}x`; document.querySelectorAll('.sp-item').forEach(i=>i.classList.remove('active')); item.classList.add('active'); dom.speedMenu.classList.remove('show'); });
 document.addEventListener('click', e => { if (!dom.speedMenu.contains(e.target) && e.target !== dom.speedToggleBtn) dom.speedMenu.classList.remove('show'); if (!dom.tooltip.contains(e.target)) dom.tooltip.classList.remove('show'); }); document.addEventListener('touchstart', e => { if (window.innerWidth <= 1024 && !dom.vocabContainer.contains(e.target) && !dom.mobileVocabToggle.contains(e.target)) dom.vocabContainer.classList.remove('open'); }, {passive: true});
 
-dom.btnSettingTheme.onclick = () => { document.body.classList.toggle('dark-theme'); document.documentElement.classList.toggle('dark-theme'); localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light'); };
-(function(){ const saved = localStorage.getItem('theme'); if(saved === 'dark') { document.body.classList.add('dark-theme'); document.documentElement.classList.add('dark-theme'); } })();
-dom.btnSettingLang.onclick = () => { state.lang = state.lang === 'en' ? 'zh' : 'en'; updateLanguageUIInit(); renderCurrentView(); renderVocab(); renderGlobalVocabAsync(); }; dom.btnSettingLogout.onclick = async () => { await supabaseClient.auth.signOut(); window.location.reload(); };
+// 视频区域双击控制 (类似 YouTube)
+let lastVideoClickTime = 0;
+dom.videoContainer.addEventListener('click', (e) => {
+    const now = Date.now();
+    if (now - lastVideoClickTime < 300) {
+        // Double Click
+        const rect = dom.videoContainer.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        if (x < rect.width / 2) {
+            dom.player.currentTime = Math.max(0, dom.player.currentTime - 10);
+            dom.seekOverlayLeft.classList.remove('active'); void dom.seekOverlayLeft.offsetWidth; dom.seekOverlayLeft.classList.add('active');
+        } else {
+            dom.player.currentTime = Math.min(dom.player.duration || 999, dom.player.currentTime + 10);
+            dom.seekOverlayRight.classList.remove('active'); void dom.seekOverlayRight.offsetWidth; dom.seekOverlayRight.classList.add('active');
+        }
+    } else {
+        // Single Click - Mobile Pause/Play trigger
+        if (window.innerWidth <= 1024) {
+            if (dom.player.paused) dom.player.play(); else dom.player.pause();
+        }
+    }
+    lastVideoClickTime = now;
+});
+
+dom.btnSettingLang.onclick = () => { state.lang = state.lang === 'en' ? 'zh' : 'en'; updateLanguageUIInit(); renderCurrentView(); renderVocab(); renderGlobalVocabAsync(); }; 
+dom.btnSettingLogout.onclick = async () => { await supabaseClient.auth.signOut(); window.location.reload(); };
 
 function initCustomFilter(btnId, modalId, labelId, filterKey) { const btn = document.getElementById(btnId); const modal = document.getElementById(modalId); const label = document.getElementById(labelId); if(!btn || !modal) return; btn.onclick = () => modal.classList.add('active'); modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); else if (e.target.classList.contains('glass-option')) { modal.querySelectorAll('.glass-option').forEach(el => el.classList.remove('active')); e.target.classList.add('active'); state.filters[filterKey] = e.target.dataset.value; const i18nKey = e.target.getAttribute('data-i18n'); label.innerText = i18nKey ? i18n[state.lang][i18nKey] : e.target.innerText; modal.classList.remove('active'); renderCurrentView(); } }); }
 initCustomFilter('btnFilterRating', 'modalFilterRating', 'labelFilterRating', 'rating'); initCustomFilter('btnFilterTag', 'modalFilterTag', 'labelFilterTag', 'tag'); initCustomFilter('btnFilterAccent', 'modalFilterAccent', 'labelFilterAccent', 'accent');
@@ -1580,7 +1482,6 @@ document.addEventListener('keydown', (e) => { if (!document.getElementById('work
 // 初始化系统
 // ----------------------------------------------------------------
 (async function init() { 
-    await migrateOldVocab(); 
     updateStatsDisplay(); 
     if (state.currentTab === 'vocabulary') renderGlobalVocabAsync(); 
     renderVocab();
