@@ -493,10 +493,9 @@
         .sp-item.active { background: var(--text-main); color: var(--bg); }
 
         .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 999999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-        .toast { background: rgba(0,0,0,0.8); color: white; padding: 12px 24px; border-radius: 99px; font-size: 14px; font-weight: 600; backdrop-filter: blur(10px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); animation: toastIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(-20px) scale(0.9); transition: opacity 0.3s, transform 0.3s; }
+        .toast { background: rgba(0,0,0,0.8); color: white; padding: 12px 24px; border-radius: 99px; font-size: 14px; font-weight: 600; backdrop-filter: blur(10px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(-20px) scale(0.9); transition: opacity 0.3s, transform 0.3s; }
         .toast.hide { opacity: 0; transform: translateY(-10px) scale(0.95); }
         @keyframes toastIn { to { opacity: 1; transform: translateY(0) scale(1); } }
-        @keyframes toastOut { to { opacity: 0; transform: translateY(-10px) scale(0.95); } }
 
         #mobileVocabToggle { display: none; }
         .vocab-close-mobile { display: none; font-size: 24px; cursor: pointer; color: var(--text-sub); font-weight: 300; transition: color 0.2s; }
@@ -606,25 +605,25 @@
 <!-- --- AUTH SCREEN --- -->
 <div class="auth-screen hidden" id="authScreen">
     <div class="auth-card">
-        <div class="auth-title" id="authTitle" data-i18n="auth_welcome">歡迎回來</div>
+        <div class="auth-title" id="authTitle" data-i18n="auth_welcome">欢迎回来</div>
         <form id="authForm" class="auth-form">
-            <input type="email" id="authEmail" class="auth-input" placeholder="郵箱" data-i18n-placeholder="auth_email" autocomplete="email" required />
-            <input type="password" id="authPassword" class="auth-input" placeholder="密碼" data-i18n-placeholder="auth_password" autocomplete="current-password" required />
-            <input type="text" id="authUsername" class="auth-input" placeholder="用戶名 (註冊必填)" data-i18n-placeholder="auth_username" style="display: none;" autocomplete="off" />
+            <input type="email" id="authEmail" class="auth-input" placeholder="邮箱" data-i18n-placeholder="auth_email" autocomplete="email" required />
+            <input type="password" id="authPassword" class="auth-input" placeholder="密码" data-i18n-placeholder="auth_password" autocomplete="current-password" required />
+            <input type="text" id="authUsername" class="auth-input" placeholder="用户名 (注册必填)" data-i18n-placeholder="auth_username" style="display: none;" autocomplete="off" />
             <div class="auth-file-group" id="authAvatarGroup" style="display: none;">
-                <span style="flex-shrink: 0; margin-right: 8px;" data-i18n="auth_avatar">上傳頭像</span>
+                <span style="flex-shrink: 0; margin-right: 8px;" data-i18n="auth_avatar">上传头像</span>
                 <input type="file" id="authAvatar" accept="image/*" />
             </div>
-            <input type="text" id="authInviteCode" class="auth-input" placeholder="邀請碼 (註冊必填)" data-i18n-placeholder="auth_invite" style="display: none;" autocomplete="off" />
+            <input type="text" id="authInviteCode" class="auth-input" placeholder="邀请码 (注册必填)" data-i18n-placeholder="auth_invite" style="display: none;" autocomplete="off" />
             <div id="authErrorMsg" class="auth-error-msg"></div>
             <div class="auth-checkbox-group" id="authRememberGroup">
                 <input type="checkbox" id="authRemember" checked />
-                <label for="authRemember" data-i18n="auth_remember">記住密碼</label>
+                <label for="authRemember" data-i18n="auth_remember">记住密码</label>
             </div>
-            <button type="submit" class="auth-btn" id="authSubmitBtn" data-i18n="auth_login_btn">登入</button>
+            <button type="submit" class="auth-btn" id="authSubmitBtn" data-i18n="auth_login_btn">登录</button>
         </form>
         <div class="auth-toggle">
-            <span id="authToggleText" data-i18n="auth_no_account">還沒有賬號？</span> <a href="#" id="authToggleLink" data-i18n="auth_register_link">立即註冊</a>
+            <span id="authToggleText" data-i18n="auth_no_account">还没有账号？</span> <a href="#" id="authToggleLink" data-i18n="auth_register_link">立即注册</a>
         </div>
     </div>
 </div>
@@ -639,12 +638,12 @@
         <nav class="app-nav" id="sidebarNav">
             <div class="nav-item active" data-tab="library">
                 <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
-                <span data-i18n="nav_library">影片庫</span>
+                <span data-i18n="nav_library">视频库</span>
                 <span class="count-badge" id="badge-library">0</span>
             </div>
             <div class="nav-item" data-tab="vocabulary">
                 <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                <span data-i18n="nav_vocab">單詞本</span>
+                <span data-i18n="nav_vocab">单词本</span>
                 <span class="count-badge" id="badge-vocab">0</span>
             </div>
             <div class="nav-item" data-tab="local">
@@ -653,7 +652,7 @@
             </div>
             <div class="nav-item" data-tab="profile">
                 <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                <span data-i18n="nav_profile">個人中心</span>
+                <span data-i18n="nav_profile">个人中心</span>
             </div>
         </nav>
     </aside>
@@ -664,7 +663,7 @@
                 <div class="top-section-group">
                     <div class="view-header">
                         <div class="header-left">
-                            <div class="view-title" data-i18n="nav_library">影片庫</div>
+                            <div class="view-title" data-i18n="nav_library">视频库</div>
                             <div class="search-box">
                                 <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
                                 <input type="text" id="searchInput" placeholder="搜索影片..." data-i18n-placeholder="search_placeholder">
@@ -672,29 +671,29 @@
                         </div>
                     </div>
                     <div class="filter-bar" id="filterBar">
-                        <div class="filter-group"><span class="filter-label" data-i18n="filter_difficulty">難度</span><div class="custom-filter-btn" id="btnFilterRating"><span id="labelFilterRating" data-i18n="filter_level_all">所有難度</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div><div class="filter-divider"></div>
-                        <div class="filter-group"><span class="filter-label" data-i18n="filter_scenario">場景</span><div class="custom-filter-btn" id="btnFilterTag"><span id="labelFilterTag" data-i18n="filter_topic_all">所有主題</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div><div class="filter-divider"></div>
+                        <div class="filter-group"><span class="filter-label" data-i18n="filter_difficulty">难度</span><div class="custom-filter-btn" id="btnFilterRating"><span id="labelFilterRating" data-i18n="filter_level_all">所有难度</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div><div class="filter-divider"></div>
+                        <div class="filter-group"><span class="filter-label" data-i18n="filter_scenario">场景</span><div class="custom-filter-btn" id="btnFilterTag"><span id="labelFilterTag" data-i18n="filter_topic_all">所有主题</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div><div class="filter-divider"></div>
                         <div class="filter-group"><span class="filter-label" data-i18n="filter_accent">口音</span><div class="custom-filter-btn" id="btnFilterAccent"><span id="labelFilterAccent" data-i18n="filter_acc_all">所有口音</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div>
                     </div>
                 </div>
                 <div id="libraryContentArea">
-                    <div class="empty-state"><div class="spinner"></div><h3 data-i18n="loading">加載中...</h3></div>
+                    <div class="empty-state"><div class="spinner"></div><h3 data-i18n="loading">加载中...</h3></div>
                 </div>
             </div>
 
             <div id="view-vocabulary" class="app-view">
                 <div class="top-section-group">
                     <div class="view-header">
-                        <div class="header-left"><div class="view-title" data-i18n="nav_vocab">單詞本</div></div>
+                        <div class="header-left"><div class="view-title" data-i18n="nav_vocab">单词本</div></div>
                         <div class="export-btn-group">
-                            <button class="export-btn" id="globalExportVocabBtn" data-i18n="btn_export_csv">導出 CSV</button>
-                            <button class="export-btn" id="globalExportAnkiBtn" data-i18n="btn_export_anki">導出 Anki</button>
+                            <button class="export-btn" id="globalExportVocabBtn" data-i18n="btn_export_csv">导出 CSV</button>
+                            <button class="export-btn" id="globalExportAnkiBtn" data-i18n="btn_export_anki">导出 Anki</button>
                         </div>
                     </div>
                 </div>
                 <div class="global-vocab-container">
                     <div class="global-vocab-header">
-                        <span class="global-vocab-title"><span data-i18n="vocab_total">總計</span>: <span id="globalVocabCount">0</span></span>
+                        <span class="global-vocab-title"><span data-i18n="vocab_total">总计</span>: <span id="globalVocabCount">0</span></span>
                     </div>
                     <div class="global-vocab-list" id="globalVocabList"></div>
                 </div>
@@ -708,29 +707,29 @@
                 </div>
                 <div class="local-upload-area" id="localUploadDropzone">
                     <svg class="upload-icon" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
-                    <div class="upload-title" data-i18n="local_title">構建沉浸環境</div>
-                    <div class="upload-desc" data-i18n="local_desc">請選擇一部 MP4 影片與對應的 SRT/VTT 字幕文件，我們將為您自動生成交互式學習艙。</div>
+                    <div class="upload-title" data-i18n="local_title">构建沉浸环境</div>
+                    <div class="upload-desc" data-i18n="local_desc">请选择一部 MP4 视频与对应的 SRT/VTT 字幕文件，我们将为您自动生成交互式学习舱。</div>
                     
                     <div class="upload-buttons">
                         <label class="upload-btn" id="btnLocalVideoView">
                             <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-                            <span id="txtLocalVideoView" data-i18n="sidebar_video">選擇影片 (MP4)</span>
+                            <span id="txtLocalVideoView" data-i18n="sidebar_video">选择视频 (MP4)</span>
                             <input type="file" id="localVideoInputView" accept="video/mp4,video/webm">
                         </label>
                         <label class="upload-btn" id="btnLocalSubView">
                             <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-                            <span id="txtLocalSubView" data-i18n="sidebar_sub">選擇字幕 (SRT/VTT)</span>
+                            <span id="txtLocalSubView" data-i18n="sidebar_sub">选择字幕 (SRT/VTT)</span>
                             <input type="file" id="localSubInputView" accept=".srt,.json,.vtt,.ass">
                         </label>
                     </div>
-                    <button class="launch-btn" id="btnLaunchLocalView" data-i18n="sidebar_launch">進入學習艙</button>
+                    <button class="launch-btn" id="btnLaunchLocalView" data-i18n="sidebar_launch">进入学习舱</button>
                 </div>
             </div>
 
             <div id="view-profile" class="app-view">
                 <div class="top-section-group">
                     <div class="view-header">
-                        <div class="header-left"><div class="view-title" data-i18n="nav_profile">個人中心</div></div>
+                        <div class="header-left"><div class="view-title" data-i18n="nav_profile">个人中心</div></div>
                     </div>
                 </div>
 
@@ -738,7 +737,7 @@
                     <div class="profile-avatar-wrapper">
                         <img src="" class="profile-avatar-img" id="profileAvatarImg" />
                         <div class="profile-avatar" id="profileAvatarText">U</div>
-                        <button class="edit-avatar-btn" onclick="openEditProfile('avatar')" title="修改頭像">✏️</button>
+                        <button class="edit-avatar-btn" onclick="openEditProfile('avatar')" title="修改头像">✏️</button>
                     </div>
                     <div class="profile-info">
                         <div class="profile-username" id="profileUsernameDisplay">User <span class="edit-btn" onclick="openEditProfile('username')">✏️</span></div>
@@ -757,25 +756,25 @@
                         </button>
                         <button class="setting-btn" id="btnSettingTheme">
                             <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
-                            <span data-i18n="menu_theme">外觀主題</span>
+                            <span data-i18n="menu_theme">外观主题</span>
                         </button>
                         <button class="setting-btn danger" id="btnSettingLogout">
                             <svg viewBox="0 0 24 24"><path fill="currentColor" d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
-                            <span data-i18n="menu_logout">退出登入</span>
+                            <span data-i18n="menu_logout">退出登录</span>
                         </button>
                     </div>
                 </div>
 
                 <div class="stats-row" id="statsRow">
-                    <div class="stat-card"><div class="stat-icon">⏱️</div><div class="stat-value" id="statTodayMin">0</div><div class="stat-label" data-i18n="stat_today_min">今日學習(分鐘)</div></div>
-                    <div class="stat-card"><div class="stat-icon">📖</div><div class="stat-value" id="statNewWords">0</div><div class="stat-label" data-i18n="stat_new_words">新學單詞</div></div>
-                    <div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-value" id="statStreak">0</div><div class="stat-label" data-i18n="stat_streak">連續學習(天)</div></div>
-                    <div class="stat-card"><div class="stat-icon">💎</div><div class="stat-value" id="statTotalWords">0</div><div class="stat-label" data-i18n="stat_total_words">單詞本總計</div></div>
+                    <div class="stat-card"><div class="stat-icon">⏱️</div><div class="stat-value" id="statTodayMin">0</div><div class="stat-label" data-i18n="stat_today_min">今日学习(分钟)</div></div>
+                    <div class="stat-card"><div class="stat-icon">📖</div><div class="stat-value" id="statNewWords">0</div><div class="stat-label" data-i18n="stat_new_words">新学单词</div></div>
+                    <div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-value" id="statStreak">0</div><div class="stat-label" data-i18n="stat_streak">连续学习(天)</div></div>
+                    <div class="stat-card"><div class="stat-icon">💎</div><div class="stat-value" id="statTotalWords">0</div><div class="stat-label" data-i18n="stat_total_words">单词本总计</div></div>
                 </div>
                 <div class="profile-tabs" id="profileTabs">
-                    <div class="profile-tab active" data-subtab="history"><span data-i18n="title_history">觀看歷史</span> <span class="count-badge" id="badge-history">0</span></div>
+                    <div class="profile-tab active" data-subtab="history"><span data-i18n="title_history">观看历史</span> <span class="count-badge" id="badge-history">0</span></div>
                     <div class="profile-tab" data-subtab="favorites"><span data-i18n="title_favorites">我的收藏</span> <span class="count-badge" id="badge-favorites">0</span></div>
-                    <div class="profile-tab" data-subtab="completed"><span data-i18n="title_completed">已學完</span> <span class="count-badge" id="badge-completed">0</span></div>
+                    <div class="profile-tab" data-subtab="completed"><span data-i18n="title_completed">已学完</span> <span class="count-badge" id="badge-completed">0</span></div>
                 </div>
 
                 <div id="profileContentArea"></div>
@@ -784,14 +783,14 @@
     </main>
 </div>
 
-<div class="shadow-indicator" id="shadowIndicator">🎙 <span data-i18n="shadow_indicator">跟讀模式 — 請跟讀</span></div>
+<div class="shadow-indicator" id="shadowIndicator">🎙 <span data-i18n="shadow_indicator">跟读模式 — 请跟读</span></div>
 <div class="kbd-hint" id="kbdHint">
-    <div style="margin-bottom:6px; font-weight:700; color:var(--text-main);" data-i18n="kbd_shortcuts">快捷鍵</div>
+    <div style="margin-bottom:6px; font-weight:700; color:var(--text-main);" data-i18n="kbd_shortcuts">快捷键</div>
     <div style="display:flex; flex-direction:column; gap:4px;">
-        <div><kbd>Space</kbd> <span data-i18n="kbd_play_pause">播放/暫停</span></div>
-        <div><kbd>←</kbd> <span data-i18n="kbd_rewind">後退 5s</span></div>
-        <div><kbd>→</kbd> <span data-i18n="kbd_forward">前進 5s</span></div>
-        <div><kbd>↑</kbd> / <kbd>↓</kbd> <span data-i18n="kbd_speed">調速</span></div>
+        <div><kbd>Space</kbd> <span data-i18n="kbd_play_pause">播放/暂停</span></div>
+        <div><kbd>←</kbd> <span data-i18n="kbd_rewind">后退 5s</span></div>
+        <div><kbd>→</kbd> <span data-i18n="kbd_forward">前进 5s</span></div>
+        <div><kbd>↑</kbd> / <kbd>↓</kbd> <span data-i18n="kbd_speed">调速</span></div>
     </div>
 </div>
 
@@ -804,7 +803,7 @@
         </div>
         <div class="vocab-container" id="vocabContainer">
             <div class="vocab-header">
-                <span><span data-i18n="vocab_title">單詞本</span> <span id="vocabCount" style="color:var(--text-sub); font-weight:normal; margin-left:6px;">0</span></span>
+                <span><span data-i18n="vocab_title">单词本</span> <span id="vocabCount" style="color:var(--text-sub); font-weight:normal; margin-left:6px;">0</span></span>
                 <span class="vocab-close-mobile" id="closeVocabBtn">✕</span>
             </div>
             <div class="vocab-list" id="vocabList"></div>
@@ -816,20 +815,20 @@
         
         <!-- NEW UI: Top Toolbar (Segmented Controls) -->
         <div class="top-toolbar">
-            <button class="icon-btn" style="background: var(--surface); backdrop-filter: blur(10px);" id="backToHomeBtn" title="Back">
+            <button class="icon-btn" style="background: var(--surface); backdrop-filter: blur(10px);" id="backToHomeBtn" title="返回主页">
                 <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
             </button>
             
             <div style="display: flex; gap: 12px; align-items: center;">
                 <div class="segmented-control" id="modeControl">
-                    <div class="segment-btn active" data-mode="0">雙語</div>
-                    <div class="segment-btn" data-mode="1">純英</div>
-                    <div class="segment-btn" data-mode="2">盲聽</div>
+                    <div class="segment-btn active" data-mode="0">双语</div>
+                    <div class="segment-btn" data-mode="1">纯英</div>
+                    <div class="segment-btn" data-mode="2">盲听</div>
                 </div>
                 <div class="segmented-control">
                     <div class="segment-btn" id="toggleClozeBtn">挖空</div>
-                    <div class="segment-btn" id="toggleIpaBtn">音標</div>
-                    <div class="segment-btn" id="toggleShadowBtn">跟讀</div>
+                    <div class="segment-btn" id="toggleIpaBtn">音标</div>
+                    <div class="segment-btn" id="toggleShadowBtn">跟读</div>
                 </div>
                 <button class="icon-btn" id="mobileVocabToggle" style="margin-left: 4px;">
                     <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
@@ -845,7 +844,7 @@
             <button class="dock-btn" id="prevSentenceBtn" title="上一句">
                 <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
             </button>
-            <button class="dock-btn play-pause" id="playPauseBtn" title="播放/暫停">
+            <button class="dock-btn play-pause" id="playPauseBtn" title="播放/暂停">
                 <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                 <svg id="pauseIcon" viewBox="0 0 24 24" style="display: none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
             </button>
@@ -855,11 +854,11 @@
             
             <div class="divider"></div>
             
-            <button class="dock-btn" id="loopGlobalBtn" title="單句循環開關">
+            <button class="dock-btn" id="loopGlobalBtn" title="单句循环开关">
                 <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/><text x="12" y="16" font-size="8" text-anchor="middle" fill="currentColor" font-weight="bold">1</text></svg>
             </button>
             
-            <button class="dock-btn" id="abRepeatBtn" title="A-B 複讀">
+            <button class="dock-btn" id="abRepeatBtn" title="A-B 复读">
                 <svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4zm-4-2V9h-1l-2 1v1h1.5v4H13z"/></svg>
                 <span style="font-size: 10px; position: absolute; bottom: 2px; font-weight: 800;" id="abText"></span>
             </button>
@@ -883,20 +882,20 @@
     <div class="tt-word" id="tooltipWord"></div>
     <div class="tt-phonetic" id="tooltipPhonetic"></div>
     <div class="tt-section" id="tooltipZhSection" style="display:none;">
-        <div class="tt-sec-title" style="color:var(--green);" data-i18n="tt_zh_def">中文釋義</div>
+        <div class="tt-sec-title" style="color:var(--green);" data-i18n="tt_zh_def">中文释义</div>
         <div class="tt-zh-def" id="tooltipZhDef" style="font-size:18px; font-weight:700; color:var(--text-main); margin-top:4px; letter-spacing:0.5px;"></div>
     </div>
     <div class="tt-section" id="tooltipDefSection"><div class="tt-sec-title" data-i18n="tt_definition">Definition</div><div class="tt-def" id="tooltipDef"></div></div>
     <div class="tt-section" id="tooltipExSection" style="display:none;"><div class="tt-sec-title" data-i18n="tt_example">Example</div><div class="tt-example" id="tooltipExample"></div></div>
     <div class="tt-section" id="tooltipSynSection" style="display:none;"><div class="tt-sec-title" data-i18n="tt_synonyms">Synonyms</div><div class="tt-synonyms" id="tooltipSynonyms"></div></div>
-    <button class="tt-btn" id="saveWordBtn" data-i18n="tt_add">加入單詞本</button>
+    <button class="tt-btn" id="saveWordBtn" data-i18n="tt_add">加入单词本</button>
 </div>
 
 <!-- Modals for filters & profile -->
-<div class="glass-modal" id="modalFilterRating"><div class="glass-modal-content"><div class="glass-option active" data-value="all" data-i18n="filter_level_all">所有難度</div><div class="glass-option" data-value="5" data-i18n="filter_level_5">⭐⭐⭐⭐⭐ (困難)</div><div class="glass-option" data-value="4" data-i18n="filter_level_4">⭐⭐⭐⭐ (進階)</div><div class="glass-option" data-value="3" data-i18n="filter_level_3">⭐⭐⭐ (中等)</div><div class="glass-option" data-value="2" data-i18n="filter_level_2">⭐⭐ (基礎)</div><div class="glass-option" data-value="1" data-i18n="filter_level_1">⭐ (入門)</div></div></div>
-<div class="glass-modal" id="modalFilterTag"><div class="glass-modal-content"><div class="glass-option active" data-value="all" data-i18n="filter_topic_all">所有主題</div><div class="glass-option" data-value="Academic" data-i18n="filter_topic_acad">學術</div><div class="glass-option" data-value="Daily" data-i18n="filter_topic_daily">日常生活</div><div class="glass-option" data-value="Business" data-i18n="filter_topic_bus">商業</div><div class="glass-option" data-value="Entertainment" data-i18n="filter_topic_ent">娛樂</div></div></div>
-<div class="glass-modal" id="modalFilterAccent"><div class="glass-modal-content"><div class="glass-option active" data-value="all" data-i18n="filter_acc_all">所有口音</div><div class="glass-option" data-value="US" data-i18n="filter_acc_us">🇺🇸 美式英語</div><div class="glass-option" data-value="UK" data-i18n="filter_acc_uk">🇬🇧 英式英語</div><div class="glass-option" data-value="AU" data-i18n="filter_acc_au">🇦🇺 澳式英語</div></div></div>
-<div class="glass-modal" id="editProfileModal"><div class="glass-modal-content"><h3 id="editProfileTitle" style="margin-bottom: 16px; text-align: center; font-size: 20px; font-weight: 700;" data-i18n="edit_info">修改信息</h3><input type="text" id="editProfileInput" class="auth-input" style="margin-bottom: 16px; font-size: 14px;" /><div class="auth-file-group" id="editProfileFileGroup" style="display:none; margin-bottom: 16px;"><span style="flex-shrink: 0; margin-right: 8px;" data-i18n="edit_new_avatar">新頭像圖片</span><input type="file" id="editProfileFileInput" accept="image/*" /></div><div style="display:flex; gap: 12px;"><button class="auth-btn" style="flex:1; background:var(--hover-bg); color:var(--text-main); font-weight: 600; box-shadow:none;" onclick="closeEditProfile()" data-i18n="btn_cancel">取消</button><button class="auth-btn" style="flex:1;" id="saveProfileBtn" data-i18n="btn_save">保存</button></div></div></div>
+<div class="glass-modal" id="modalFilterRating"><div class="glass-modal-content"><div class="glass-option active" data-value="all" data-i18n="filter_level_all">所有难度</div><div class="glass-option" data-value="5" data-i18n="filter_level_5">⭐⭐⭐⭐⭐ (困难)</div><div class="glass-option" data-value="4" data-i18n="filter_level_4">⭐⭐⭐⭐ (进阶)</div><div class="glass-option" data-value="3" data-i18n="filter_level_3">⭐⭐⭐ (中等)</div><div class="glass-option" data-value="2" data-i18n="filter_level_2">⭐⭐ (基础)</div><div class="glass-option" data-value="1" data-i18n="filter_level_1">⭐ (入门)</div></div></div>
+<div class="glass-modal" id="modalFilterTag"><div class="glass-modal-content"><div class="glass-option active" data-value="all" data-i18n="filter_topic_all">所有主题</div><div class="glass-option" data-value="Academic" data-i18n="filter_topic_acad">学术</div><div class="glass-option" data-value="Daily" data-i18n="filter_topic_daily">日常生活</div><div class="glass-option" data-value="Business" data-i18n="filter_topic_bus">商业</div><div class="glass-option" data-value="Entertainment" data-i18n="filter_topic_ent">娱乐</div></div></div>
+<div class="glass-modal" id="modalFilterAccent"><div class="glass-modal-content"><div class="glass-option active" data-value="all" data-i18n="filter_acc_all">所有口音</div><div class="glass-option" data-value="US" data-i18n="filter_acc_us">🇺🇸 美式英语</div><div class="glass-option" data-value="UK" data-i18n="filter_acc_uk">🇬🇧 英式英语</div><div class="glass-option" data-value="AU" data-i18n="filter_acc_au">🇦🇺 澳式英语</div></div></div>
+<div class="glass-modal" id="editProfileModal"><div class="glass-modal-content"><h3 id="editProfileTitle" style="margin-bottom: 16px; text-align: center; font-size: 20px; font-weight: 700;" data-i18n="edit_info">修改信息</h3><input type="text" id="editProfileInput" class="auth-input" style="margin-bottom: 16px; font-size: 14px;" /><div class="auth-file-group" id="editProfileFileGroup" style="display:none; margin-bottom: 16px;"><span style="flex-shrink: 0; margin-right: 8px;" data-i18n="edit_new_avatar">新头像图片</span><input type="file" id="editProfileFileInput" accept="image/*" /></div><div style="display:flex; gap: 12px;"><button class="auth-btn" style="flex:1; background:var(--hover-bg); color:var(--text-main); font-weight: 600; box-shadow:none;" onclick="closeEditProfile()" data-i18n="btn_cancel">取消</button><button class="auth-btn" style="flex:1;" id="saveProfileBtn" data-i18n="btn_save">保存</button></div></div></div>
 
 <script>
 // ==========================================
@@ -909,7 +908,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 let videoDatabase = [];
 
 // ==========================================
-// Core Vocabulary Hash
+// Core Vocabulary Hash & State Fix
 // ==========================================
 const CORE_VOCAB_HASH = new Set([
     "abandon", "abnormal", "abolish", "abrupt", "absurd", "abundance", "academy", "accelerate", "accommodate", "accompany", 
@@ -928,10 +927,10 @@ const CORE_VOCAB_HASH = new Set([
 ].map(w => w.toLowerCase()));
 
 const LOCAL_EN_ZH_DICT = {
-    "abandon": "v. 放棄，拋棄；沉溺於", "abnormal": "adj. 反常的，異常的", "abolish": "v. 廢除，廢止", "abrupt": "adj. 突然的，意外的",
-    "absurd": "adj. 荒謬的，可笑的", "abundance": "n. 充裕，豐富", "academy": "n. 學院，學會", "accelerate": "v. 加速，促進",
-    "accommodate": "v. 容納，適應", "accompany": "v. 陪伴，伴隨", "accomplish": "v. 完成，實現", "accumulate": "v. 積累，積聚",
-    "accurate": "adj. 準確的，精確的", "accuse": "v. 指責，控告", "acknowledge": "v. 承認，答謝", "acquire": "v. 獲得，取得", "gravitating": "v. 受吸引，傾向於"
+    "abandon": "v. 放弃，抛弃；沉溺于", "abnormal": "adj. 反常的，异常的", "abolish": "v. 废除，废止", "abrupt": "adj. 突然的，意外的",
+    "absurd": "adj. 荒谬的，可笑的", "abundance": "n. 充裕，丰富", "academy": "n. 学院，学会", "accelerate": "v. 加速，促进",
+    "accommodate": "v. 容纳，适应", "accompany": "v. 陪伴，伴随", "accomplish": "v. 完成，实现", "accumulate": "v. 积累，积聚",
+    "accurate": "adj. 准确的，精确的", "accuse": "v. 指责，控告", "acknowledge": "v. 承认，答谢", "acquire": "v. 获得，取得", "gravitating": "v. 受吸引，倾向于"
 };
 
 const i18n = {
@@ -985,13 +984,14 @@ const i18n = {
     }
 };
 
+// 【修复：正确的 state 闭合结构】
 const state = { 
     lang: 'zh', currentTab: 'library', profileSubTab: 'history', editProfileType: null,
-const LOCAL_EN_ZH_DICT = {
-    "abandon": "v. 放弃，抛弃；沉溺于", "abnormal": "adj. 反常的，异常的", "abolish": "v. 废除，废止", "abrupt": "adj. 突然的，意外的",
-    "absurd": "adj. 荒谬的，可笑的", "abundance": "n. 充裕，丰富", "academy": "n. 学院，学会", "accelerate": "v. 加速，促进",
-    "accommodate": "v. 容纳，适应", "accompany": "v. 陪伴，伴随", "accomplish": "v. 完成，实现", "accumulate": "v. 积累，积聚",
-    "accurate": "adj. 准确的，精确的", "accuse": "v. 指责，控告", "acknowledge": "v. 承认，答谢", "acquire": "v. 获得，取得", "gravitating": "v. 受吸引，倾向于"
+    searchText: '', filters: { rating: 'all', tag: 'all', accent: 'all' },
+    user: null, currentVideoId: null, subtitles: [], 
+    currentActiveIndex: -1, subtitleMode: 0, isClozeMode: false, showIpa: false,
+    abState: 0, abPointA: 0, abPointB: 0, globalLoop: false, singleLoopIdx: -1, currentWord: null, videoObjectURL: null,
+    localReady: { v: false, s: false }
 };
 
 const dom = { 
@@ -1013,24 +1013,26 @@ const dom = {
 };
 
 // ----------------------------------------------------------------
-// 基础工具
+// 基础工具 (包含修复后的防堆叠 Toast)
 // ----------------------------------------------------------------
 function showToast(message) {
     const container = document.getElementById('toastContainer');
     
-    // 移除现有的所有 Toast 以防止堆叠
+    // 【修复】移除现有的所有 Toast 以防止堆叠，保证永远只有一条提示
     while (container.firstChild) {
         container.removeChild(container.firstChild);
     }
     
     const toast = document.createElement('div');
-    toast.className = 'toast'; toast.innerText = message;
+    toast.className = 'toast'; 
+    toast.innerText = message;
     container.appendChild(toast);
     
+    // 缩短显示时间，让操作反馈更轻量快速
     setTimeout(() => { 
         toast.classList.add('hide'); 
         setTimeout(() => toast.remove(), 300); 
-    }, 2000); // 缩短显示时间让反馈更轻量
+    }, 2000); 
 }
 
 function formatTime(seconds) {
@@ -1055,7 +1057,7 @@ function resizeImageToBase64(file, maxWidth, maxHeight) {
 }
 
 // ----------------------------------------------------------------
-// IndexedDB 數據存儲系統
+// IndexedDB 数据存储系统
 // ----------------------------------------------------------------
 const DB_NAME = 'StudioProDB_v4'; const DB_VERSION = 3; let db = null;
 
@@ -1109,7 +1111,7 @@ window.markWordReviewed = async (wordStr) => {
 };
 
 // ----------------------------------------------------------------
-// 學習統計系統
+// 学习统计系统
 // ----------------------------------------------------------------
 const STATS_KEY = 'studyStats_v3';
 function getStudyStats() { try { return JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch { return {}; } }
@@ -1148,7 +1150,7 @@ dom.btnSettingTheme.onclick = () => { document.body.classList.toggle('dark-theme
 (function(){ const saved = localStorage.getItem('theme'); if(saved === 'dark') { document.body.classList.add('dark-theme'); document.documentElement.classList.add('dark-theme'); } })();
 
 // ----------------------------------------------------------------
-// 身份驗證與登入
+// 身份验证与登录
 // ----------------------------------------------------------------
 const authState = { isLoginMode: true };
 const authScreen = document.getElementById('authScreen'); const authForm = document.getElementById('authForm'); const authEmail = document.getElementById('authEmail');
@@ -1199,7 +1201,7 @@ function handleSession(session) {
 supabaseClient.auth.onAuthStateChange((_e, session) => handleSession(session));
 
 // ----------------------------------------------------------------
-// 數據加載與 UI 渲染
+// 数据加载与 UI 渲染
 // ----------------------------------------------------------------
 async function loadVideosFromSupabase() {
     if (!state.user) return;
@@ -1266,7 +1268,7 @@ function renderGrid(container, context) {
 }
 
 // ----------------------------------------------------------------
-// 播放器、字幕與跟讀引擎
+// 播放器、字幕与跟读引擎
 // ----------------------------------------------------------------
 async function loadVideo(id) {
     const videoData = videoDatabase.find(v => v.id === id); if (!videoData) return; state.currentVideoId = id; if (!videoData.videoUrl) { showToast("Video URL is empty."); return; }
@@ -1284,9 +1286,12 @@ async function loadVideo(id) {
         let finalSubtitles = []; const { data: joinData, error: joinError } = await supabaseClient.from('subtitles').select('*, highlights:subtitle_highlights(*)').eq('video_id', id).order('start', { ascending: true });
         if(joinError) { const { data } = await supabaseClient.from('subtitles').select('*').eq('video_id', id).order('start', { ascending: true }); finalSubtitles = data || []; } else { finalSubtitles = joinData || []; }
         state.subtitles = finalSubtitles; renderTranscript(); dom.homeScreen.classList.add('hidden'); dom.workspace.classList.add('active');
-    } catch (err) { showToast(`加载失败: ${err.message}`); } finally { if(card) card.classList.remove('loading'); }
-}
-}
+    } catch (err) { 
+        showToast(`加载失败: ${err.message}`); 
+    } finally { 
+        if(card) card.classList.remove('loading'); 
+    }
+} // 【修复：清理了上一个版本多余的括号】
 
 dom.backToHomeBtn.onclick = () => { dom.workspace.classList.remove('active'); dom.homeScreen.classList.remove('hidden'); dom.player.pause(); renderCurrentView(); if(state.videoObjectURL) { URL.revokeObjectURL(state.videoObjectURL); state.videoObjectURL = null; } };
 
@@ -1307,7 +1312,7 @@ function applyLocalHighlights(text, localHls) {
         if (part.startsWith('__PH_')) return part; 
         return part.replace(/\b([a-zA-Z]+(?:'[a-zA-Z]+)?)\b/g, (match, wordPart) => {
             if (CORE_VOCAB_HASH.has(wordPart.toLowerCase())) {
-                return addPlaceholder(`<span class="ielts-word" title="點擊查詞">${match}</span>`);
+                return addPlaceholder(`<span class="ielts-word" title="点击查词">${match}</span>`);
             }
             return match;
         });
@@ -1429,7 +1434,7 @@ dom.modeControl.addEventListener('click', (e) => {
     dom.modeControl.querySelectorAll('.segment-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
     const mode = parseInt(btn.dataset.mode); state.subtitleMode = mode;
     renderTranscript();
-    if (mode === 0) showToast("已切换：双语模式"); else if (mode === 1) showToast("已切换：纯英文模式"); else showToast("已切换：盲听模式");
+    if (mode === 0) showToast("已切换：双语模式"); else if (mode === 1) showToast("已切换：纯英模式"); else showToast("已切换：盲听模式");
 });
 
 dom.toggleClozeBtn.onclick = () => { state.isClozeMode = !state.isClozeMode; dom.toggleClozeBtn.classList.toggle('active', state.isClozeMode); renderTranscript(); };
@@ -1447,7 +1452,7 @@ function handleShadowMode() { if (!shadowState.active) return; const now = dom.p
 dom.mobileVocabToggle.onclick = () => dom.vocabContainer.classList.add('open'); dom.closeVocabBtn.onclick = () => dom.vocabContainer.classList.remove('open');
 
 // ----------------------------------------------------------------
-// 字典查詢與彈窗交互
+// 字典查询与弹窗交互
 // ----------------------------------------------------------------
 async function fetchZhTranslation(word) {
     const lowerWord = word.toLowerCase(); if (LOCAL_EN_ZH_DICT[lowerWord]) return LOCAL_EN_ZH_DICT[lowerWord];
@@ -1531,7 +1536,7 @@ document.getElementById('globalExportAnkiBtn').onclick = async () => { const wor
 dom.globalExportVocabBtn.onclick = async () => { const words = await idbGetAllVocab(); const dict = i18n[state.lang]; if (!words.length) return showToast(dict.msg_no_export); const strip = h => { const t = document.createElement('DIV'); t.innerHTML = h; return t.textContent || ''; }; let csv = "Word,Phonetic,Chinese,Definition,Example,ReviewCount,NextReview\n"; words.forEach(w => csv += `"${w.word}","${w.phonetic||''}","${strip(w.zhDefinition||'').replace(/"/g,'""')}","${strip(w.definition).replace(/"/g,'""')}","${(w.example||'').replace(/"/g,'""')}","${w.reviewCount||0}","${w.nextReview||''}"\n`); const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'})); link.download = 'vocabulary.csv'; link.click(); };
 
 // ----------------------------------------------------------------
-// 本地文件處理
+// 本地文件处理
 // ----------------------------------------------------------------
 function checkLocalReady() { if (state.localReady.v && state.localReady.s) dom.btnLaunchLocalView.classList.add('active'); }
 function handleLocalFiles(files) {
@@ -1552,7 +1557,7 @@ dom.btnLaunchLocalView.onclick = () => { if (state.localReady.v && state.localRe
 dom.localUploadDropzone.addEventListener('dragover', e => { e.preventDefault(); dom.localUploadDropzone.classList.add('dragover'); }); dom.localUploadDropzone.addEventListener('dragleave', e => { e.preventDefault(); dom.localUploadDropzone.classList.remove('dragover'); }); dom.localUploadDropzone.addEventListener('drop', e => { e.preventDefault(); dom.localUploadDropzone.classList.remove('dragover'); handleLocalFiles(e.dataTransfer.files); });
 
 // ----------------------------------------------------------------
-// 系統互動控制 (熱鍵, 菜單, 觸控)
+// 系统互动控制 (热键, 菜单, 触控)
 // ----------------------------------------------------------------
 dom.speedToggleBtn.onclick = (e) => { e.stopPropagation(); dom.speedMenu.classList.toggle('show'); const r=dom.speedToggleBtn.getBoundingClientRect(); dom.speedMenu.style.top = window.innerWidth>1024?`${r.bottom+12}px`:'auto'; dom.speedMenu.style.bottom = window.innerWidth<=1024?`${window.innerHeight-r.top+12}px`:'auto'; dom.speedMenu.style.left=`${r.left+(r.width/2)-50}px`; };
 document.querySelectorAll('.sp-item').forEach(item => item.onclick = () => { const s=parseFloat(item.dataset.speed); dom.player.playbackRate=s; localStorage.setItem('playbackRate',s); dom.speedToggleBtn.innerText=`${s.toFixed(1)}x`; document.querySelectorAll('.sp-item').forEach(i=>i.classList.remove('active')); item.classList.add('active'); dom.speedMenu.classList.remove('show'); });
@@ -1587,7 +1592,7 @@ let kbdHintTimer = null; function showKbdHint() { const hint = document.getEleme
 document.addEventListener('keydown', (e) => { if (!dom.workspace.classList.contains('active')) return; if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return; switch (e.code) { case 'Space': e.preventDefault(); if (dom.player.paused) dom.player.play(); else dom.player.pause(); break; case 'ArrowLeft': e.preventDefault(); dom.player.currentTime = Math.max(0, dom.player.currentTime - 5); showKbdHint(); break; case 'ArrowRight': e.preventDefault(); dom.player.currentTime = Math.min(dom.player.duration || 999, dom.player.currentTime + 5); showKbdHint(); break; case 'ArrowUp': e.preventDefault(); { const rates = [0.5, 0.75, 1, 1.25, 1.5, 2]; const cur = dom.player.playbackRate; const idx = rates.indexOf(cur); if (idx < rates.length-1) { dom.player.playbackRate = rates[idx+1]; dom.speedToggleBtn.innerText = `${rates[idx+1].toFixed(2).replace('.00','').replace(/\.(\d)0/,'.$1')}x`; showKbdHint(); } } break; case 'ArrowDown': e.preventDefault(); { const rates = [0.5, 0.75, 1, 1.25, 1.5, 2]; const cur = dom.player.playbackRate; const idx = rates.indexOf(cur); if (idx > 0) { dom.player.playbackRate = rates[idx-1]; dom.speedToggleBtn.innerText = `${rates[idx-1].toFixed(2).replace('.00','').replace(/\.(\d)0/,'.$1')}x`; showKbdHint(); } } break; } });
 
 // ----------------------------------------------------------------
-// 初始化系統
+// 初始化系统
 // ----------------------------------------------------------------
 (async function init() { 
     updateStatsDisplay(); 
