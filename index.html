@@ -493,7 +493,7 @@
         .sp-item.active { background: var(--text-main); color: var(--bg); }
 
         .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 999999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-        .toast { background: rgba(0,0,0,0.8); color: white; padding: 12px 24px; border-radius: 99px; font-size: 14px; font-weight: 600; backdrop-filter: blur(10px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(-20px) scale(0.9); transition: opacity 0.3s, transform 0.3s; }
+        .toast { background: rgba(0,0,0,0.8); color: white; padding: 12px 24px; border-radius: 99px; font-size: 14px; font-weight: 600; backdrop-filter: blur(10px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 1; transform: translateY(-20px) scale(0.9); transition: opacity 0.3s, transform 0.3s; }
         .toast.hide { opacity: 0; transform: translateY(-10px) scale(0.95); }
         @keyframes toastIn { to { opacity: 1; transform: translateY(0) scale(1); } }
 
@@ -813,7 +813,7 @@
     <!-- Right Panel: Transcript & Controls -->
     <div class="main-content">
         
-        <!-- NEW UI: Top Toolbar (Segmented Controls) -->
+        <!-- UI: Top Toolbar (Segmented Controls) -->
         <div class="top-toolbar">
             <button class="icon-btn" style="background: var(--surface); backdrop-filter: blur(10px);" id="backToHomeBtn" title="返回主页">
                 <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
@@ -839,7 +839,7 @@
         <!-- Transcript Flow -->
         <div class="transcript-flow mode-0" id="transcript"></div>
 
-        <!-- NEW UI: Floating Player Dock (Bottom) -->
+        <!-- UI: Floating Player Dock (Bottom) -->
         <div class="player-dock">
             <button class="dock-btn" id="prevSentenceBtn" title="上一句">
                 <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
@@ -908,7 +908,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 let videoDatabase = [];
 
 // ==========================================
-// Core Vocabulary Hash & State Fix
+// Core Vocabulary Hash
 // ==========================================
 const CORE_VOCAB_HASH = new Set([
     "abandon", "abnormal", "abolish", "abrupt", "absurd", "abundance", "academy", "accelerate", "accommodate", "accompany", 
@@ -984,7 +984,6 @@ const i18n = {
     }
 };
 
-// 【修复：正确的 state 闭合结构】
 const state = { 
     lang: 'zh', currentTab: 'library', profileSubTab: 'history', editProfileType: null,
     searchText: '', filters: { rating: 'all', tag: 'all', accent: 'all' },
@@ -1013,26 +1012,16 @@ const dom = {
 };
 
 // ----------------------------------------------------------------
-// 基础工具 (包含修复后的防堆叠 Toast)
+// 基础工具
 // ----------------------------------------------------------------
 function showToast(message) {
     const container = document.getElementById('toastContainer');
-    
-    // 【修复】移除现有的所有 Toast 以防止堆叠，保证永远只有一条提示
-    while (container.firstChild) {
-        container.removeChild(container.firstChild);
-    }
-    
+    while (container.firstChild) { container.removeChild(container.firstChild); }
     const toast = document.createElement('div');
     toast.className = 'toast'; 
     toast.innerText = message;
     container.appendChild(toast);
-    
-    // 缩短显示时间，让操作反馈更轻量快速
-    setTimeout(() => { 
-        toast.classList.add('hide'); 
-        setTimeout(() => toast.remove(), 300); 
-    }, 2000); 
+    setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 300); }, 2000); 
 }
 
 function formatTime(seconds) {
@@ -1274,7 +1263,6 @@ async function loadVideo(id) {
     const videoData = videoDatabase.find(v => v.id === id); if (!videoData) return; state.currentVideoId = id; if (!videoData.videoUrl) { showToast("Video URL is empty."); return; }
     const card = document.getElementById(`card-${id}`); if(card) card.classList.add('loading');
     
-    // Reset Controls
     state.abState = 0; dom.abRepeatBtn.classList.remove('active'); dom.abText.innerText = '';
     state.singleLoopIdx = -1; state.globalLoop = false; dom.loopGlobalBtn.classList.remove('active');
 
@@ -1291,7 +1279,7 @@ async function loadVideo(id) {
     } finally { 
         if(card) card.classList.remove('loading'); 
     }
-} // 【修复：清理了上一个版本多余的括号】
+} 
 
 dom.backToHomeBtn.onclick = () => { dom.workspace.classList.remove('active'); dom.homeScreen.classList.remove('hidden'); dom.player.pause(); renderCurrentView(); if(state.videoObjectURL) { URL.revokeObjectURL(state.videoObjectURL); state.videoObjectURL = null; } };
 
@@ -1355,7 +1343,6 @@ function renderTranscript() {
     });
 }
 
-// Action functions
 window.playSentence = (idx, event) => {
     if (event) event.stopPropagation();
     state.singleLoopIdx = -1;
@@ -1428,13 +1415,12 @@ dom.abRepeatBtn.onclick = () => {
 dom.player.addEventListener('play', () => { dom.playIcon.style.display = 'none'; dom.pauseIcon.style.display = 'block'; dom.playPauseBtn.classList.add('playing'); });
 dom.player.addEventListener('pause', () => { dom.playIcon.style.display = 'block'; dom.pauseIcon.style.display = 'none'; dom.playPauseBtn.classList.remove('playing'); });
 
-// UI Controls (Toolbar)
+// UI Controls (Toolbar) - 移除了 Toast 弹窗
 dom.modeControl.addEventListener('click', (e) => {
     const btn = e.target.closest('.segment-btn'); if (!btn) return;
     dom.modeControl.querySelectorAll('.segment-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
     const mode = parseInt(btn.dataset.mode); state.subtitleMode = mode;
     renderTranscript();
-    if (mode === 0) showToast("已切换：双语模式"); else if (mode === 1) showToast("已切换：纯英模式"); else showToast("已切换：盲听模式");
 });
 
 dom.toggleClozeBtn.onclick = () => { state.isClozeMode = !state.isClozeMode; dom.toggleClozeBtn.classList.toggle('active', state.isClozeMode); renderTranscript(); };
@@ -1443,8 +1429,8 @@ dom.toggleIpaBtn.onclick = () => { state.showIpa = !state.showIpa; dom.toggleIpa
 const shadowState = { active: false, timer: null, pauseAfter: true, lastPausedIdx: -1 };
 dom.toggleShadowBtn.onclick = () => {
     shadowState.active = !shadowState.active; dom.toggleShadowBtn.classList.toggle('active', shadowState.active);
-    if (shadowState.active) { document.getElementById('shadowIndicator').classList.add('show'); showToast('跟读模式：播完一句自动暂停 3 秒'); dom.player.addEventListener('timeupdate', handleShadowMode); } 
-    else { document.getElementById('shadowIndicator').classList.remove('show'); showToast('已退出跟读模式'); dom.player.removeEventListener('timeupdate', handleShadowMode); clearTimeout(shadowState.timer); shadowState.lastPausedIdx = -1; }
+    if (shadowState.active) { document.getElementById('shadowIndicator').classList.add('show'); dom.player.addEventListener('timeupdate', handleShadowMode); } 
+    else { document.getElementById('shadowIndicator').classList.remove('show'); dom.player.removeEventListener('timeupdate', handleShadowMode); clearTimeout(shadowState.timer); shadowState.lastPausedIdx = -1; }
 };
 
 function handleShadowMode() { if (!shadowState.active) return; const now = dom.player.currentTime; const idx = state.currentActiveIndex; if (idx < 0) return; const sub = state.subtitles[idx]; if (!sub) return; const endTime = sub.end - 0.1; if (now >= endTime && shadowState.lastPausedIdx !== idx) { shadowState.lastPausedIdx = idx; dom.player.pause(); document.getElementById('shadowIndicator').classList.add('show'); clearTimeout(shadowState.timer); shadowState.timer = setTimeout(() => { if (shadowState.active) { dom.player.play(); setTimeout(() => { if (shadowState.active) document.getElementById('shadowIndicator').classList.add('show'); }, 100); } }, 3000); } }
@@ -1559,7 +1545,22 @@ dom.localUploadDropzone.addEventListener('dragover', e => { e.preventDefault(); 
 // ----------------------------------------------------------------
 // 系统互动控制 (热键, 菜单, 触控)
 // ----------------------------------------------------------------
-dom.speedToggleBtn.onclick = (e) => { e.stopPropagation(); dom.speedMenu.classList.toggle('show'); const r=dom.speedToggleBtn.getBoundingClientRect(); dom.speedMenu.style.top = window.innerWidth>1024?`${r.bottom+12}px`:'auto'; dom.speedMenu.style.bottom = window.innerWidth<=1024?`${window.innerHeight-r.top+12}px`:'auto'; dom.speedMenu.style.left=`${r.left+(r.width/2)-50}px`; };
+dom.speedToggleBtn.onclick = (e) => { 
+    e.stopPropagation(); 
+    dom.speedMenu.classList.toggle('show'); 
+    const r = dom.speedToggleBtn.getBoundingClientRect(); 
+    const spaceBelow = window.innerHeight - r.bottom;
+    
+    if (spaceBelow > 250) {
+        dom.speedMenu.style.top = `${r.bottom + 12}px`; 
+        dom.speedMenu.style.bottom = 'auto'; 
+    } else {
+        dom.speedMenu.style.top = 'auto'; 
+        dom.speedMenu.style.bottom = `${window.innerHeight - r.top + 12}px`; 
+    }
+    dom.speedMenu.style.left = `${r.left + (r.width / 2) - 50}px`; 
+};
+
 document.querySelectorAll('.sp-item').forEach(item => item.onclick = () => { const s=parseFloat(item.dataset.speed); dom.player.playbackRate=s; localStorage.setItem('playbackRate',s); dom.speedToggleBtn.innerText=`${s.toFixed(1)}x`; document.querySelectorAll('.sp-item').forEach(i=>i.classList.remove('active')); item.classList.add('active'); dom.speedMenu.classList.remove('show'); });
 document.addEventListener('click', e => { if (!dom.speedMenu.contains(e.target) && e.target !== dom.speedToggleBtn) dom.speedMenu.classList.remove('show'); if (!dom.tooltip.contains(e.target)) dom.tooltip.classList.remove('show'); }); document.addEventListener('touchstart', e => { if (window.innerWidth <= 1024 && !dom.vocabContainer.contains(e.target) && !dom.mobileVocabToggle.contains(e.target)) dom.vocabContainer.classList.remove('open'); }, {passive: true});
 
