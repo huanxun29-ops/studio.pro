@@ -1258,9 +1258,15 @@ async function showWordTooltip(rawWord) {
     }
     dom.tooltip.classList.add('show');
     
-    $('tooltipWord').innerText = word; $('tooltipPhonetic').innerText = '分析中...'; $('tooltipDef').innerHTML = ''; $('tooltipExSection').style.display = 'none'; $('tooltipZhSection').style.display = 'none';
+    $('tooltipWord').innerText = word; $('tooltipPhonetic').innerText = '分析中...'; $('tooltipDef').innerHTML = ''; $('tooltipExSection').style.display = 'none'; 
+    
+    // 提前显示中文翻译区，并加入加载提示
+    $('tooltipZhSection').style.display = 'block'; 
+    $('tooltipZhDef').innerHTML = '<span style="color:var(--text-sub); font-size:15px; font-weight:normal;">翻译中...</span>';
+    
     state.currentWordData = { word: word, addedAt: Date.now() };
 
+    // 1. 查询英英释义
     try {
         const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`); if (!res.ok) throw new Error(); const data = await res.json();
         const phonetic = data[0].phonetic || ''; let defs = []; let example = '';
@@ -1270,30 +1276,28 @@ async function showWordTooltip(rawWord) {
         state.currentWordData.phonetic = phonetic; state.currentWordData.definition = defs.slice(0, 2).join('\n');
     } catch (e) { $('tooltipPhonetic').innerHTML = '<span style="color:var(--text-sub)">未能取得英英释义</span>'; }
 
+    // 2. 双接口中文翻译保障机制
     try {
-        const tlRes = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=${encodeURIComponent(word)}`);
-        if (tlRes.ok) { const tlData = await tlRes.json(); const zh = tlData?.[0]?.map(item => item?.[0]).join('').trim(); if (zh) { $('tooltipZhDef').innerText = zh; $('tooltipZhSection').style.display = 'block'; state.currentWordData.zh = zh; } }
-    } catch(e) {}
+        let zh = '';
+        try {
+            // 首选：Google 翻译 (可能会遭遇跨域拦截)
+            const tlRes = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=${encodeURIComponent(word)}`);
+            if (tlRes.ok) { const tlData = await tlRes.json(); zh = tlData?.[0]?.map(item => item?.[0]).join('').trim(); }
+            else throw new Error('GTX API Blocked');
+        } catch (err) {
+            // 备用：MyMemory 翻译 API (跨域友好)
+            const fbRes = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|zh-CN`);
+            if (fbRes.ok) { const fbData = await fbRes.json(); zh = fbData?.responseData?.translatedText || ''; }
+        }
+        
+        if (zh) { $('tooltipZhDef').innerText = zh; state.currentWordData.zh = zh; }
+        else $('tooltipZhDef').innerHTML = '<span style="color:var(--text-sub); font-size:14px; font-weight:normal;">接口限流，请稍后再试</span>';
+    } catch(e) { $('tooltipZhDef').innerHTML = '<span style="color:var(--text-sub); font-size:14px; font-weight:normal;">网络错误</span>'; }
 }
 
 if($('saveWordBtn')) {
     $('saveWordBtn').onclick = async () => {
-        if (!state.currentWordData || !state.currentWordData.word) return; await dbPut('vocab', state.currentWordData);
-        const today = new Date().toISOString().split('T')[0]; const stat = await dbGet('stats', today) || { date: today, mins: 0, words: 0 }; stat.words++; await dbPut('stats', stat);
-        showToast(`✅ "${state.currentWordData.word}" 已加入单词本！`); dom.tooltip.classList.remove('show'); await renderVocab(); await renderDashboard();
-    };
-}
-
-function bindClozeEvents() {
-    document.querySelectorAll('.cloze-input').forEach(inp => {
-        inp.onchange = async (e) => {
-            const val = e.target.value.toLowerCase().trim(); const ans = e.target.dataset.ans;
-            if(val === ans) { e.target.style.background = 'rgba(52, 199, 89, 0.2)'; e.target.style.color = 'var(--green)'; e.target.disabled = true; } 
-            else { e.target.style.borderBottom = '2px solid var(--red)'; e.target.value = ''; let err = await dbGet('clozeErr', ans) || { word: ans, count: 0 }; err.count++; await dbPut('clozeErr', err); }
-        };
-    });
-}
-
+<!-- ... existing code ... -->
 // ==========================================
 // 8. 播放器控制与进度存储优化 (Throttle)
 // ==========================================
