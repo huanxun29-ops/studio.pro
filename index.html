@@ -1248,91 +1248,72 @@ document.addEventListener('click', (e) => {
     if (dom.tooltip && dom.tooltip.classList.contains('show') && !dom.tooltip.contains(e.target) && !e.target.closest('.en-word') && !e.target.closest('.hl-word') && !e.target.closest('.hl-phrase')) dom.tooltip.classList.remove('show'); 
 });
 
+<!-- ... existing code ... -->
 // ==========================================
 // 7. Tooltip 与 API 查词
 // ==========================================
 async function showWordTooltip(rawWord) {
-    const word = rawWord.replace(/[^a-zA-Z\']/g, '').toLowerCase(); 
-    if (!word) return;
-    
-    const tooltip = document.getElementById('tooltip');
+    const word = rawWord.replace(/[^a-zA-Z\']/g, '').toLowerCase(); if (!word) return;
     if (window.innerWidth > 1024) {
-        tooltip.style.left = `calc(50% - 160px)`; 
-        tooltip.style.top = `30%`;
+        dom.tooltip.style.left = `calc(50% - 160px)`; dom.tooltip.style.top = `30%`;
     }
-    tooltip.classList.add('show');
+    dom.tooltip.classList.add('show');
     
-    // 1. 初始化 Tooltip 状态与加载提示
-    document.getElementById('tooltipWord').innerText = word; 
-    document.getElementById('tooltipPhonetic').innerText = '分析中...'; 
-    document.getElementById('tooltipDef').innerHTML = ''; 
-    document.getElementById('tooltipExSection').style.display = 'none'; 
+    $('tooltipWord').innerText = word; $('tooltipPhonetic').innerText = '分析中...'; $('tooltipDef').innerHTML = ''; $('tooltipExSection').style.display = 'none'; 
     
-    document.getElementById('tooltipZhSection').style.display = 'block'; 
-    document.getElementById('tooltipZhDef').innerHTML = '<span style="color:var(--text-sub); font-size:15px; font-weight:normal;">翻译中...</span>';
+    // 提前显示中文翻译区，并加入加载提示
+    $('tooltipZhSection').style.display = 'block'; 
+    $('tooltipZhDef').innerHTML = '<span style="color:var(--text-sub); font-size:15px; font-weight:normal;">翻译中...</span>';
     
     state.currentWordData = { word: word, addedAt: Date.now() };
 
-    // 2. 查询英英释义
+    // 1. 查询英英释义
     try {
-        const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`); 
-        if (!res.ok) throw new Error(); 
-        const data = await res.json();
+        const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`); if (!res.ok) throw new Error(); const data = await res.json();
         const phonetic = data[0].phonetic || ''; let defs = []; let example = '';
         data[0].meanings.forEach(m => { m.definitions.forEach(d => { if (d.example && !example) example = d.example; defs.push(`<strong>${escapeHtml(m.partOfSpeech)}</strong>: ${escapeHtml(d.definition)}`); }); });
-        
-        document.getElementById('tooltipPhonetic').innerText = phonetic; 
-        document.getElementById('tooltipDef').innerHTML = defs.slice(0, 2).join('<br><br>');
-        if (example) { 
-            document.getElementById('tooltipExSection').style.display = 'block'; 
-            document.getElementById('tooltipExample').innerText = `"${example}"`; 
-        }
-        state.currentWordData.phonetic = phonetic; 
-        state.currentWordData.definition = defs.slice(0, 2).join('\n');
-    } catch (e) { 
-        document.getElementById('tooltipPhonetic').innerHTML = '<span style="color:var(--text-sub)">未能取得英英释义</span>'; 
-    }
+        $('tooltipPhonetic').innerText = phonetic; $('tooltipDef').innerHTML = defs.slice(0, 2).join('<br><br>');
+        if (example) { $('tooltipExSection').style.display = 'block'; $('tooltipExample').innerText = `"${example}"`; }
+        state.currentWordData.phonetic = phonetic; state.currentWordData.definition = defs.slice(0, 2).join('\n');
+    } catch (e) { $('tooltipPhonetic').innerHTML = '<span style="color:var(--text-sub)">未能取得英英释义</span>'; }
 
-    // 3. 中文翻译机制 (多重保障，避免报错阻断程序)
+    // 2. 双接口中文翻译保障机制
     try {
         let zh = '';
-        
-        // 通道 A: Google 翻译
         try {
+            // 首选：Google 翻译 (可能会遭遇跨域拦截)
             const tlRes = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=${encodeURIComponent(word)}`);
-            if (tlRes.ok) { 
-                const tlData = await tlRes.json(); 
-                zh = tlData?.[0]?.map(item => item?.[0]).join('').trim(); 
-            }
-        } catch (err) { console.warn("Google Translate blocked"); }
-
-        // 通道 B: MyMemory 备用 (如果 Google 失败)
-        if (!zh) {
-            try {
-                const fbRes = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|zh-CN`);
-                if (fbRes.ok) { 
-                    const fbData = await fbRes.json(); 
-                    zh = fbData?.responseData?.translatedText || ''; 
-                    // 过滤掉 API 超额警告
-                    if(zh.includes('MYMEMORY WARNING')) zh = ''; 
-                }
-            } catch (err) { console.warn("MyMemory API failed"); }
+            if (tlRes.ok) { const tlData = await tlRes.json(); zh = tlData?.[0]?.map(item => item?.[0]).join('').trim(); }
+            else throw new Error('GTX API Blocked');
+        } catch (err) {
+            // 备用：MyMemory 翻译 API (跨域友好)
+            const fbRes = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|zh-CN`);
+            if (fbRes.ok) { const fbData = await fbRes.json(); zh = fbData?.responseData?.translatedText || ''; }
         }
         
-        // 渲染最终结果
-        if (zh) { 
-            document.getElementById('tooltipZhDef').innerText = zh; 
-            state.currentWordData.zh = zh; 
-        } else { 
-            document.getElementById('tooltipZhDef').innerHTML = '<span style="color:var(--text-sub); font-size:14px; font-weight:normal;">接口已被拦截，请稍后再试</span>'; 
-        }
-    } catch(e) { 
-        document.getElementById('tooltipZhDef').innerHTML = '<span style="color:var(--text-sub); font-size:14px; font-weight:normal;">网络错误</span>'; 
-    }
+        if (zh) { $('tooltipZhDef').innerText = zh; state.currentWordData.zh = zh; }
+        else $('tooltipZhDef').innerHTML = '<span style="color:var(--text-sub); font-size:14px; font-weight:normal;">接口限流，请稍后再试</span>';
+    } catch(e) { $('tooltipZhDef').innerHTML = '<span style="color:var(--text-sub); font-size:14px; font-weight:normal;">网络错误</span>'; }
 }
 
-if(document.getElementById('saveWordBtn')) {
-    document.getElementById('saveWordBtn').onclick = async () => {
+if($('saveWordBtn')) {
+    $('saveWordBtn').onclick = async () => {
+        if (!state.currentWordData || !state.currentWordData.word) return; await dbPut('vocab', state.currentWordData);
+        const today = new Date().toISOString().split('T')[0]; const stat = await dbGet('stats', today) || { date: today, mins: 0, words: 0 }; stat.words++; await dbPut('stats', stat);
+        showToast(`✅ "${state.currentWordData.word}" 已加入单词本！`); dom.tooltip.classList.remove('show'); await renderVocab(); await renderDashboard();
+    };
+}
+
+function bindClozeEvents() {
+    document.querySelectorAll('.cloze-input').forEach(inp => {
+        inp.onchange = async (e) => {
+            const val = e.target.value.toLowerCase().trim(); const ans = e.target.dataset.ans;
+            if(val === ans) { e.target.style.background = 'rgba(52, 199, 89, 0.2)'; e.target.style.color = 'var(--green)'; e.target.disabled = true; } 
+            else { e.target.style.borderBottom = '2px solid var(--red)'; e.target.value = ''; let err = await dbGet('clozeErr', ans) || { word: ans, count: 0 }; err.count++; await dbPut('clozeErr', err); }
+        };
+    });
+}
+
 // ==========================================
 // 8. 播放器控制与进度存储优化 (Throttle)
 // ==========================================
