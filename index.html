@@ -1252,48 +1252,87 @@ document.addEventListener('click', (e) => {
 // 7. Tooltip 与 API 查词
 // ==========================================
 async function showWordTooltip(rawWord) {
-    const word = rawWord.replace(/[^a-zA-Z\']/g, '').toLowerCase(); if (!word) return;
+    const word = rawWord.replace(/[^a-zA-Z\']/g, '').toLowerCase(); 
+    if (!word) return;
+    
+    const tooltip = document.getElementById('tooltip');
     if (window.innerWidth > 1024) {
-        dom.tooltip.style.left = `calc(50% - 160px)`; dom.tooltip.style.top = `30%`;
+        tooltip.style.left = `calc(50% - 160px)`; 
+        tooltip.style.top = `30%`;
     }
-    dom.tooltip.classList.add('show');
+    tooltip.classList.add('show');
     
-    $('tooltipWord').innerText = word; $('tooltipPhonetic').innerText = '分析中...'; $('tooltipDef').innerHTML = ''; $('tooltipExSection').style.display = 'none'; 
+    // 1. 初始化 Tooltip 状态与加载提示
+    document.getElementById('tooltipWord').innerText = word; 
+    document.getElementById('tooltipPhonetic').innerText = '分析中...'; 
+    document.getElementById('tooltipDef').innerHTML = ''; 
+    document.getElementById('tooltipExSection').style.display = 'none'; 
     
-    // 提前显示中文翻译区，并加入加载提示
-    $('tooltipZhSection').style.display = 'block'; 
-    $('tooltipZhDef').innerHTML = '<span style="color:var(--text-sub); font-size:15px; font-weight:normal;">翻译中...</span>';
+    document.getElementById('tooltipZhSection').style.display = 'block'; 
+    document.getElementById('tooltipZhDef').innerHTML = '<span style="color:var(--text-sub); font-size:15px; font-weight:normal;">翻译中...</span>';
     
     state.currentWordData = { word: word, addedAt: Date.now() };
 
-    // 1. 查询英英释义
+    // 2. 查询英英释义
     try {
-        const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`); if (!res.ok) throw new Error(); const data = await res.json();
+        const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`); 
+        if (!res.ok) throw new Error(); 
+        const data = await res.json();
         const phonetic = data[0].phonetic || ''; let defs = []; let example = '';
         data[0].meanings.forEach(m => { m.definitions.forEach(d => { if (d.example && !example) example = d.example; defs.push(`<strong>${escapeHtml(m.partOfSpeech)}</strong>: ${escapeHtml(d.definition)}`); }); });
-        $('tooltipPhonetic').innerText = phonetic; $('tooltipDef').innerHTML = defs.slice(0, 2).join('<br><br>');
-        if (example) { $('tooltipExSection').style.display = 'block'; $('tooltipExample').innerText = `"${example}"`; }
-        state.currentWordData.phonetic = phonetic; state.currentWordData.definition = defs.slice(0, 2).join('\n');
-    } catch (e) { $('tooltipPhonetic').innerHTML = '<span style="color:var(--text-sub)">未能取得英英释义</span>'; }
+        
+        document.getElementById('tooltipPhonetic').innerText = phonetic; 
+        document.getElementById('tooltipDef').innerHTML = defs.slice(0, 2).join('<br><br>');
+        if (example) { 
+            document.getElementById('tooltipExSection').style.display = 'block'; 
+            document.getElementById('tooltipExample').innerText = `"${example}"`; 
+        }
+        state.currentWordData.phonetic = phonetic; 
+        state.currentWordData.definition = defs.slice(0, 2).join('\n');
+    } catch (e) { 
+        document.getElementById('tooltipPhonetic').innerHTML = '<span style="color:var(--text-sub)">未能取得英英释义</span>'; 
+    }
 
-    // 2. 双接口中文翻译保障机制
+    // 3. 中文翻译机制 (多重保障，避免报错阻断程序)
     try {
         let zh = '';
+        
+        // 通道 A: Google 翻译
         try {
-            // 首选：Google 翻译 (可能会遭遇跨域拦截)
             const tlRes = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=${encodeURIComponent(word)}`);
-            if (tlRes.ok) { const tlData = await tlRes.json(); zh = tlData?.[0]?.map(item => item?.[0]).join('').trim(); }
-            else throw new Error('GTX API Blocked');
-        } catch (err) {
-            // 备用：MyMemory 翻译 API (跨域友好)
-            const fbRes = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|zh-CN`);
-            if (fbRes.ok) { const fbData = await fbRes.json(); zh = fbData?.responseData?.translatedText || ''; }
+            if (tlRes.ok) { 
+                const tlData = await tlRes.json(); 
+                zh = tlData?.[0]?.map(item => item?.[0]).join('').trim(); 
+            }
+        } catch (err) { console.warn("Google Translate blocked"); }
+
+        // 通道 B: MyMemory 备用 (如果 Google 失败)
+        if (!zh) {
+            try {
+                const fbRes = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|zh-CN`);
+                if (fbRes.ok) { 
+                    const fbData = await fbRes.json(); 
+                    zh = fbData?.responseData?.translatedText || ''; 
+                    // 过滤掉 API 超额警告
+                    if(zh.includes('MYMEMORY WARNING')) zh = ''; 
+                }
+            } catch (err) { console.warn("MyMemory API failed"); }
         }
         
-        if (zh) { $('tooltipZhDef').innerText = zh; state.currentWordData.zh = zh; }
-        else $('tooltipZhDef').innerHTML = '<span style="color:var(--text-sub); font-size:14px; font-weight:normal;">接口限流，请稍后再试</span>';
-    } catch(e) { $('tooltipZhDef').innerHTML = '<span style="color:var(--text-sub); font-size:14px; font-weight:normal;">网络错误</span>'; }
+        // 渲染最终结果
+        if (zh) { 
+            document.getElementById('tooltipZhDef').innerText = zh; 
+            state.currentWordData.zh = zh; 
+        } else { 
+            document.getElementById('tooltipZhDef').innerHTML = '<span style="color:var(--text-sub); font-size:14px; font-weight:normal;">接口已被拦截，请稍后再试</span>'; 
+        }
+    } catch(e) { 
+        document.getElementById('tooltipZhDef').innerHTML = '<span style="color:var(--text-sub); font-size:14px; font-weight:normal;">网络错误</span>'; 
+    }
 }
+
+if(document.getElementById('saveWordBtn')) {
+    document.getElementById('saveWordBtn').onclick = async () => {
 
 if($('saveWordBtn')) {
     $('saveWordBtn').onclick = async () => {
