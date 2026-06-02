@@ -1248,7 +1248,6 @@ document.addEventListener('click', (e) => {
     if (dom.tooltip && dom.tooltip.classList.contains('show') && !dom.tooltip.contains(e.target) && !e.target.closest('.en-word') && !e.target.closest('.hl-word') && !e.target.closest('.hl-phrase')) dom.tooltip.classList.remove('show'); 
 });
 
-<!-- ... existing code ... -->
 // ==========================================
 // 7. Tooltip 与 API 查词
 // ==========================================
@@ -1275,10 +1274,9 @@ async function showWordTooltip(rawWord) {
         $('tooltipPhonetic').innerText = phonetic; $('tooltipDef').innerHTML = defs.slice(0, 2).join('<br><br>');
         if (example) { $('tooltipExSection').style.display = 'block'; $('tooltipExample').innerText = `"${example}"`; }
         state.currentWordData.phonetic = phonetic; state.currentWordData.definition = defs.slice(0, 2).join('\n');
-    } catch (e) { $('tooltipPhonetic').innerText = phonetic; $('tooltipDef').innerHTML = defs.slice(0, 2).join('<br><br>');
-        if (example) { $('tooltipExSection').style.display = 'block'; $('tooltipExample').innerText = `"${example}"`; }
-        state.currentWordData.phonetic = phonetic; state.currentWordData.definition = defs.slice(0, 2).join('\n');
-    } catch (e) { $('tooltipPhonetic').innerHTML = '<span style="color:var(--text-sub)">未能取得英英释义</span>'; }
+    } catch (e) {
+        $('tooltipPhonetic').innerHTML = '<span style="color:var(--text-sub)">未能取得英英释义</span>';
+    }
 
     // 2. 五重翻译接口冗余队列（针对国内网络与跨域拦截特别优化）
     try {
