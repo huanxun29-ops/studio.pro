@@ -1275,52 +1275,63 @@ async function showWordTooltip(rawWord) {
         $('tooltipPhonetic').innerText = phonetic; $('tooltipDef').innerHTML = defs.slice(0, 2).join('<br><br>');
         if (example) { $('tooltipExSection').style.display = 'block'; $('tooltipExample').innerText = `"${example}"`; }
         state.currentWordData.phonetic = phonetic; state.currentWordData.definition = defs.slice(0, 2).join('\n');
+    } catch (e) { $('tooltipPhonetic').innerText = phonetic; $('tooltipDef').innerHTML = defs.slice(0, 2).join('<br><br>');
+        if (example) { $('tooltipExSection').style.display = 'block'; $('tooltipExample').innerText = `"${example}"`; }
+        state.currentWordData.phonetic = phonetic; state.currentWordData.definition = defs.slice(0, 2).join('\n');
     } catch (e) { $('tooltipPhonetic').innerHTML = '<span style="color:var(--text-sub)">未能取得英英释义</span>'; }
 
-    // 2. 三重中文翻译保障机制 (彻底解决跨域与限流)
+    // 2. 五重翻译接口冗余队列（针对国内网络与跨域拦截特别优化）
     try {
         let zh = '';
         const q = encodeURIComponent(word);
         
-        // 设定请求超时机制，避免接口卡死
-        const fetchWithTimeout = (url, timeout = 4000) => Promise.race([
+        // 设定请求超时机制，放宽到 5 秒
+        const fetchWithTimeout = (url, timeout = 5000) => Promise.race([
             fetch(url), new Promise((_, rej) => setTimeout(() => rej(new Error('Timeout')), timeout))
         ]);
 
-        const gtxUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=${q}`;
-        
         const apiQueue = [
-            // API 1: 透過 AllOrigins 代理绕过 CORS 拦截 (针对严格的 iframe 环境)
+            // API 1: Lingva (Google 翻译的开源代理，无 CORS 限制，海外极速)
             async () => {
-                const res = await fetchWithTimeout(`https://api.allorigins.win/raw?url=${encodeURIComponent(gtxUrl)}`);
+                const res = await fetchWithTimeout(`https://lingva.ml/api/v1/en/zh/${q}`);
+                const data = await res.json(); return data.translation;
+            },
+            // API 2: Popcat 国际通用翻译 (跨域友好)
+            async () => {
+                const res = await fetchWithTimeout(`https://api.popcat.xyz/translate?lang=zh-CN&text=${q}`);
+                const data = await res.json(); return data.translated;
+            },
+            // API 3: 韩小韩 API (专门针对国内网络特供，直连无墙)
+            async () => {
+                const res = await fetchWithTimeout(`https://api.vvhan.com/api/fy?text=${q}`);
+                const data = await res.json(); return (data && data.success) ? data.data.fanyi : '';
+            },
+            // API 4: Google 翻译直连 (梯子环境首选)
+            async () => {
+                const res = await fetchWithTimeout(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=${q}`);
                 const data = await res.json(); return data?.[0]?.map(i => i?.[0]).join('').trim();
             },
-            // API 2: Google 翻译直连
-            async () => {
-                const res = await fetchWithTimeout(gtxUrl);
-                const data = await res.json(); return data?.[0]?.map(i => i?.[0]).join('').trim();
-            },
-            // API 3: MyMemory 备用介面
+            // API 5: MyMemory (最后底线)
             async () => {
                 const res = await fetchWithTimeout(`https://api.mymemory.translated.net/get?q=${q}&langpair=en|zh-CN`);
                 const data = await res.json(); const t = data?.responseData?.translatedText; return t?.includes('WARNING') ? '' : t;
             }
         ];
 
-        // 依序尝试 API，只要成功就跳出循环
+        // 依序尝试 API，只要成功获取非空字符串就跳出循环
         for (const apiFn of apiQueue) {
             try { 
                 zh = await apiFn(); 
-                if (zh && zh.toLowerCase() !== word.toLowerCase()) break; 
-            } catch (err) { /* 忽略错误，继续尝试下一个 API */ }
+                if (zh && zh.toLowerCase() !== word.toLowerCase() && !zh.includes('<!DOCTYPE')) break; 
+            } catch (err) { /* 忽略当前错误，继续尝试下一个接口 */ }
         }
         
-        // 成功获取且不是返回原英文单词本身
-        if (zh && zh.toLowerCase() !== word.toLowerCase()) { 
+        // 验证翻译结果是否有效
+        if (zh && zh.toLowerCase() !== word.toLowerCase() && !zh.includes('<!DOCTYPE')) { 
             $('tooltipZhDef').innerText = zh; 
             state.currentWordData.zh = zh; 
         } else { 
-            $('tooltipZhDef').innerHTML = '<span style="color:var(--orange); font-size:14px; font-weight:normal;">当前网络或公开接口受限，已自动降级为纯英释义</span>'; 
+            $('tooltipZhDef').innerHTML = '<span style="color:var(--orange); font-size:14px; font-weight:normal;">当前网络严格拦截了所有翻译接口，请考虑使用代理</span>'; 
         }
     } catch(e) { $('tooltipZhDef').innerHTML = '<span style="color:var(--text-sub); font-size:14px; font-weight:normal;">网络请求失败</span>'; }
 }
