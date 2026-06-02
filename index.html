@@ -1278,60 +1278,67 @@ async function showWordTooltip(rawWord) {
         $('tooltipPhonetic').innerHTML = '<span style="color:var(--text-sub)">未能取得英英释义</span>';
     }
 
-    // 2. 五重翻译接口冗余队列（针对国内网络与跨域拦截特别优化）
+    // 2. 终极翻译接口矩阵（彻底解决国内网络与跨域拦截）
     try {
         let zh = '';
         const q = encodeURIComponent(word);
         
-        // 设定请求超时机制，放宽到 5 秒
-        const fetchWithTimeout = (url, timeout = 5000) => Promise.race([
+        // 设定请求超时机制，放宽到 4 秒，防止某个接口卡死
+        const fetchWithTimeout = (url, timeout = 4000) => Promise.race([
             fetch(url), new Promise((_, rej) => setTimeout(() => rej(new Error('Timeout')), timeout))
         ]);
 
         const apiQueue = [
-            // API 1: Lingva (Google 翻译的开源代理，无 CORS 限制，海外极速)
-            async () => {
-                const res = await fetchWithTimeout(`https://lingva.ml/api/v1/en/zh/${q}`);
-                const data = await res.json(); return data.translation;
-            },
-            // API 2: Popcat 国际通用翻译 (跨域友好)
-            async () => {
-                const res = await fetchWithTimeout(`https://api.popcat.xyz/translate?lang=zh-CN&text=${q}`);
-                const data = await res.json(); return data.translated;
-            },
-            // API 3: 韩小韩 API (专门针对国内网络特供，直连无墙)
+            // 国内可用公益 API 1: VVhan
             async () => {
                 const res = await fetchWithTimeout(`https://api.vvhan.com/api/fy?text=${q}`);
-                const data = await res.json(); return (data && data.success) ? data.data.fanyi : '';
+                const data = await res.json(); return data?.data?.fanyi || '';
             },
-            // API 4: Google 翻译直连 (梯子环境首选)
+            // 国内可用公益 API 2: OIO Web
             async () => {
-                const res = await fetchWithTimeout(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=${q}`);
-                const data = await res.json(); return data?.[0]?.map(i => i?.[0]).join('').trim();
+                const res = await fetchWithTimeout(`https://api.oioweb.cn/api/txt/fanyi?source=en&target=zh-CN&text=${q}`);
+                const data = await res.json(); return data?.code === 200 ? data?.result : '';
             },
-            // API 5: MyMemory (最后底线)
+            // Google 直连 (有 VPN / 海外优先)
+            async () => {
+                const res = await fetchWithTimeout(`https://translate.googleapis.com/translate_a/single?client=dict-chrome-ex&sl=en&tl=zh-CN&dt=t&q=${q}`);
+                const data = await res.json(); return data?.[0]?.[0] || data?.[0]?.map(i => i?.[0]).join('').trim();
+            },
+            // 跨域代理绕过 CORS 拦截 -> Google 翻译
+            async () => {
+                const targetUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=${q}`;
+                const res = await fetchWithTimeout(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`);
+                const raw = await res.json(); const data = JSON.parse(raw.contents); return data?.[0]?.map(i => i?.[0]).join('').trim();
+            },
+            // MyMemory (国际备用)
             async () => {
                 const res = await fetchWithTimeout(`https://api.mymemory.translated.net/get?q=${q}&langpair=en|zh-CN`);
-                const data = await res.json(); const t = data?.responseData?.translatedText; return t?.includes('WARNING') ? '' : t;
+                const data = await res.json(); const t = data?.responseData?.translatedText; return (t && !t.includes('WARNING')) ? t : '';
             }
         ];
 
-        // 依序尝试 API，只要成功获取非空字符串就跳出循环
+        // 依序尝试 API，一旦拿到有效的中文字符串就跳出循环
         for (const apiFn of apiQueue) {
             try { 
                 zh = await apiFn(); 
-                if (zh && zh.toLowerCase() !== word.toLowerCase() && !zh.includes('<!DOCTYPE')) break; 
-            } catch (err) { /* 忽略当前错误，继续尝试下一个接口 */ }
+                if (typeof zh === 'string' && zh.trim() !== '' && zh.toLowerCase() !== word.toLowerCase() && !zh.includes('<!DOCTYPE') && !zh.includes('<html')) {
+                    break; 
+                } else {
+                    zh = ''; // 如果结果无效（例如直接回传原始英文，或是遇到防火牆擋頁 HTML），清空並重試下一個
+                }
+            } catch (err) { zh = ''; }
         }
         
-        // 验证翻译结果是否有效
-        if (zh && zh.toLowerCase() !== word.toLowerCase() && !zh.includes('<!DOCTYPE')) { 
+        // 渲染最终结果
+        if (zh) { 
             $('tooltipZhDef').innerText = zh; 
             state.currentWordData.zh = zh; 
         } else { 
-            $('tooltipZhDef').innerHTML = '<span style="color:var(--orange); font-size:14px; font-weight:normal;">当前网络严格拦截了所有翻译接口，请考虑使用代理</span>'; 
+            $('tooltipZhDef').innerHTML = '<span style="color:var(--orange); font-size:14px; font-weight:normal;">所有翻译接口暂不可用，已显示纯英释义</span>'; 
         }
-    } catch(e) { $('tooltipZhDef').innerHTML = '<span style="color:var(--text-sub); font-size:14px; font-weight:normal;">网络请求失败</span>'; }
+    } catch(e) { 
+        $('tooltipZhDef').innerHTML = '<span style="color:var(--text-sub); font-size:14px; font-weight:normal;">网络请求失败</span>'; 
+    }
 }
 
 if($('saveWordBtn')) {
@@ -1496,10 +1503,96 @@ if($('toggleShadowBtn')) { $('toggleShadowBtn').onclick = (e) => { state.isShado
 if(dom.mobileVocabToggle) dom.mobileVocabToggle.onclick = () => dom.vocabContainer.classList.add('open'); 
 if($('closeVocabBtn')) $('closeVocabBtn').onclick = () => dom.vocabContainer.classList.remove('open');
 
-window.importYouTube = () => {
-    const input = $('ytInput'); if(!input || !input.value) return showToast('请输入链接');
-    showToast('正在解析 YouTube 字幕并调用 AI 翻译...');
-    setTimeout(() => { input.value = ''; showToast('导入成功！(展示用途)'); loadVideosFromSupabase(); }, 2000);
+window.importYouTube = async () => {
+    const input = $('ytInput');
+    if(!input || !input.value) return showToast('請輸入 YouTube 連結');
+    
+    const url = input.value.trim();
+    // 擷取 YouTube Video ID
+    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?]{11})/);
+    if (!match) return showToast('無效的 YouTube 連結格式');
+    const vid = match[1];
+
+    const btn = document.querySelector('button[onclick="importYouTube()"]');
+    const oldText = btn.innerText;
+    btn.innerText = '解析中...';
+    btn.disabled = true;
+    showToast('正在透過 API 擷取視訊與字幕串流...');
+    
+    try {
+        // 使用多個 Piped 節點實現高可用性，繞過 CORS
+        const apiNodes = ['https://pipedapi.kavin.rocks', 'https://pipedapi.tokhmi.xyz', 'https://piped-api.lunar.icu'];
+        let data = null;
+
+        for (const node of apiNodes) {
+            try {
+                const res = await fetch(`${node}/streams/${vid}`);
+                if (res.ok) { data = await res.json(); break; }
+            } catch(e) { console.warn('Piped API node failed:', node); }
+        }
+
+        if (!data) throw new Error('介面解析失敗，請稍後重試');
+
+        // 尋找帶有音訊的 MP4 混合流
+        let stream = null;
+        if (data.videoStreams && data.videoStreams.length > 0) {
+            stream = data.videoStreams.find(s => !s.videoOnly && s.mimeType.includes('mp4')) 
+                     || data.videoStreams.find(s => !s.videoOnly);
+        }
+        if (!stream) throw new Error('找不到可播放的視訊流');
+
+        // 尋找英文字幕 (優先人工，其次機翻)
+        const captions = data.subtitles || [];
+        const enCaption = captions.find(c => c.code === 'en' && !c.autoGenerated) 
+                          || captions.find(c => c.code.startsWith('en'));
+        if (!enCaption) throw new Error('此影片未提供英文字幕 (CC)，無法產生學習艙');
+
+        const capRes = await fetch(enCaption.url);
+        const vttText = await capRes.text();
+
+        // 解析 VTT
+        const regex = /(?:(\d{2}):)?(\d{2}):(\d{2})[,.](\d{3})\s*-->\s*(?:(\d{2}):)?(\d{2}):(\d{2})[,.](\d{3})[\s\S]*?\n([\s\S]*?)(?=\n{2,}|\n\d+\n|$)/g; 
+        state.subtitles = []; 
+        let m; 
+        const ts = (h, min, s, ms) => (parseInt(h||'0', 10)*3600) + (parseInt(min, 10)*60) + parseInt(s, 10) + (parseInt(ms, 10)/1000);
+        
+        let lastText = '';
+        while((m=regex.exec(vttText)) !== null) {
+            let enText = m[9].replace(/<[^>]+>/g,'').replace(/\n/g,' ').trim();
+            // 簡單的去重機制 (解決 YouTube 自動產生字幕滾動時的重複句子)
+            if(enText && enText !== lastText) {
+                state.subtitles.push({
+                    start: ts(m[1], m[2], m[3], m[4]), 
+                    end: ts(m[5], m[6], m[7], m[8]), 
+                    en: enText, 
+                    zh: "", 
+                    highlights: []
+                });
+                lastText = enText;
+            }
+        }
+        
+        if (state.subtitles.length === 0) throw new Error('字幕解析異常');
+
+        // 啟動播放器與學習艙
+        input.value = '';
+        state.currentVideoId = 'yt_' + vid; 
+        dom.player.src = stream.url;
+        buildTranscriptData(); 
+        state.currentActiveIndex = -1; 
+        state.renderRange = [-1,-1];
+        if(dom.transcript) dom.transcript.innerHTML = ''; 
+        if(dom.homeScreen) dom.homeScreen.classList.add('hidden'); 
+        if(dom.workspace) dom.workspace.classList.add('active');
+        dom.player.play();
+        showToast(`🚀 解析成功！準備播放`);
+
+    } catch(err) {
+        showToast(`❌ ${err.message}`);
+    } finally {
+        btn.innerText = oldText;
+        btn.disabled = false;
+    }
 };
 
 window.openVideo = async (id) => {
