@@ -1,20 +1,16 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>Studio Listening Pro · 沉浸式英語聽力訓練</title>
-    <meta name="description" content="Studio Listening Pro：以影片為核心的沉浸式英語聽力訓練平台，支援逐字高亮、雙語/盲聽模式、挖空練習、跟讀評測、單詞本與學習數據儀表板。" />
+    <title>Studio Listening Pro · 沉浸式英语听力训练</title>
+    <meta name="description" content="Studio Listening Pro：以视频为核心的沉浸式英语听力训练平台，支持逐字高亮、双语/盲听模式、挖空练习、跟读评测、单词本与学习数据仪表板。" />
     <meta name="theme-color" content="#F5F5F7" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#050505" media="(prefers-color-scheme: dark)" />
     <meta name="color-scheme" content="light dark" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Studio Pro" />
-    <!-- Open Graph -->
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Studio Listening Pro · 沉浸式英語聽力訓練" />
-    <meta property="og:description" content="影片驅動的英語聽力訓練：逐字高亮、盲聽、挖空、跟讀評測與學習數據分析。" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23007AFF'%3E%3Cpath d='M12 2l-5.5 9h11z'/%3E%3Ccircle cx='17.5' cy='17.5' r='4.5'/%3E%3Cpath d='M3 13.5h8v8H3z'/%3E%3C/svg%3E" />
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -296,28 +292,33 @@
         .lyric-en { font-size: 22px; font-weight: 700; line-height: 1.4; letter-spacing: -0.3px; transition: 0.3s ease; }
         .lyric-zh { font-size: 15px; font-weight: 500; color: var(--text-sub); line-height: 1.5; transition: opacity 0.3s; }
         
-        /* 核心：單詞跟隨與 Supabase Highlight 渲染 */
         .en-word { transition: 0.2s; cursor: pointer; border-radius: 4px; border-bottom: 2px solid transparent;}
         .en-word.word-active { background: rgba(0, 122, 255, 0.15); color: var(--blue); padding: 0 2px; }
         .dark-theme .en-word.word-active { background: rgba(10, 132, 255, 0.25); color: #4DA6FF; }
         
-        /* Supabase 原生 Custom Highlights (相容) */
         .hl-word { background: rgba(52, 199, 89, 0.15); color: var(--green); border-radius: 6px; padding: 2px 4px; }
         .hl-phrase { border-bottom: 2px dashed var(--orange); color: var(--orange); }
         
-        /* CEFR Levels */
         .lvl-b1 { border-bottom-color: var(--cefr-b1); } .lvl-b1:hover { color: var(--cefr-b1); }
         .lvl-b2 { border-bottom-color: var(--cefr-b2); } .lvl-b2:hover { color: var(--cefr-b2); }
         .lvl-c1 { border-bottom-color: var(--cefr-c1); } .lvl-c1:hover { color: var(--cefr-c1); }
         .lvl-c2 { border-bottom-color: var(--cefr-c2); } .lvl-c2:hover { color: var(--cefr-c2); }
 
-        /* 模式切換邏輯 (盲聽模糊在此實現) */
+        /* 模式切换逻辑：性能优化，摒弃 blur() */
         .transcript-flow.mode-1 .lyric-zh { display: none; }
         .transcript-flow.mode-2 .lyric-zh { display: none; }
-        /* 盲聽模式：強制模糊所有英文 (包含 active) */
-        .transcript-flow.mode-2 .lyric-en { filter: blur(6px); opacity: 0.6; transition: filter 0.3s, opacity 0.3s; pointer-events: none; }
-        /* 只有滑鼠懸停時才解除模糊 */
-        .transcript-flow.mode-2 .lyric-line:hover .lyric-en { filter: blur(0); opacity: 1; pointer-events: auto; }
+        /* 盲听模式：使用透明色与文字阴影，解决移动端卡顿 */
+        .transcript-flow.mode-2 .lyric-en { 
+            color: transparent; 
+            text-shadow: 0 0 10px rgba(134, 134, 139, 0.8); /* var(--text-sub) 的变体 */
+            transition: color 0.3s, text-shadow 0.3s; 
+            pointer-events: none; 
+        }
+        .transcript-flow.mode-2 .lyric-line:hover .lyric-en { 
+            color: var(--text-main); 
+            text-shadow: none; 
+            pointer-events: auto; 
+        }
 
         .cloze-input { background: rgba(0, 0, 0, 0.05); border: 2px solid transparent; border-bottom: 2px solid var(--text-sub); border-radius: 6px; padding: 0 6px; font-size: inherit; font-family: inherit; font-weight: 700; color: var(--text-main); text-align: center; outline: none; transition: 0.3s; margin: 0 4px; max-width: 100%; }
         .dark-theme .cloze-input { background: rgba(255, 255, 255, 0.1); }
@@ -351,6 +352,7 @@
         #mobileVocabToggle { display: none; }
         .vocab-close-mobile { display: none; font-size: 24px; cursor: pointer; color: var(--text-sub); font-weight: 300; transition: color 0.2s; }
 
+        /* ======== 移动端重构的 UI 布局 ======== */
         @media (max-width: 1024px) {
             .home-screen { flex-direction: column; }
             .home-main { padding: calc(20px + var(--safe-top)) 16px 120px 16px; }
@@ -372,15 +374,20 @@
             .nav-item .count-badge { position: absolute; top: 4px; right: 20%; padding: 2px 4px; font-size: 9px; min-width: 16px; margin: 0; }
             
             body { align-items: flex-start; }
-            .workspace { flex-direction: column; padding: 0; gap: 0; height: 100dvh; }
-            .sidebar { width: 100%; max-width: none; min-width: 0; gap: 0; flex-shrink:0; }
-            .video-container { border-radius: 0; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; background: #000; }
-            video { max-height: 30dvh; object-fit: contain; }
-            .main-content { border-radius: 0; border: none; box-shadow: none; flex: 1; min-height: 0; background: transparent; }
-            .transcript-flow { padding: 90px 16px calc(120px + var(--safe-bottom)) 16px; }
+            
+            /* 修复核心：Workspace 布局重新排布 */
+            .workspace.active { position: fixed; inset: 0; flex-direction: column; padding: 0; gap: 0; height: 100dvh; background: var(--bg); z-index: 200; display: flex; }
+            .sidebar { width: 100%; max-width: none; min-width: 0; gap: 0; flex-shrink: 0; display: flex; flex-direction: column; }
+            .video-container { width: 100%; aspect-ratio: 16/9; border-radius: 0; position: relative; z-index: 10; background: #000; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+            video { width: 100%; height: 100%; object-fit: contain; }
+            
+            .main-content { flex: 1; display: flex; flex-direction: column; border-radius: 0; border: none; box-shadow: none; min-height: 0; background: transparent; }
+            /* 工具栏放置在视频正下方，取消绝对定位 */
+            .top-toolbar { position: relative; top: 0; background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 16px; z-index: 5; }
+            .transcript-flow { padding: 16px 16px calc(120px + var(--safe-bottom)) 16px; flex: 1; overflow-y: auto; }
+            
             .player-dock { bottom: calc(24px + var(--safe-bottom)); width: auto; padding: 6px 8px; gap: 4px; border-radius: 30px; }
             .lyric-line { padding: 12px 8px; gap: 12px; margin-bottom: 16px;}
-            .top-toolbar { padding: 12px 16px; }
             
             #mobileVocabToggle { display: flex; }
             .vocab-close-mobile { display: block; }
@@ -404,26 +411,26 @@
 <!-- Auth Screen -->
 <div class="auth-screen hidden" id="authScreen">
     <div class="auth-card">
-        <div class="auth-title" id="authTitle">歡迎回來</div>
+        <div class="auth-title" id="authTitle">欢迎回来</div>
         <form id="authForm" class="auth-form">
-            <input type="email" id="authEmail" class="auth-input" placeholder="信箱" autocomplete="email" required />
-            <input type="password" id="authPassword" class="auth-input" placeholder="密碼" autocomplete="current-password" required />
-            <input type="text" id="authUsername" class="auth-input" placeholder="用戶名 (註冊必填)" style="display: none;" autocomplete="off" />
+            <input type="email" id="authEmail" class="auth-input" placeholder="邮箱" autocomplete="email" required />
+            <input type="password" id="authPassword" class="auth-input" placeholder="密码" autocomplete="current-password" required />
+            <input type="text" id="authUsername" class="auth-input" placeholder="用户名 (注册必填)" style="display: none;" autocomplete="off" />
             <div class="auth-file-group" id="authAvatarGroup" style="display: none;">
-                <span style="flex-shrink: 0; margin-right: 8px;">上傳頭像</span>
+                <span style="flex-shrink: 0; margin-right: 8px;">上传头像</span>
                 <input type="file" id="authAvatar" accept="image/*" />
             </div>
-            <input type="text" id="authInviteCode" class="auth-input" placeholder="邀請碼 (註冊必填)" style="display: none;" autocomplete="off" />
+            <input type="text" id="authInviteCode" class="auth-input" placeholder="邀请码 (注册必填)" style="display: none;" autocomplete="off" />
             <div id="authErrorMsg" class="auth-error-msg"></div>
             <div class="auth-checkbox-group" id="authRememberGroup">
                 <input type="checkbox" id="authRemember" checked />
-                <label for="authRemember">記住密碼</label>
+                <label for="authRemember">记住密码</label>
             </div>
-            <button type="submit" class="auth-btn" id="authSubmitBtn">登入</button>
+            <button type="submit" class="auth-btn" id="authSubmitBtn">登录</button>
         </form>
         <div class="auth-toggle">
-            <span id="authToggleText">還沒有帳號？</span> <a id="authToggleLink">立即註冊</a><br>
-            <a id="guestLoginLink" style="margin-top:12px; display:inline-block; color:var(--text-sub); cursor: pointer;">訪客免登入體驗</a>
+            <span id="authToggleText">还没有账号？</span> <a id="authToggleLink">立即注册</a><br>
+            <a id="guestLoginLink" style="margin-top:12px; display:inline-block; color:var(--text-sub); cursor: pointer;">访客免登录体验</a>
         </div>
     </div>
 </div>
@@ -437,18 +444,18 @@
         </div>
         <nav class="app-nav" id="sidebarNav">
             <div class="nav-item active" data-tab="library">
-                <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg> <span>影音庫</span>
+                <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg> <span>影音库</span>
                 <span class="count-badge" id="badge-library">0</span>
             </div>
             <div class="nav-item" data-tab="vocabulary">
-                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> <span>單詞本</span>
+                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> <span>单词本</span>
                 <span class="count-badge" id="badge-vocab">0</span>
             </div>
             <div class="nav-item" data-tab="local">
-                <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg> <span>本地檔案</span>
+                <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg> <span>本地文件</span>
             </div>
             <div class="nav-item" data-tab="profile">
-                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> <span>個人中心</span>
+                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> <span>个人中心</span>
             </div>
         </nav>
     </aside>
@@ -460,23 +467,23 @@
                 <div class="top-section-group">
                     <div class="view-header">
                         <div class="header-left">
-                            <div class="view-title">影音庫</div>
+                            <div class="view-title">影音库</div>
                             <div class="search-box">
                                 <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                                <input type="text" id="searchInput" placeholder="搜尋影片...">
+                                <input type="text" id="searchInput" placeholder="搜索视频...">
                             </div>
                         </div>
                     </div>
-                    <!-- 篩選器 -->
+                    <!-- 筛選器 -->
                     <div class="filter-bar" id="filterBar">
-                        <div class="filter-group"><span class="filter-label">難度</span><div class="custom-filter-btn" id="btnFilterRating"><span id="labelFilterRating">所有難度</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div><div class="filter-divider"></div>
-                        <div class="filter-group"><span class="filter-label">場景</span><div class="custom-filter-btn" id="btnFilterTag"><span id="labelFilterTag">所有主題</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div><div class="filter-divider"></div>
+                        <div class="filter-group"><span class="filter-label">难度</span><div class="custom-filter-btn" id="btnFilterRating"><span id="labelFilterRating">所有难度</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div><div class="filter-divider"></div>
+                        <div class="filter-group"><span class="filter-label">场景</span><div class="custom-filter-btn" id="btnFilterTag"><span id="labelFilterTag">所有主题</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div><div class="filter-divider"></div>
                         <div class="filter-group"><span class="filter-label">口音</span><div class="custom-filter-btn" id="btnFilterAccent"><span id="labelFilterAccent">所有口音</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div>
                     </div>
                 </div>
                 
                 <div class="yt-import-bar" style="margin-top: 16px; display:flex; gap:12px;">
-                    <input type="text" id="ytInput" class="yt-input" style="height: 44px; border-radius: 14px; border: 1px solid var(--glass-border); padding: 0 16px; background: var(--surface); color: var(--text-main); outline:none; font-size: 14px; width: 100%;" placeholder="輸入 YouTube URL 一鍵生成學習艙...">
+                    <input type="text" id="ytInput" class="yt-input" style="height: 44px; border-radius: 14px; border: 1px solid var(--glass-border); padding: 0 16px; background: var(--surface); color: var(--text-main); outline:none; font-size: 14px; width: 100%;" placeholder="输入 YouTube URL 一键生成学习舱...">
                     <button class="auth-btn" onclick="importYouTube()" style="padding: 10px 20px; font-size: 14px; border-radius: 14px; white-space: nowrap;">智能解析</button>
                 </div>
 
@@ -487,16 +494,16 @@
             <div id="view-vocabulary" class="app-view">
                 <div class="top-section-group">
                     <div class="view-header">
-                        <div class="header-left"><div class="view-title">單詞本</div></div>
+                        <div class="header-left"><div class="view-title">单词本</div></div>
                         <div class="export-btn-group" style="display: flex; gap: 8px;">
-                            <button class="export-btn" id="globalExportVocabBtn">匯出 CSV</button>
-                            <button class="export-btn" id="globalExportAnkiBtn">匯出 Anki</button>
+                            <button class="export-btn" id="globalExportVocabBtn">导出 CSV</button>
+                            <button class="export-btn" id="globalExportAnkiBtn">导出 Anki</button>
                         </div>
                     </div>
                 </div>
                 <div class="global-vocab-container">
                     <div class="global-vocab-header">
-                        <span class="global-vocab-title" style="font-size: 18px; font-weight: 700;">總計: <span id="globalVocabCount">0</span></span>
+                        <span class="global-vocab-title" style="font-size: 18px; font-weight: 700;">总计: <span id="globalVocabCount">0</span></span>
                     </div>
                     <div class="global-vocab-list" id="globalVocabList"></div>
                 </div>
@@ -506,27 +513,27 @@
             <div id="view-local" class="app-view">
                 <div class="top-section-group">
                     <div class="view-header">
-                        <div class="header-left"><div class="view-title">本地檔案</div></div>
+                        <div class="header-left"><div class="view-title">本地文件</div></div>
                     </div>
                 </div>
                 <div class="local-upload-area" id="localUploadDropzone">
                     <svg class="upload-icon" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
-                    <div class="upload-title" style="font-size: 24px; font-weight: 700; color: var(--text-main);">構建沉浸環境</div>
-                    <div class="upload-desc" style="font-size: 15px; color: var(--text-sub); max-width: 400px; line-height: 1.5;">請選擇一部 MP4 影片與對應的 SRT/VTT 字幕檔案，我們將為您自動生成互動式學習艙。</div>
+                    <div class="upload-title" style="font-size: 24px; font-weight: 700; color: var(--text-main);">构建沉浸环境</div>
+                    <div class="upload-desc" style="font-size: 15px; color: var(--text-sub); max-width: 400px; line-height: 1.5;">请选择一部 MP4 视频与对应的 SRT/VTT 字幕文件，我们将为您自动生成交互式学习舱。</div>
                     
                     <div class="upload-buttons">
                         <label class="upload-btn" id="btnLocalVideoView">
                             <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-                            <span id="txtLocalVideoView">選擇影片 (MP4)</span>
+                            <span id="txtLocalVideoView">选择视频 (MP4)</span>
                             <input type="file" id="localVideoInputView" accept="video/mp4,video/webm">
                         </label>
                         <label class="upload-btn" id="btnLocalSubView">
                             <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-                            <span id="txtLocalSubView">選擇字幕 (SRT/VTT)</span>
+                            <span id="txtLocalSubView">选择字幕 (SRT/VTT)</span>
                             <input type="file" id="localSubInputView" accept=".srt,.json,.vtt,.ass">
                         </label>
                     </div>
-                    <button class="launch-btn" id="btnLaunchLocalView">進入學習艙</button>
+                    <button class="launch-btn" id="btnLaunchLocalView">进入学习舱</button>
                 </div>
             </div>
 
@@ -534,7 +541,7 @@
             <div id="view-profile" class="app-view">
                 <div class="top-section-group">
                     <div class="view-header">
-                        <div class="header-left"><div class="view-title">個人中心</div></div>
+                        <div class="header-left"><div class="view-title">个人中心</div></div>
                     </div>
                 </div>
 
@@ -542,7 +549,7 @@
                     <div class="profile-avatar-wrapper">
                         <img src="" class="profile-avatar-img" id="profileAvatarImg" />
                         <div class="profile-avatar" id="profileAvatarText">U</div>
-                        <button class="edit-avatar-btn" onclick="openEditProfile('avatar')" title="修改頭像">✏️</button>
+                        <button class="edit-avatar-btn" onclick="openEditProfile('username')" title="修改头像">✏️</button>
                     </div>
                     <div class="profile-info">
                         <div class="profile-username" id="profileUsernameDisplay">User <span class="edit-btn" onclick="openEditProfile('username')">✏️</span></div>
@@ -551,7 +558,7 @@
                     <div class="profile-settings-list">
                         <button class="setting-btn" id="btnSettingTheme">
                             <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
-                            <span>切換外觀</span>
+                            <span>切换外观</span>
                         </button>
                         <button class="setting-btn danger" id="btnSettingLogout">
                             <svg viewBox="0 0 24 24"><path fill="currentColor" d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
@@ -561,25 +568,25 @@
                 </div>
 
                 <div class="dashboard-section">
-                    <div class="dashboard-title">數據總覽</div>
+                    <div class="dashboard-title">数据总览</div>
                     <div class="stats-row" id="statsRow">
-                        <div class="stat-card"><div class="stat-icon">⏱️</div><div class="stat-value" id="statTodayMin">0</div><div class="stat-label">今日學習(分鐘)</div></div>
-                        <div class="stat-card"><div class="stat-icon">📖</div><div class="stat-value" id="statNewWords">0</div><div class="stat-label">新學單詞</div></div>
-                        <div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-value" id="statStreak">0</div><div class="stat-label">連續學習(天)</div></div>
-                        <div class="stat-card"><div class="stat-icon">💎</div><div class="stat-value" id="statTotalWords">0</div><div class="stat-label">單詞本總計</div></div>
+                        <div class="stat-card"><div class="stat-icon">⏱️</div><div class="stat-value" id="statTodayMin">0</div><div class="stat-label">今日学习(分钟)</div></div>
+                        <div class="stat-card"><div class="stat-icon">📖</div><div class="stat-value" id="statNewWords">0</div><div class="stat-label">新学单词</div></div>
+                        <div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-value" id="statStreak">0</div><div class="stat-label">连续学习(天)</div></div>
+                        <div class="stat-card"><div class="stat-icon">💎</div><div class="stat-value" id="statTotalWords">0</div><div class="stat-label">单词本总计</div></div>
                     </div>
                     
-                    <div class="dashboard-title" style="margin-top: 24px;">學習熱力圖 (年度)</div>
+                    <div class="dashboard-title" style="margin-top: 24px;">学习热力图 (年度)</div>
                     <div class="heatmap-container"><div class="heatmap" id="heatmapGrid"></div></div>
 
-                    <div class="dashboard-title" style="margin-top: 32px;">今日錯題榜 (挖空模式)</div>
+                    <div class="dashboard-title" style="margin-top: 32px;">今日错题榜 (挖空模式)</div>
                     <div class="hard-words-list" id="hardWordsList"></div>
                 </div>
 
                 <div class="profile-tabs" id="profileTabs">
-                    <div class="profile-tab active" data-subtab="history"><span>觀看歷史</span> <span class="count-badge" id="badge-history">0</span></div>
+                    <div class="profile-tab active" data-subtab="history"><span>观看历史</span> <span class="count-badge" id="badge-history">0</span></div>
                     <div class="profile-tab" data-subtab="favorites"><span>我的收藏</span> <span class="count-badge" id="badge-favorites">0</span></div>
-                    <div class="profile-tab" data-subtab="completed"><span>已學完</span> <span class="count-badge" id="badge-completed">0</span></div>
+                    <div class="profile-tab" data-subtab="completed"><span>已学完</span> <span class="count-badge" id="badge-completed">0</span></div>
                 </div>
                 <div id="profileContentArea" class="video-grid" style="margin-top: 24px;"></div>
             </div>
@@ -588,16 +595,16 @@
 </div>
 
 <!-- Modals for Filters & Edits -->
-<div class="glass-modal" id="modalFilterRating"><div class="glass-modal-content"><div class="glass-option active" data-value="all">所有難度</div><div class="glass-option" data-value="5">⭐⭐⭐⭐⭐ (困難)</div><div class="glass-option" data-value="4">⭐⭐⭐⭐ (進階)</div><div class="glass-option" data-value="3">⭐⭐⭐ (中等)</div><div class="glass-option" data-value="2">⭐⭐ (基礎)</div><div class="glass-option" data-value="1">⭐ (入門)</div></div></div>
-<div class="glass-modal" id="modalFilterTag"><div class="glass-modal-content"><div class="glass-option active" data-value="all">所有主題</div><div class="glass-option" data-value="Academic">學術</div><div class="glass-option" data-value="Daily">日常生活</div><div class="glass-option" data-value="Business">商業</div><div class="glass-option" data-value="Entertainment">娛樂</div></div></div>
+<div class="glass-modal" id="modalFilterRating"><div class="glass-modal-content"><div class="glass-option active" data-value="all">所有难度</div><div class="glass-option" data-value="5">⭐⭐⭐⭐⭐ (困难)</div><div class="glass-option" data-value="4">⭐⭐⭐⭐ (进阶)</div><div class="glass-option" data-value="3">⭐⭐⭐ (中等)</div><div class="glass-option" data-value="2">⭐⭐ (基础)</div><div class="glass-option" data-value="1">⭐ (入门)</div></div></div>
+<div class="glass-modal" id="modalFilterTag"><div class="glass-modal-content"><div class="glass-option active" data-value="all">所有主题</div><div class="glass-option" data-value="Academic">学术</div><div class="glass-option" data-value="Daily">日常生活</div><div class="glass-option" data-value="Business">商业</div><div class="glass-option" data-value="Entertainment">娱乐</div></div></div>
 <div class="glass-modal" id="modalFilterAccent"><div class="glass-modal-content"><div class="glass-option active" data-value="all">所有口音</div><div class="glass-option" data-value="US">🇺🇸 美式</div><div class="glass-option" data-value="UK">🇬🇧 英式</div><div class="glass-option" data-value="AU">🇦🇺 澳式</div></div></div>
 
 <div class="glass-modal" id="editProfileModal">
     <div class="glass-modal-content">
-        <h3 id="editProfileTitle" style="margin-bottom: 16px; text-align: center; font-size: 20px; font-weight: 700;">修改資訊</h3>
+        <h3 id="editProfileTitle" style="margin-bottom: 16px; text-align: center; font-size: 20px; font-weight: 700;">修改信息</h3>
         <input type="text" id="editProfileInput" class="auth-input" style="margin-bottom: 16px; font-size: 14px;" />
         <div class="auth-file-group" id="editProfileFileGroup" style="display:none; margin-bottom: 16px;">
-            <span style="flex-shrink: 0; margin-right: 8px;">新頭像圖片</span>
+            <span style="flex-shrink: 0; margin-right: 8px;">新头像图片</span>
             <input type="file" id="editProfileFileInput" accept="image/*" />
         </div>
         <div style="display:flex; gap: 12px;">
@@ -612,11 +619,11 @@
     <div class="sidebar">
         <div class="video-container" id="videoContainer">
             <video id="player" playsinline></video>
-            <div class="speech-rating-badge" id="speechRatingBadge">🎙️ 評分中...</div>
+            <div class="speech-rating-badge" id="speechRatingBadge">🎙️ 评分中...</div>
         </div>
         <div class="vocab-container" id="vocabContainer">
             <div class="vocab-header">
-                <span>單詞本 <span id="vocabCount" style="color:var(--text-sub); font-weight:normal; margin-left:6px;">0</span></span>
+                <span>单词本 <span id="vocabCount" style="color:var(--text-sub); font-weight:normal; margin-left:6px;">0</span></span>
                 <span class="vocab-close-mobile" id="closeVocabBtn">✕</span>
             </div>
             <div class="vocab-list" id="vocabList"></div>
@@ -625,19 +632,19 @@
     
     <div class="main-content">
         <div class="top-toolbar">
-            <button class="icon-btn" style="background: var(--surface); backdrop-filter: blur(10px);" id="backToHomeBtn" title="返回主頁">
+            <button class="icon-btn" style="background: var(--surface); backdrop-filter: blur(10px);" id="backToHomeBtn" title="返回主页">
                 <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
             </button>
             
             <div style="display: flex; gap: 12px; align-items: center;">
                 <div class="segmented-control" id="modeControl">
-                    <div class="segment-btn active" data-mode="0">雙語</div>
-                    <div class="segment-btn" data-mode="1">純英</div>
-                    <div class="segment-btn" data-mode="2">盲聽</div>
+                    <div class="segment-btn active" data-mode="0">双语</div>
+                    <div class="segment-btn" data-mode="1">纯英</div>
+                    <div class="segment-btn" data-mode="2">盲听</div>
                 </div>
                 <div class="segmented-control">
                     <div class="segment-btn" id="toggleClozeBtn">挖空</div>
-                    <div class="segment-btn" id="toggleShadowBtn">跟讀</div>
+                    <div class="segment-btn" id="toggleShadowBtn">跟读</div>
                 </div>
                 <button class="icon-btn" id="mobileVocabToggle" style="margin-left: 4px;">
                     <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
@@ -651,7 +658,7 @@
             <button class="dock-btn" id="prevSentenceBtn" title="上一句" aria-label="上一句">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
             </button>
-            <button class="dock-btn play-pause" id="playPauseBtn" title="播放/暫停" aria-label="播放或暫停">
+            <button class="dock-btn play-pause" id="playPauseBtn" title="播放/暂停" aria-label="播放或暂停">
                 <svg id="playIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
                 <svg id="pauseIcon" viewBox="0 0 24 24" style="display: none;" aria-hidden="true"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
             </button>
@@ -661,7 +668,7 @@
             
             <div class="divider"></div>
             
-            <button class="dock-btn" id="loopGlobalBtn" title="單句循環" aria-label="單句循環">
+            <button class="dock-btn" id="loopGlobalBtn" title="单句循环" aria-label="单句循环">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/><text x="12" y="16" font-size="8" text-anchor="middle" fill="currentColor" font-weight="bold">1</text></svg>
             </button>
             
@@ -684,58 +691,52 @@
     <div class="tt-word" id="tooltipWord"></div>
     <div class="tt-phonetic" id="tooltipPhonetic"></div>
     <div class="tt-section" id="tooltipZhSection" style="display:none;">
-        <div class="tt-sec-title" style="color:var(--green);">中文釋義</div>
+        <div class="tt-sec-title" style="color:var(--green);">中文释义</div>
         <div class="tt-zh-def" id="tooltipZhDef" style="font-size:18px; font-weight:700; color:var(--text-main); margin-top:4px; letter-spacing:0.5px;"></div>
     </div>
-    <div class="tt-section" id="tooltipDefSection"><div class="tt-sec-title">英英釋義 (Definition)</div><div class="tt-def" id="tooltipDef"></div></div>
+    <div class="tt-section" id="tooltipDefSection"><div class="tt-sec-title">英英释义 (Definition)</div><div class="tt-def" id="tooltipDef"></div></div>
     <div class="tt-section" id="tooltipExSection" style="display:none;"><div class="tt-sec-title">例句 (Example)</div><div class="tt-example" id="tooltipExample"></div></div>
-    <button class="tt-btn" id="saveWordBtn">加入單詞本</button>
+    <button class="tt-btn" id="saveWordBtn">加入单词本</button>
 </div>
 
 <script>
 // ==========================================
-// 統一處理 DOM 的獲取 (徹底修復 undefined 報錯)
+// 1. DOM 工具与初始化 (清理代码架构)
 // ==========================================
+const $ = id => document.getElementById(id);
+
 const dom = {
-    authScreen: document.getElementById('authScreen'), homeScreen: document.getElementById('homeScreen'), workspace: document.getElementById('workspace'),
-    libraryContentArea: document.getElementById('libraryContentArea'), profileContentArea: document.getElementById('profileContentArea'),
-    transcript: document.getElementById('transcript'), player: document.getElementById('player'),
-    playBtn: document.getElementById('playPauseBtn'), heatmap: document.getElementById('heatmapGrid'), hardList: document.getElementById('hardWordsList'),
-    tooltip: document.getElementById('tooltip'), globalVocabList: document.getElementById('globalVocabList'), vocabList: document.getElementById('vocabList'),
-    profileUsernameDisplay: document.getElementById('profileUsernameDisplay'), profileEmailDisplay: document.getElementById('profileEmailDisplay'), 
-    profileAvatarText: document.getElementById('profileAvatarText'), profileAvatarImg: document.getElementById('profileAvatarImg'),
-    searchInput: document.getElementById('searchInput'), profileTabs: document.getElementById('profileTabs'),
-    speedMenu: document.getElementById('speedMenu'), speedToggleBtn: document.getElementById('speedToggleBtn'),
-    mobileVocabToggle: document.getElementById('mobileVocabToggle'), vocabContainer: document.getElementById('vocabContainer')
+    authScreen: $('authScreen'), homeScreen: $('homeScreen'), workspace: $('workspace'),
+    libraryContentArea: $('libraryContentArea'), profileContentArea: $('profileContentArea'),
+    transcript: $('transcript'), player: $('player'), playBtn: $('playPauseBtn'),
+    heatmap: $('heatmapGrid'), hardList: $('hardWordsList'), tooltip: $('tooltip'),
+    globalVocabList: $('globalVocabList'), vocabList: $('vocabList'),
+    profileUsernameDisplay: $('profileUsernameDisplay'), profileEmailDisplay: $('profileEmailDisplay'), 
+    profileAvatarText: $('profileAvatarText'), profileAvatarImg: $('profileAvatarImg'),
+    searchInput: $('searchInput'), profileTabs: $('profileTabs'), speedMenu: $('speedMenu'),
+    speedToggleBtn: $('speedToggleBtn'), mobileVocabToggle: $('mobileVocabToggle'),
+    vocabContainer: $('vocabContainer')
 };
 
 // ==========================================
 // Utils & DB Initialization (IndexedDB)
 // ==========================================
-// 安全性：所有將被插入 innerHTML 的「使用者 / 後端 / 第三方」資料都必須先轉義，避免 XSS。
 function escapeHtml(value) {
     if (value === null || value === undefined) return '';
-    return String(value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+    return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
-// 用於 src/url 屬性：先轉義引號，並阻擋 javascript: 等危險協議。
 function safeUrl(value) {
     const url = String(value || '').trim();
     if (/^\s*(javascript|data|vbscript):/i.test(url)) return '';
     return escapeHtml(url);
 }
-// 字幕專用：僅轉義 & < > （保留單引號），避免破壞縮寫詞(don't)的斷詞與高亮比對。
 function escapeText(value) {
     if (value === null || value === undefined) return '';
     return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function showToast(message) {
-    const container = document.getElementById('toastContainer');
+    const container = $('toastContainer');
     if(!container) return;
     while (container.firstChild) { container.removeChild(container.firstChild); }
     const toast = document.createElement('div');
@@ -799,13 +800,12 @@ function resizeImageToBase64(file, maxWidth, maxHeight) {
 // ==========================================
 const SUPABASE_URL = "https://revbsrjaeoldhhifibdx.supabase.co"; 
 const SUPABASE_ANON_KEY = "sb_publishable_fo8RtO0BL9fBr1uPH8cu1Q_wy5bj5GI"; 
-// 容錯：若 Supabase SDK（CDN）未能載入，提供安全降級，避免整個應用白屏。
 let supabaseClient;
 if (window.supabase && typeof window.supabase.createClient === 'function') {
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 } else {
-    console.error('Supabase SDK 載入失敗，啟用離線降級模式。');
-    const offlineResp = async () => ({ data: null, error: new Error('離線模式：無法連線至伺服器') });
+    console.error('Supabase SDK 载入失败，启用离线降级模式。');
+    const offlineResp = async () => ({ data: null, error: new Error('离线模式：无法连线至服务器') });
     const chain = { select: () => chain, eq: () => chain, order: () => chain, maybeSingle: offlineResp, update: () => chain, upsert: offlineResp, then: (r) => Promise.resolve({ data: [], error: null }).then(r) };
     supabaseClient = {
         auth: {
@@ -829,29 +829,25 @@ let state = {
 };
 
 // ==========================================
-// 1. 認證系統 (Supabase Auth)
+// 2. 认证系统 (Supabase Auth)
 // ==========================================
-// 安全性：絕不在 localStorage 儲存密碼。Supabase 已自動安全保存登入 session，
-// 重新整理頁面時會由 getSession() 還原登入狀態。這裡僅記住信箱方便輸入。
 const savedEmail = localStorage.getItem('studio_saved_email');
 if (savedEmail) {
-    const emailEl = document.getElementById('authEmail');
-    if (emailEl) emailEl.value = savedEmail;
-    const rememberEl = document.getElementById('authRemember');
-    if (rememberEl) rememberEl.checked = true;
+    if ($('authEmail')) $('authEmail').value = savedEmail;
+    if ($('authRemember')) $('authRemember').checked = true;
 }
 
-document.getElementById('authToggleLink').onclick = (e) => {
+$('authToggleLink').onclick = (e) => {
     e.preventDefault(); state.isLoginMode = !state.isLoginMode;
-    document.getElementById('authTitle').innerText = state.isLoginMode ? "歡迎回來" : "立即註冊";
-    document.getElementById('authSubmitBtn').innerText = state.isLoginMode ? "登入" : "註冊";
-    document.getElementById('authToggleText').innerText = state.isLoginMode ? "還沒有帳號？" : "已有帳號？";
-    e.target.innerText = state.isLoginMode ? "立即註冊" : "登入"; 
-    document.getElementById('authErrorMsg').style.display = 'none';
-    document.getElementById('authUsername').style.display = state.isLoginMode ? 'none' : 'block'; document.getElementById('authUsername').required = !state.isLoginMode;
-    document.getElementById('authAvatarGroup').style.display = state.isLoginMode ? 'none' : 'flex'; 
-    document.getElementById('authInviteCode').style.display = state.isLoginMode ? 'none' : 'block'; document.getElementById('authInviteCode').required = !state.isLoginMode; 
-    document.getElementById('authRememberGroup').style.display = state.isLoginMode ? 'flex' : 'none';
+    $('authTitle').innerText = state.isLoginMode ? "欢迎回来" : "立即注册";
+    $('authSubmitBtn').innerText = state.isLoginMode ? "登录" : "注册";
+    $('authToggleText').innerText = state.isLoginMode ? "还没有账号？" : "已有账号？";
+    e.target.innerText = state.isLoginMode ? "立即注册" : "登录"; 
+    $('authErrorMsg').style.display = 'none';
+    $('authUsername').style.display = state.isLoginMode ? 'none' : 'block'; $('authUsername').required = !state.isLoginMode;
+    $('authAvatarGroup').style.display = state.isLoginMode ? 'none' : 'flex'; 
+    $('authInviteCode').style.display = state.isLoginMode ? 'none' : 'block'; $('authInviteCode').required = !state.isLoginMode; 
+    $('authRememberGroup').style.display = state.isLoginMode ? 'flex' : 'none';
 };
 
 function handleSession(session) {
@@ -870,52 +866,51 @@ function handleSession(session) {
 }
 supabaseClient.auth.onAuthStateChange((_e, session) => handleSession(session));
 
-document.getElementById('authForm').onsubmit = async (e) => {
+$('authForm').onsubmit = async (e) => {
     e.preventDefault();
-    const btn = document.getElementById('authSubmitBtn'); const err = document.getElementById('authErrorMsg');
-    const email = document.getElementById('authEmail').value.trim(); const password = document.getElementById('authPassword').value;
+    const btn = $('authSubmitBtn'); const err = $('authErrorMsg');
+    const email = $('authEmail').value.trim(); const password = $('authPassword').value;
     
-    btn.disabled = true; btn.innerText = '處理中...'; err.style.display = 'none';
+    btn.disabled = true; btn.innerText = '处理中...'; err.style.display = 'none';
     try {
         if (state.isLoginMode) {
             const { error } = await supabaseClient.auth.signInWithPassword({ email, password }); if (error) throw error;
-            if (document.getElementById('authRemember').checked) { localStorage.setItem('studio_saved_email', email); } else { localStorage.removeItem('studio_saved_email'); }
+            if ($('authRemember').checked) { localStorage.setItem('studio_saved_email', email); } else { localStorage.removeItem('studio_saved_email'); }
         } else {
-            const ic = document.getElementById('authInviteCode').value.trim(); const { data, error: ce } = await supabaseClient.from('invite_codes').select('*').eq('code', ic).maybeSingle();
-            if (ce || !data || data.is_used) throw new Error('邀請碼無效或已被使用。');
-            const username = document.getElementById('authUsername').value.trim(); const avatarFile = document.getElementById('authAvatar').files[0];
+            const ic = $('authInviteCode').value.trim(); const { data, error: ce } = await supabaseClient.from('invite_codes').select('*').eq('code', ic).maybeSingle();
+            if (ce || !data || data.is_used) throw new Error('邀请码无效或已被使用。');
+            const username = $('authUsername').value.trim(); const avatarFile = $('authAvatar').files[0];
             let avatarBase64 = null; if (avatarFile) avatarBase64 = await resizeImageToBase64(avatarFile, 200, 200);
             const { error: se } = await supabaseClient.auth.signUp({ email, password, options: { data: { username: username, avatar: avatarBase64 } } }); if (se) throw se;
-            await supabaseClient.from('invite_codes').update({ is_used: true }).eq('code', ic); showToast('註冊成功！請登入。'); document.getElementById('authToggleLink').click();
+            await supabaseClient.from('invite_codes').update({ is_used: true }).eq('code', ic); showToast('注册成功！请登录。'); $('authToggleLink').click();
         }
-    } catch(errObj) { err.innerText = errObj.message; err.style.display = 'block'; } finally { btn.disabled = false; btn.innerText = state.isLoginMode ? '登入' : '註冊'; }
+    } catch(errObj) { err.innerText = errObj.message; err.style.display = 'block'; } finally { btn.disabled = false; btn.innerText = state.isLoginMode ? '登录' : '注册'; }
 };
 
-document.getElementById('guestLoginLink').onclick = () => {
+$('guestLoginLink').onclick = () => {
     localStorage.setItem('studio_pro_auth_state', 'guest');
     state.user = { email: 'guest@studiopro.com', user_metadata: { username: 'Guest' } };
     dom.authScreen.classList.add('hidden'); dom.homeScreen.classList.remove('hidden');
-    dom.profileUsernameDisplay.innerHTML = `訪客`; dom.profileEmailDisplay.innerText = 'guest@studiopro.com';
+    dom.profileUsernameDisplay.innerHTML = `访客`; dom.profileEmailDisplay.innerText = 'guest@studiopro.com';
     dom.profileAvatarImg.style.display = 'none'; dom.profileAvatarText.style.display = 'flex'; dom.profileAvatarText.innerText = 'G';
     loadVideosFromSupabase();
 };
 
-document.getElementById('btnSettingLogout').onclick = async () => {
+$('btnSettingLogout').onclick = async () => {
     localStorage.removeItem('studio_pro_auth_state'); localStorage.removeItem('studio_saved_email');
     await supabaseClient.auth.signOut();
     state.user = null; dom.homeScreen.classList.add('hidden'); dom.authScreen.classList.remove('hidden');
 };
 
 // ==========================================
-// 2. 影音庫載入與渲染 (包含過濾器邏輯)
+// 3. 影音库与过滤器
 // ==========================================
 function updateBadges() {
-    const libBadge = document.getElementById('badge-library'); if (libBadge) libBadge.innerText = videoDatabase.length;
-    dbGetAll('vocab').then(words => { const vocabBadge = document.getElementById('badge-vocab'); if (vocabBadge) vocabBadge.innerText = words.length; });
-    const histBadge = document.getElementById('badge-history'); const favBadge = document.getElementById('badge-favorites'); const compBadge = document.getElementById('badge-completed');
-    if (histBadge) histBadge.innerText = videoDatabase.filter(v => v.status === 'history' || (v.progress > 0 && v.progress < 99)).length;
-    if (favBadge) favBadge.innerText = videoDatabase.filter(v => v.favorite === true).length;
-    if (compBadge) compBadge.innerText = videoDatabase.filter(v => v.status === 'completed' || v.progress >= 99).length;
+    if ($('badge-library')) $('badge-library').innerText = videoDatabase.length;
+    dbGetAll('vocab').then(words => { if ($('badge-vocab')) $('badge-vocab').innerText = words.length; });
+    if ($('badge-history')) $('badge-history').innerText = videoDatabase.filter(v => v.status === 'history' || (v.progress > 0 && v.progress < 99)).length;
+    if ($('badge-favorites')) $('badge-favorites').innerText = videoDatabase.filter(v => v.favorite === true).length;
+    if ($('badge-completed')) $('badge-completed').innerText = videoDatabase.filter(v => v.status === 'completed' || v.progress >= 99).length;
 }
 
 async function loadVideosFromSupabase() {
@@ -923,32 +918,22 @@ async function loadVideosFromSupabase() {
     try {
         const { data, error } = await supabaseClient.from('videos').select('*').order('created_at', { ascending: false }); if(error) throw error;
         videoDatabase = data.map(v => ({ id: v.id, title: v.title, episode: v.episode || '', rating: v.rating || 5, tags: v.tags || [], accent: v.accent || 'US', coverUrl: v.cover_url, videoUrl: v.video_url, progress: 0, favorite: false, status: 'new', duration: v.duration || '--:--' }));
-        
-        for (let v of videoDatabase) { 
-            const savedProg = await dbGet('videos', v.id);
-            if(savedProg) { 
-                v.progress = savedProg.prog || 0; 
-                v.status = v.progress >= 99 ? 'completed' : 'history'; 
-                if (savedProg.favorite !== undefined) v.favorite = savedProg.favorite;
-            }
-        }
-        updateBadges(); renderCurrentView();
     } catch(e) {
-        showToast("資料庫連線失敗，啟用本地 Mock 資料模式");
+        showToast("数据库连接失败，启用本地演示数据");
         videoDatabase = [
             { id: 'v1', title: 'Steve Jobs Stanford Commencement Address 2005', episode: 'EP.01', rating: 5, tags: ['Business'], accent: 'US', duration: '14:33', coverUrl: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=600&q=80', progress: 0, favorite: false, status: 'new' },
             { id: 'v2', title: 'TED: Do schools kill creativity?', episode: 'TED', rating: 4, tags: ['Academic'], accent: 'UK', duration: '19:24', coverUrl: 'https://images.unsplash.com/photo-1475669698648-2f144fcaaeb1?auto=format&fit=crop&w=600&q=80', progress: 0, favorite: false, status: 'new' }
         ];
-        for (let v of videoDatabase) { 
-            const savedProg = await dbGet('videos', v.id); 
-            if (savedProg) {
-                v.progress = savedProg.prog || 0;
-                v.status = v.progress >= 99 ? 'completed' : 'history';
-                if(savedProg.favorite !== undefined) v.favorite = savedProg.favorite; 
-            }
-        }
-        updateBadges(); renderCurrentView();
     }
+    for (let v of videoDatabase) { 
+        const savedProg = await dbGet('videos', v.id);
+        if(savedProg) { 
+            v.progress = savedProg.prog || 0; 
+            v.status = v.progress >= 99 ? 'completed' : 'history'; 
+            if (savedProg.favorite !== undefined) v.favorite = savedProg.favorite;
+        }
+    }
+    updateBadges(); renderCurrentView();
     await renderVocab(); await renderDashboard();
 }
 
@@ -972,7 +957,6 @@ const renderVideoCard = (v) => `
         <div class="favorite-btn ${v.favorite ? 'active' : ''}" onclick="toggleFavorite(event, '${escapeHtml(v.id)}')" role="button" aria-label="收藏"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
         <div class="card-top">
             <img src="${safeUrl(v.coverUrl)}" class="card-img" alt="${escapeHtml(v.title || '')}" loading="lazy" />
-            <div class="card-preview-strip"><div class="preview-slice" style="background-image:url('${safeUrl(v.coverUrl)}')"></div><div class="preview-slice" style="background-image:url('https://images.unsplash.com/photo-1481481600673-c6c8423f4f0c?auto=format&fit=crop&w=300&q=80')"></div><div class="preview-slice" style="background-image:url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=300&q=80')"></div></div>
             <div class="card-duration">${escapeHtml(v.duration)}</div>
         </div>
         <div class="card-middle">
@@ -994,13 +978,13 @@ function renderGrid(container, context) {
         if (state.filters.accent !== 'all') filtered = filtered.filter(v => v.accent === state.filters.accent);
     } else if (context === 'history') { filtered = filtered.filter(v => v.status === 'history' || v.progress > 0 && v.progress < 99); } else if (context === 'completed') { filtered = filtered.filter(v => v.status === 'completed' || v.progress >= 99); } else if (context === 'favorites') { filtered = filtered.filter(v => v.favorite === true); }
 
-    if (filtered.length === 0) { container.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg><h3>未找到影片</h3><p>請嘗試調整您的篩選條件</p></div>`; return; }
+    if (filtered.length === 0) { container.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg><h3>未找到视频</h3><p>请尝试调整您的筛选条件</p></div>`; return; }
 
     let isFiltering = state.searchText || state.filters.rating !== 'all' || state.filters.tag !== 'all' || state.filters.accent !== 'all';
     if (context === 'library' && !isFiltering) {
-        let html = ''; const cw = filtered.filter(v => v.progress > 0 && v.progress < 99); if (cw.length > 0) html += `<div class="category-section"><div class="category-header">繼續學習</div><div class="row-scroll">${cw.map(v => renderVideoCard(v)).join('')}</div></div>`;
-        const acad = filtered.filter(v => v.tags && v.tags.includes('Academic')); if (acad.length > 0) html += `<div class="category-section"><div class="category-header">學術深研</div><div class="row-scroll">${acad.map(v => renderVideoCard(v)).join('')}</div></div>`;
-        const daily = filtered.filter(v => v.tags && (v.tags.includes('Daily') || v.tags.includes('Entertainment'))); if (daily.length > 0) html += `<div class="category-section"><div class="category-header">日常與旅行</div><div class="row-scroll">${daily.map(v => renderVideoCard(v)).join('')}</div></div>`;
+        let html = ''; const cw = filtered.filter(v => v.progress > 0 && v.progress < 99); if (cw.length > 0) html += `<div class="category-section"><div class="category-header">继续学习</div><div class="row-scroll">${cw.map(v => renderVideoCard(v)).join('')}</div></div>`;
+        const acad = filtered.filter(v => v.tags && v.tags.includes('Academic')); if (acad.length > 0) html += `<div class="category-section"><div class="category-header">学术深研</div><div class="row-scroll">${acad.map(v => renderVideoCard(v)).join('')}</div></div>`;
+        const daily = filtered.filter(v => v.tags && (v.tags.includes('Daily') || v.tags.includes('Entertainment'))); if (daily.length > 0) html += `<div class="category-section"><div class="category-header">日常与旅行</div><div class="row-scroll">${daily.map(v => renderVideoCard(v)).join('')}</div></div>`;
         container.innerHTML = html || `<div class="video-grid">${filtered.map(v => renderVideoCard(v)).join('')}</div>`;
     } else { container.innerHTML = `<div class="video-grid">${filtered.map(v => renderVideoCard(v)).join('')}</div>`; }
 }
@@ -1010,13 +994,10 @@ function renderCurrentView() {
     else if (state.currentTab === 'profile') renderGrid(dom.profileContentArea, state.profileSubTab); 
 }
 
-// ----------------------------------------------------------------
-// 3. 過濾器、數據中心與單詞本
-// ----------------------------------------------------------------
 if(dom.searchInput) { dom.searchInput.addEventListener('input', (e) => { state.searchText = e.target.value; renderCurrentView(); }); }
 
 function initCustomFilter(btnId, modalId, labelId, filterKey) { 
-    const btn = document.getElementById(btnId); const modal = document.getElementById(modalId); const label = document.getElementById(labelId); if(!btn || !modal) return; 
+    const btn = $(btnId); const modal = $(modalId); const label = $(labelId); if(!btn || !modal) return; 
     btn.onclick = () => modal.classList.add('active'); 
     modal.addEventListener('click', (e) => { 
         if (e.target === modal) modal.classList.remove('active'); 
@@ -1037,45 +1018,43 @@ if (dom.profileTabs) {
     });
 }
 
+// ==========================================
+// 4. 数据面板与单词本
+// ==========================================
 async function renderVocab() {
     const words = await dbGetAll('vocab'); words.sort((a,b) => b.addedAt - a.addedAt);
-    const html = words.map(w => `<div class="global-word-card"><div style="display:flex; justify-content:space-between;"><div><h3 style="font-size:18px; margin-bottom:4px;">${escapeHtml(w.word)}</h3><div style="font-size:13px; color:var(--text-sub); font-family:monospace;">${escapeHtml(w.phonetic||'')}</div></div><div style="color:var(--red); font-size:13px; cursor:pointer;" onclick="deleteWord('${escapeHtml(w.word)}')">移除</div></div><div style="margin-top:12px; font-size:18px; font-weight:700;">${escapeHtml(w.zh||'')}</div><div style="margin-top:6px; font-size:14px; white-space:pre-line;">${escapeHtml(w.definition||'')}</div></div>`).join('') || '<div style="color:var(--text-sub); padding: 16px;">單詞本目前空空如也</div>';
+    const html = words.map(w => `<div class="global-word-card"><div style="display:flex; justify-content:space-between;"><div><h3 style="font-size:18px; margin-bottom:4px;">${escapeHtml(w.word)}</h3><div style="font-size:13px; color:var(--text-sub); font-family:monospace;">${escapeHtml(w.phonetic||'')}</div></div><div style="color:var(--red); font-size:13px; cursor:pointer;" onclick="deleteWord('${escapeHtml(w.word)}')">移除</div></div><div style="margin-top:12px; font-size:18px; font-weight:700;">${escapeHtml(w.zh||'')}</div><div style="margin-top:6px; font-size:14px; white-space:pre-line;">${escapeHtml(w.definition||'')}</div></div>`).join('') || '<div style="color:var(--text-sub); padding: 16px;">单词本目前空空如也</div>';
     if(dom.globalVocabList) dom.globalVocabList.innerHTML = html;
     
     if(dom.vocabList) dom.vocabList.innerHTML = words.map(w => `<div class="word-item"><div class="word-head"><span class="word-text">${escapeHtml(w.word)}</span><span class="word-del" onclick="deleteWord('${escapeHtml(w.word)}')">移除</span></div><div style="font-size:13px; color:var(--text-sub);">${escapeHtml(w.zh || (w.definition||'').split('\n')[0] || '')}</div></div>`).join('');
     
-    const countGlobal = document.getElementById('globalVocabCount'); if(countGlobal) countGlobal.innerText = words.length; 
-    const countLocal = document.getElementById('vocabCount'); if(countLocal) countLocal.innerText = words.length;
+    if($('globalVocabCount')) $('globalVocabCount').innerText = words.length; 
+    if($('vocabCount')) $('vocabCount').innerText = words.length;
 }
 
 window.deleteWord = async (word) => { await dbDelete('vocab', word); await renderVocab(); await renderDashboard(); };
 
-// Dashboard Rendering
 async function renderDashboard() {
     const todayStr = new Date().toISOString().split('T')[0];
-
-    // 效能優化：一次性讀取全部 stats，建立日期索引，取代原本 365+ 次序列查詢。
     const allStats = await dbGetAll('stats');
     const statMap = {};
     allStats.forEach(s => { if (s && s.date) statMap[s.date] = s; });
 
     const todayStat = statMap[todayStr] || { mins: 0, words: 0 };
-    if(document.getElementById('statTodayMin')) document.getElementById('statTodayMin').innerText = todayStat.mins || 0;
-    if(document.getElementById('statNewWords')) document.getElementById('statNewWords').innerText = todayStat.words || 0;
+    if($('statTodayMin')) $('statTodayMin').innerText = todayStat.mins || 0;
+    if($('statNewWords')) $('statNewWords').innerText = todayStat.words || 0;
 
     const allVocab = await dbGetAll('vocab');
-    if(document.getElementById('statTotalWords')) document.getElementById('statTotalWords').innerText = allVocab.length;
+    if($('statTotalWords')) $('statTotalWords').innerText = allVocab.length;
 
-    // 連續學習天數
     let streak = 0;
     for(let i=0; i<365; i++) {
         const d = new Date(); d.setDate(d.getDate() - i);
         const s = statMap[d.toISOString().split('T')[0]];
         if(s && s.mins > 0) streak++; else if(i>0) break;
     }
-    if(document.getElementById('statStreak')) document.getElementById('statStreak').innerText = streak;
+    if($('statStreak')) $('statStreak').innerText = streak;
 
-    // 學習熱力圖：使用 DocumentFragment 一次性插入，避免 365 次 reflow。
     if(dom.heatmap) {
         const frag = document.createDocumentFragment();
         for(let i=0; i<365; i++) {
@@ -1088,7 +1067,7 @@ async function renderDashboard() {
             }
             const cell = document.createElement('div');
             cell.className = `heatmap-cell ${heatCls}`.trim();
-            cell.title = `${dateStr}: ${s?s.mins:0} 分鐘`;
+            cell.title = `${dateStr}: ${s?s.mins:0} 分钟`;
             frag.appendChild(cell);
         }
         dom.heatmap.innerHTML = '';
@@ -1100,29 +1079,48 @@ async function renderDashboard() {
     if(dom.hardList) dom.hardList.innerHTML = errs.slice(0,5).map(e => `
         <div class="hard-word-item">
             <span style="font-size:16px; font-weight:bold;">${escapeHtml(e.word)}</span>
-            <span class="err-count">錯誤 ${Number(e.count)||0} 次</span>
+            <span class="err-count">错误 ${Number(e.count)||0} 次</span>
         </div>
-    `).join('') || '<div style="color:var(--text-sub);">暫無錯題記錄，去開啟挖空模式練習吧。</div>';
+    `).join('') || '<div style="color:var(--text-sub);">暂无错题记录，去开启挖空模式练习吧。</div>';
 }
 
-// ----------------------------------------------------------------
-// 4. 本地檔案拖曳上傳
-// ----------------------------------------------------------------
-const dropzone = document.getElementById('localUploadDropzone');
-function checkLocalReady() { const btn = document.getElementById('btnLaunchLocalView'); if (btn && state.localReady.v && state.localReady.s) { btn.classList.add('active'); } }
+// ==========================================
+// 5. 本地文件拖拽与解析 (改进正则)
+// ==========================================
+const dropzone = $('localUploadDropzone');
+function checkLocalReady() { const btn = $('btnLaunchLocalView'); if (btn && state.localReady.v && state.localReady.s) { btn.classList.add('active'); } }
 function processLocalFiles(files) {
     Array.from(files).forEach(f => {
         if (f.type.includes('video') || f.name.endsWith('.mp4') || f.name.endsWith('.webm')) {
             if(state.localVideoFile) URL.revokeObjectURL(state.localVideoFile); state.localVideoFile = URL.createObjectURL(f); 
-            const viewBtn = document.getElementById('btnLocalVideoView'); if(viewBtn) viewBtn.classList.add('ready'); 
-            const txtView = document.getElementById('txtLocalVideoView'); if(txtView) txtView.innerText = f.name; 
+            if($('btnLocalVideoView')) $('btnLocalVideoView').classList.add('ready'); 
+            if($('txtLocalVideoView')) $('txtLocalVideoView').innerText = f.name; 
             state.localReady.v = true;
         } else if (f.name.endsWith('.srt') || f.name.endsWith('.vtt') || f.name.endsWith('.json')) {
             const r = new FileReader(); r.onload = () => {
-                if(f.name.endsWith('.json')) state.subtitles = JSON.parse(r.result);
-                else { const data = f.name.endsWith('.vtt') ? r.result.replace(/^WEBVTT.*\n*/, '') : r.result; const regex = /(\d{2}:\d{2}:\d{2}[,.]\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}[,.]\d{3})[\s\S]*?\n([\s\S]*?)(?=\n{2,}|\n\d+\n|$)/g; state.subtitles = []; let m; const ts = t => { const p=t.replace(',','.').split(':'); return (+p[0]*3600)+(+p[1]*60)+parseFloat(p[2]); }; while((m=regex.exec(data)) !== null) if(m[3].trim()) state.subtitles.push({start:ts(m[1]), end:ts(m[2]), en:m[3].replace(/<[^>]+>/g,'').replace(/\n/g,' ').trim(), zh:"", highlights:[]}); }
-                const viewSubBtn = document.getElementById('btnLocalSubView'); if(viewSubBtn) viewSubBtn.classList.add('ready'); 
-                const txtSubView = document.getElementById('txtLocalSubView'); if(txtSubView) txtSubView.innerText = f.name; 
+                if(f.name.endsWith('.json')) {
+                    state.subtitles = JSON.parse(r.result);
+                } else { 
+                    const data = f.name.endsWith('.vtt') ? r.result.replace(/^WEBVTT.*\n*/, '') : r.result; 
+                    // 优化后的正则表达式：兼容 MM:SS.mmm 和 HH:MM:SS.mmm 格式
+                    const regex = /(?:(\d{2}):)?(\d{2}):(\d{2})[,.](\d{3})\s*-->\s*(?:(\d{2}):)?(\d{2}):(\d{2})[,.](\d{3})[\s\S]*?\n([\s\S]*?)(?=\n{2,}|\n\d+\n|$)/g; 
+                    state.subtitles = []; 
+                    let m; 
+                    const ts = (h, min, s, ms) => (parseInt(h||'0', 10)*3600) + (parseInt(min, 10)*60) + parseInt(s, 10) + (parseInt(ms, 10)/1000);
+                    while((m=regex.exec(data)) !== null) {
+                        if(m[9].trim()) {
+                            state.subtitles.push({
+                                start: ts(m[1], m[2], m[3], m[4]), 
+                                end: ts(m[5], m[6], m[7], m[8]), 
+                                en: m[9].replace(/<[^>]+>/g,'').replace(/\n/g,' ').trim(), 
+                                zh: "", 
+                                highlights: []
+                            });
+                        }
+                    } 
+                }
+                if($('btnLocalSubView')) $('btnLocalSubView').classList.add('ready'); 
+                if($('txtLocalSubView')) $('txtLocalSubView').innerText = f.name; 
                 state.localReady.s = true; checkLocalReady();
             }; r.readAsText(f);
         }
@@ -1134,24 +1132,22 @@ if(dropzone) {
     dropzone.addEventListener('dragleave', e => { e.preventDefault(); dropzone.classList.remove('dragover'); }); 
     dropzone.addEventListener('drop', e => { e.preventDefault(); dropzone.classList.remove('dragover'); processLocalFiles(e.dataTransfer.files); });
 }
-const localVidIn = document.getElementById('localVideoInputView'); if(localVidIn) localVidIn.onchange = (e) => processLocalFiles(e.target.files); 
-const localSubIn = document.getElementById('localSubInputView'); if(localSubIn) localSubIn.onchange = (e) => processLocalFiles(e.target.files);
+if($('localVideoInputView')) $('localVideoInputView').onchange = (e) => processLocalFiles(e.target.files); 
+if($('localSubInputView')) $('localSubInputView').onchange = (e) => processLocalFiles(e.target.files);
 
-const btnLaunchLocal = document.getElementById('btnLaunchLocalView');
-if(btnLaunchLocal) {
-    btnLaunchLocal.onclick = () => {
+if($('btnLaunchLocalView')) {
+    $('btnLaunchLocalView').onclick = () => {
         if (!state.localReady.v || !state.localReady.s) return; state.currentVideoId = 'local'; dom.player.src = state.localVideoFile;
         buildTranscriptData(); state.currentActiveIndex = -1; state.renderRange = [-1,-1];
         dom.homeScreen.classList.add('hidden'); dom.workspace.classList.add('active'); dom.player.play();
     };
 }
 
-// ----------------------------------------------------------------
-// 5. 虛擬列表與雙軌高亮引擎 (Tokenizer)
-// ----------------------------------------------------------------
+// ==========================================
+// 6. 字幕渲染与 Tokenizer
+// ==========================================
 function buildTranscriptData() {
     state.subtitles.forEach(sub => {
-        // 安全性：字幕原文可能來自第三方檔案或後端，渲染前先轉義，杜絕字幕 XSS。
         const rawText = sub.en || "";
         const text = escapeText(rawText);
         let wordGlobalIndex = 0;
@@ -1203,6 +1199,7 @@ function updateVirtualDOM() {
     let active = state.currentActiveIndex < 0 ? 0 : state.currentActiveIndex;
     const startIdx = Math.max(0, active - 20); const endIdx = Math.min(state.subtitles.length - 1, active + 20);
     
+    // 基础 Virtual DOM 优化：区间内不变则不重刷
     if(state.renderRange[0] === startIdx && state.renderRange[1] === endIdx && dom.transcript.children.length > 0) return;
     state.renderRange = [startIdx, endIdx];
     
@@ -1219,7 +1216,7 @@ function updateVirtualDOM() {
 
 function updateWordHighlight(now) {
     if(state.currentActiveIndex < 0 || state.currentActiveIndex >= state.subtitles.length) return;
-    const lineNode = document.getElementById(`lyr-${state.currentActiveIndex}`); if(!lineNode) return;
+    const lineNode = $(`lyr-${state.currentActiveIndex}`); if(!lineNode) return;
     
     const sub = state.subtitles[state.currentActiveIndex]; let wIdx = -1;
     for(let i=0; i<sub.wordMap.length; i++) { if(now >= sub.wordMap[i].start && now <= sub.wordMap[i].end) { wIdx = i; break; } }
@@ -1231,9 +1228,6 @@ function updateWordHighlight(now) {
     if(wIdx !== -1) { const target = lineNode.querySelector(`[data-widx="${wIdx}"]`); if(target) target.classList.add('word-active'); }
 }
 
-// ----------------------------------------------------------------
-// 6. 事件代理: 單詞點擊與句子跳轉
-// ----------------------------------------------------------------
 if(dom.transcript) {
     dom.transcript.addEventListener('click', (e) => {
         if (e.target.closest('.cloze-input')) return;
@@ -1248,9 +1242,9 @@ document.addEventListener('click', (e) => {
     if (dom.tooltip && dom.tooltip.classList.contains('show') && !dom.tooltip.contains(e.target) && !e.target.closest('.en-word') && !e.target.closest('.hl-word') && !e.target.closest('.hl-phrase')) dom.tooltip.classList.remove('show'); 
 });
 
-// ----------------------------------------------------------------
-// 7. Tooltip 查詢功能 (Dictionary + Google Translate)
-// ----------------------------------------------------------------
+// ==========================================
+// 7. Tooltip 与 API 查词
+// ==========================================
 async function showWordTooltip(rawWord) {
     const word = rawWord.replace(/[^a-zA-Z\']/g, '').toLowerCase(); if (!word) return;
     if (window.innerWidth > 1024) {
@@ -1258,30 +1252,29 @@ async function showWordTooltip(rawWord) {
     }
     dom.tooltip.classList.add('show');
     
-    document.getElementById('tooltipWord').innerText = word; document.getElementById('tooltipPhonetic').innerText = '分析中...'; document.getElementById('tooltipDef').innerHTML = ''; document.getElementById('tooltipExSection').style.display = 'none'; document.getElementById('tooltipZhSection').style.display = 'none';
+    $('tooltipWord').innerText = word; $('tooltipPhonetic').innerText = '分析中...'; $('tooltipDef').innerHTML = ''; $('tooltipExSection').style.display = 'none'; $('tooltipZhSection').style.display = 'none';
     state.currentWordData = { word: word, addedAt: Date.now() };
 
     try {
         const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`); if (!res.ok) throw new Error(); const data = await res.json();
         const phonetic = data[0].phonetic || ''; let defs = []; let example = '';
         data[0].meanings.forEach(m => { m.definitions.forEach(d => { if (d.example && !example) example = d.example; defs.push(`<strong>${escapeHtml(m.partOfSpeech)}</strong>: ${escapeHtml(d.definition)}`); }); });
-        document.getElementById('tooltipPhonetic').innerText = phonetic; document.getElementById('tooltipDef').innerHTML = defs.slice(0, 2).join('<br><br>');
-        if (example) { document.getElementById('tooltipExSection').style.display = 'block'; document.getElementById('tooltipExample').innerText = `"${example}"`; }
+        $('tooltipPhonetic').innerText = phonetic; $('tooltipDef').innerHTML = defs.slice(0, 2).join('<br><br>');
+        if (example) { $('tooltipExSection').style.display = 'block'; $('tooltipExample').innerText = `"${example}"`; }
         state.currentWordData.phonetic = phonetic; state.currentWordData.definition = defs.slice(0, 2).join('\n');
-    } catch (e) { document.getElementById('tooltipPhonetic').innerHTML = '<span style="color:var(--text-sub)">未能取得英英釋義</span>'; }
+    } catch (e) { $('tooltipPhonetic').innerHTML = '<span style="color:var(--text-sub)">未能取得英英释义</span>'; }
 
     try {
-        const tlRes = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-TW&dt=t&q=${encodeURIComponent(word)}`);
-        if (tlRes.ok) { const tlData = await tlRes.json(); const zh = tlData?.[0]?.map(item => item?.[0]).join('').trim(); if (zh) { document.getElementById('tooltipZhDef').innerText = zh; document.getElementById('tooltipZhSection').style.display = 'block'; state.currentWordData.zh = zh; } }
+        const tlRes = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=${encodeURIComponent(word)}`);
+        if (tlRes.ok) { const tlData = await tlRes.json(); const zh = tlData?.[0]?.map(item => item?.[0]).join('').trim(); if (zh) { $('tooltipZhDef').innerText = zh; $('tooltipZhSection').style.display = 'block'; state.currentWordData.zh = zh; } }
     } catch(e) {}
 }
 
-const saveWordBtn = document.getElementById('saveWordBtn');
-if(saveWordBtn) {
-    saveWordBtn.onclick = async () => {
+if($('saveWordBtn')) {
+    $('saveWordBtn').onclick = async () => {
         if (!state.currentWordData || !state.currentWordData.word) return; await dbPut('vocab', state.currentWordData);
         const today = new Date().toISOString().split('T')[0]; const stat = await dbGet('stats', today) || { date: today, mins: 0, words: 0 }; stat.words++; await dbPut('stats', stat);
-        showToast(`✅ "${state.currentWordData.word}" 已加入單詞本！`); dom.tooltip.classList.remove('show'); await renderVocab(); await renderDashboard();
+        showToast(`✅ "${state.currentWordData.word}" 已加入单词本！`); dom.tooltip.classList.remove('show'); await renderVocab(); await renderDashboard();
     };
 }
 
@@ -1295,13 +1288,18 @@ function bindClozeEvents() {
     });
 }
 
-// ----------------------------------------------------------------
-// 8. 播放器控制與 Web Speech API
-// ----------------------------------------------------------------
-let recognizer; if ('webkitSpeechRecognition' in window) { recognizer = new webkitSpeechRecognition(); recognizer.continuous = false; recognizer.interimResults = false; recognizer.lang = 'en-US'; }
+// ==========================================
+// 8. 播放器控制与进度存储优化 (Throttle)
+// ==========================================
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognizer; 
+if (SpeechRecognition) { 
+    recognizer = new SpeechRecognition(); recognizer.continuous = false; recognizer.interimResults = false; recognizer.lang = 'en-US'; 
+}
+
 async function handleShadowRating(sentenceText) {
-    if(!recognizer) return showToast('您的瀏覽器不支援語音識別');
-    const badge = document.getElementById('speechRatingBadge'); badge.innerHTML = "🎙️ 正在聆聽..."; badge.classList.add('show');
+    if(!recognizer) return showToast('当前浏览器不支持语音识别，推荐使用 Chrome 或 Edge');
+    const badge = $('speechRatingBadge'); badge.innerHTML = "🎙️ 正在聆听..."; badge.classList.add('show');
     recognizer.onresult = (e) => {
         const spoken = e.results[0][0].transcript.toLowerCase(); const origin = sentenceText.replace(/[^a-zA-Z ]/g, '').toLowerCase().split(' '); const spokenArr = spoken.split(' ');
         let match = 0; origin.forEach(w => { if(w && spokenArr.includes(w)) match++; });
@@ -1310,11 +1308,23 @@ async function handleShadowRating(sentenceText) {
         badge.innerHTML = `<span style="color:${color}">●</span> ${score} 分`;
         setTimeout(() => { badge.classList.remove('show'); if(state.isShadowMode) dom.player.play(); }, 2000);
     };
-    recognizer.onerror = () => { badge.innerHTML = "⚠️ 未聽到聲音"; setTimeout(()=>badge.classList.remove('show'), 1500); };
+    recognizer.onerror = () => { badge.innerHTML = "⚠️ 未听到声音"; setTimeout(()=>badge.classList.remove('show'), 1500); };
     recognizer.start();
 }
 
 let isThrottled = false;
+let lastSavedTime = -1; // 用于进度保存的节流
+
+async function saveVideoProgress() {
+    if (state.currentVideoId && state.currentVideoId !== 'local' && dom.player.duration) {
+        const pct = (dom.player.currentTime / dom.player.duration) * 100; 
+        await dbPut('videos', { id: state.currentVideoId, prog: pct, progTime: dom.player.currentTime });
+        if (state.user && state.user.email !== 'guest@studiopro.com') { 
+            try { await supabaseClient.from('progress').upsert({ user_id: state.user.id, video_id: state.currentVideoId, watched_seconds: dom.player.currentTime, progress_percent: pct }); } catch(e) {} 
+        }
+    }
+}
+
 if(dom.player) {
     dom.player.addEventListener('timeupdate', () => {
         if (isThrottled) return; isThrottled = true;
@@ -1327,18 +1337,22 @@ if(dom.player) {
 
             if (activeIdx !== state.currentActiveIndex) {
                 if (state.currentActiveIndex !== -1) {
-                    const oldNode = document.getElementById(`lyr-${state.currentActiveIndex}`); if (oldNode) oldNode.classList.remove('active');
+                    const oldNode = $(`lyr-${state.currentActiveIndex}`); if (oldNode) oldNode.classList.remove('active');
                     if (state.isShadowMode && !state.globalLoop) { dom.player.pause(); handleShadowRating(state.subtitles[state.currentActiveIndex].en); }
                 }
                 state.currentActiveIndex = activeIdx; updateVirtualDOM();
-                if (activeIdx !== -1) { const newNode = document.getElementById(`lyr-${activeIdx}`); if (newNode) { newNode.classList.add('active'); const scrollPos = newNode.offsetTop - (dom.transcript.clientHeight / 2) + (newNode.clientHeight / 2); dom.transcript.scrollTo({ top: scrollPos, behavior: 'smooth' }); } }
+                if (activeIdx !== -1) { const newNode = $(`lyr-${activeIdx}`); if (newNode) { newNode.classList.add('active'); const scrollPos = newNode.offsetTop - (dom.transcript.clientHeight / 2) + (newNode.clientHeight / 2); dom.transcript.scrollTo({ top: scrollPos, behavior: 'smooth' }); } }
             }
             updateWordHighlight(now); isThrottled = false;
         });
     });
 
-    dom.player.addEventListener('play', () => { if(dom.playBtn) dom.playBtn.classList.add('playing'); const playI = document.getElementById('playIcon'); if(playI) playI.style.display='none'; const pauseI = document.getElementById('pauseIcon'); if(pauseI) pauseI.style.display='block'; });
-    dom.player.addEventListener('pause', () => { if(dom.playBtn) dom.playBtn.classList.remove('playing'); const playI = document.getElementById('playIcon'); if(playI) playI.style.display='block'; const pauseI = document.getElementById('pauseIcon'); if(pauseI) pauseI.style.display='none'; });
+    dom.player.addEventListener('play', () => { if(dom.playBtn) dom.playBtn.classList.add('playing'); const playI = $('playIcon'); if(playI) playI.style.display='none'; const pauseI = $('pauseIcon'); if(pauseI) pauseI.style.display='block'; });
+    dom.player.addEventListener('pause', async () => { 
+        if(dom.playBtn) dom.playBtn.classList.remove('playing'); const playI = $('playIcon'); if(playI) playI.style.display='block'; const pauseI = $('pauseIcon'); if(pauseI) pauseI.style.display='none'; 
+        // 视频暂停时进行可靠的数据保存
+        await saveVideoProgress();
+    });
     
     if(dom.playBtn) { dom.playBtn.onclick = () => dom.player.paused ? dom.player.play() : dom.player.pause(); }
 }
@@ -1346,14 +1360,15 @@ if(dom.player) {
 setInterval(async () => {
     if(dom.player && !dom.player.paused && dom.workspace && dom.workspace.classList.contains('active')) {
         const today = new Date().toISOString().split('T')[0]; let stat = await dbGet('stats', today) || { date: today, mins: 0, words: 0 }; stat.mins = Math.round((stat.mins + 5/60)*10)/10; await dbPut('stats', stat);
-        if(state.currentVideoId && state.currentVideoId !== 'local' && dom.player.duration) {
-            const pct = (dom.player.currentTime / dom.player.duration) * 100; await dbPut('videos', { id: state.currentVideoId, prog: pct, progTime: dom.player.currentTime });
-            if (state.user && state.user.email !== 'guest@studiopro.com') { try { await supabaseClient.from('progress').upsert({ user_id: state.user.id, video_id: state.currentVideoId, watched_seconds: dom.player.currentTime, progress_percent: pct }); } catch(e) {} }
+        
+        // 优化存储：只有当视频确实前进了至少 5 秒，才执行本地和远程的保存
+        if (Math.abs(dom.player.currentTime - lastSavedTime) > 5) {
+            lastSavedTime = dom.player.currentTime;
+            await saveVideoProgress();
         }
     }
 }, 5000);
 
-window.skip = (s) => { if(dom.player) dom.player.currentTime += s; }; // 保留給原本內部呼叫
 window.prevSentence = () => { 
     if (!state.subtitles || state.subtitles.length === 0 || !dom.player) return;
     if (state.currentActiveIndex > 0) { dom.player.currentTime = state.subtitles[state.currentActiveIndex - 1].start + 0.01; } else { dom.player.currentTime = 0; }
@@ -1365,12 +1380,11 @@ window.nextSentence = () => {
     } else if (state.currentActiveIndex === -1 && state.subtitles.length > 0) { dom.player.currentTime = state.subtitles[0].start + 0.01; dom.player.play(); }
 };
 
-const prevBtn = document.getElementById('prevSentenceBtn'); if(prevBtn) prevBtn.onclick = window.prevSentence;
-const nextBtn = document.getElementById('nextSentenceBtn'); if(nextBtn) nextBtn.onclick = window.nextSentence;
+if($('prevSentenceBtn')) $('prevSentenceBtn').onclick = window.prevSentence;
+if($('nextSentenceBtn')) $('nextSentenceBtn').onclick = window.nextSentence;
 
-const loopBtn = document.getElementById('loopGlobalBtn');
-if(loopBtn) {
-    loopBtn.onclick = (e) => { state.globalLoop = !state.globalLoop; e.target.closest('button').style.color = state.globalLoop ? 'var(--blue)' : 'var(--text-main)'; showToast(state.globalLoop ? '開啟單句循環' : '關閉循環'); };
+if($('loopGlobalBtn')) {
+    $('loopGlobalBtn').onclick = (e) => { state.globalLoop = !state.globalLoop; e.target.closest('button').style.color = state.globalLoop ? 'var(--blue)' : 'var(--text-main)'; showToast(state.globalLoop ? '开启单句循环' : '关闭循环'); };
 }
 
 if(dom.speedToggleBtn) {
@@ -1379,18 +1393,16 @@ if(dom.speedToggleBtn) {
 document.querySelectorAll('.sp-item').forEach(item => item.onclick = () => { const s=parseFloat(item.dataset.speed); if(dom.player) dom.player.playbackRate=s; if(dom.speedToggleBtn) dom.speedToggleBtn.innerText=`${s.toFixed(1)}x`; document.querySelectorAll('.sp-item').forEach(i=>i.classList.remove('active')); item.classList.add('active'); if(dom.speedMenu) dom.speedMenu.classList.remove('show'); });
 document.addEventListener('click', e => { if (dom.speedMenu && !dom.speedMenu.contains(e.target) && e.target !== dom.speedToggleBtn) dom.speedMenu.classList.remove('show'); });
 
-// ----------------------------------------------------------------
-// 9. 頁面與按鈕交互
-// ----------------------------------------------------------------
-const backBtn = document.getElementById('backToHomeBtn');
-if(backBtn) backBtn.onclick = () => { if(dom.player) dom.player.pause(); if(dom.workspace) dom.workspace.classList.remove('active'); if(dom.homeScreen) dom.homeScreen.classList.remove('hidden'); loadVideosFromSupabase(); };
+// ==========================================
+// 9. 界面交互与事件
+// ==========================================
+if($('backToHomeBtn')) $('backToHomeBtn').onclick = () => { if(dom.player) dom.player.pause(); if(dom.workspace) dom.workspace.classList.remove('active'); if(dom.homeScreen) dom.homeScreen.classList.remove('hidden'); loadVideosFromSupabase(); };
 
-const sidebarNav = document.getElementById('sidebarNav');
+const sidebarNav = $('sidebarNav');
 if(sidebarNav) {
-    sidebarNav.addEventListener('click', e => { const item = e.target.closest('.nav-item'); if(!item || item.id==='btnThemeToggle') return; document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active')); item.classList.add('active'); document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('active')); state.currentTab = item.dataset.tab; const view = document.getElementById(`view-${state.currentTab}`); if(view) view.classList.add('active'); renderCurrentView(); });
+    sidebarNav.addEventListener('click', e => { const item = e.target.closest('.nav-item'); if(!item || item.id==='btnThemeToggle') return; document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active')); item.classList.add('active'); document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('active')); state.currentTab = item.dataset.tab; const view = $(`view-${state.currentTab}`); if(view) view.classList.add('active'); renderCurrentView(); });
 }
 
-// 主題系統：持久化 + 跟隨系統偏好 + 同步瀏覽器主題色
 function updateThemeColorMeta() {
     const isDark = document.body.classList.contains('dark-theme');
     document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.setAttribute('content', isDark ? '#050505' : '#F5F5F7'));
@@ -1407,27 +1419,23 @@ function toggleTheme() {
     localStorage.setItem('studio_theme', isDark ? 'dark' : 'light');
     updateThemeColorMeta();
 }
-const themeToggle = document.getElementById('btnThemeToggle'); if(themeToggle) themeToggle.onclick = toggleTheme;
-const settingTheme = document.getElementById('btnSettingTheme'); if(settingTheme) settingTheme.onclick = toggleTheme;
+if($('btnThemeToggle')) $('btnThemeToggle').onclick = toggleTheme;
+if($('btnSettingTheme')) $('btnSettingTheme').onclick = toggleTheme;
 
-const modeControl = document.getElementById('modeControl');
-if(modeControl) {
-    modeControl.addEventListener('click', e => { const btn = e.target.closest('.segment-btn'); if(!btn) return; document.querySelectorAll('#modeControl .segment-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); state.subtitleMode = parseInt(btn.dataset.mode); if(dom.transcript) dom.transcript.className = `transcript-flow mode-${state.subtitleMode}`; });
+if($('modeControl')) {
+    $('modeControl').addEventListener('click', e => { const btn = e.target.closest('.segment-btn'); if(!btn) return; document.querySelectorAll('#modeControl .segment-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); state.subtitleMode = parseInt(btn.dataset.mode); if(dom.transcript) dom.transcript.className = `transcript-flow mode-${state.subtitleMode}`; });
 }
 
-const clozeBtn = document.getElementById('toggleClozeBtn');
-if(clozeBtn) { clozeBtn.onclick = (e) => { state.isClozeMode = !state.isClozeMode; e.target.classList.toggle('active', state.isClozeMode); buildTranscriptData(); state.renderRange=[-1,-1]; updateVirtualDOM(); }; }
-
-const shadowBtn = document.getElementById('toggleShadowBtn');
-if(shadowBtn) { shadowBtn.onclick = (e) => { state.isShadowMode = !state.isShadowMode; e.target.classList.toggle('active', state.isShadowMode); showToast(state.isShadowMode ? 'AI 評測已開啟，請在句尾跟讀' : '已關閉'); }; }
+if($('toggleClozeBtn')) { $('toggleClozeBtn').onclick = (e) => { state.isClozeMode = !state.isClozeMode; e.target.classList.toggle('active', state.isClozeMode); buildTranscriptData(); state.renderRange=[-1,-1]; updateVirtualDOM(); }; }
+if($('toggleShadowBtn')) { $('toggleShadowBtn').onclick = (e) => { state.isShadowMode = !state.isShadowMode; e.target.classList.toggle('active', state.isShadowMode); showToast(state.isShadowMode ? 'AI 评测已开启，请在句尾跟读' : '已关闭'); }; }
 
 if(dom.mobileVocabToggle) dom.mobileVocabToggle.onclick = () => dom.vocabContainer.classList.add('open'); 
-const closeVocabBtn = document.getElementById('closeVocabBtn'); if(closeVocabBtn) closeVocabBtn.onclick = () => dom.vocabContainer.classList.remove('open');
+if($('closeVocabBtn')) $('closeVocabBtn').onclick = () => dom.vocabContainer.classList.remove('open');
 
 window.importYouTube = () => {
-    const input = document.getElementById('ytInput'); if(!input || !input.value) return showToast('請輸入連結');
-    showToast('正在解析 YouTube 字幕並調用 AI 翻譯...');
-    setTimeout(() => { input.value = ''; showToast('導入成功！(展示用途)'); loadVideosFromSupabase(); }, 2000);
+    const input = $('ytInput'); if(!input || !input.value) return showToast('请输入链接');
+    showToast('正在解析 YouTube 字幕并调用 AI 翻译...');
+    setTimeout(() => { input.value = ''; showToast('导入成功！(展示用途)'); loadVideosFromSupabase(); }, 2000);
 };
 
 window.openVideo = async (id) => {
@@ -1437,20 +1445,17 @@ window.openVideo = async (id) => {
         if(joinError || !joinData || joinData.length === 0) { const { data } = await supabaseClient.from('subtitles').select('*').eq('video_id', id).order('start', { ascending: true }); finalSubtitles = data || []; } else { finalSubtitles = joinData || []; }
         if (finalSubtitles.length > 0) { state.subtitles = finalSubtitles; } else { throw new Error("找不到字幕"); }
     } catch (err) {
-        showToast("字幕加載失敗，已切換至示範字幕");
+        showToast("字幕加载失败，已切换至演示字幕");
         state.subtitles = [
-            { start: 0.5, end: 3.0, en: "Welcome to this advanced English lesson.", zh: "歡迎來到這節高級英語課。" },
-            { start: 3.5, end: 6.0, en: "It is absolutely vital that you accelerate your learning.", zh: "加速你的學習是絕對至關重要的。" },
-            { start: 6.5, end: 9.5, en: "Click any word to see its definition and save it to your vocabulary.", zh: "點擊任一單字即可查看釋義並加入單詞本。" }
+            { start: 0.5, end: 3.0, en: "Welcome to this advanced English lesson.", zh: "欢迎来到这节高级英语课。" },
+            { start: 3.5, end: 6.0, en: "It is absolutely vital that you accelerate your learning.", zh: "加速你的学习是绝对至关重要的。" },
+            { start: 6.5, end: 9.5, en: "Click any word to see its definition and save it to your vocabulary.", zh: "点击任一单词即可查看释义并加入单词本。" }
         ];
     }
     buildTranscriptData(); state.currentActiveIndex = -1; state.renderRange = [-1,-1]; if(dom.transcript) dom.transcript.innerHTML = ''; if(dom.homeScreen) dom.homeScreen.classList.add('hidden'); if(dom.workspace) dom.workspace.classList.add('active');
     const prog = await dbGet('videos', id); if(prog && prog.progTime && dom.player) dom.player.currentTime = prog.progTime; if(dom.player) dom.player.play();
 };
 
-// ==========================================
-// 鍵盤快捷鍵更新：左右鍵改為上一句/下一句
-// ==========================================
 document.addEventListener('keydown', (e) => {
     if (!dom.workspace || !dom.workspace.classList.contains('active') || e.target.tagName === 'INPUT') return;
     switch (e.code) { 
@@ -1460,29 +1465,24 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-const exportAnkiBtn = document.getElementById('globalExportAnkiBtn');
-if (exportAnkiBtn) {
-    exportAnkiBtn.onclick = async () => { const words = await dbGetAll('vocab'); if (!words.length) return showToast("沒有單詞可匯出"); let txt = ''; words.forEach(w => { txt += `${w.word}\t${(w.zh||'')} ${(w.definition||'').replace(/\n/g,' ')}\n`; }); const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain;charset=utf-8;' })); link.download = 'vocabulary_anki.txt'; link.click(); showToast("Anki 檔案已匯出"); };
+if ($('globalExportAnkiBtn')) {
+    $('globalExportAnkiBtn').onclick = async () => { const words = await dbGetAll('vocab'); if (!words.length) return showToast("没有单词可导出"); let txt = ''; words.forEach(w => { txt += `${w.word}\t${(w.zh||'')} ${(w.definition||'').replace(/\n/g,' ')}\n`; }); const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain;charset=utf-8;' })); link.download = 'vocabulary_anki.txt'; link.click(); showToast("Anki 文件已导出"); };
 }
-const exportCsvBtn1 = document.getElementById('exportCsvBtn');
-const exportCsvBtn2 = document.getElementById('globalExportVocabBtn');
-const exportCsvAction = async () => { const words = await dbGetAll('vocab'); if (!words.length) return showToast("沒有單詞可匯出"); let csv = "\uFEFFWord,Phonetic,Chinese,Definition\n"; words.forEach(w => csv += `"${w.word}","${w.phonetic||''}","${(w.zh||'').replace(/"/g,'""')}","${(w.definition||'').replace(/"/g,'""').replace(/\n/g,' ')}"\n`); const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'})); link.download = 'vocabulary.csv'; link.click(); };
-if(exportCsvBtn1) exportCsvBtn1.onclick = exportCsvAction;
-if(exportCsvBtn2) exportCsvBtn2.onclick = exportCsvAction;
+const exportCsvAction = async () => { const words = await dbGetAll('vocab'); if (!words.length) return showToast("没有单词可导出"); let csv = "\uFEFFWord,Phonetic,Chinese,Definition\n"; words.forEach(w => csv += `"${w.word}","${w.phonetic||''}","${(w.zh||'').replace(/"/g,'""')}","${(w.definition||'').replace(/"/g,'""').replace(/\n/g,' ')}"\n`); const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'})); link.download = 'vocabulary.csv'; link.click(); };
+if($('globalExportVocabBtn')) $('globalExportVocabBtn').onclick = exportCsvAction;
 
-window.openEditProfile = (type) => { state.editProfileType = type; const modal = document.getElementById('editProfileModal'); const title = document.getElementById('editProfileTitle'); const txtInput = document.getElementById('editProfileInput'); const fileGroup = document.getElementById('editProfileFileGroup'); if (type === 'username') { title.innerText = "修改使用者名稱"; txtInput.style.display = 'block'; fileGroup.style.display = 'none'; txtInput.value = state.user?.user_metadata?.username || ''; } else { title.innerText = "修改頭像"; txtInput.style.display = 'none'; fileGroup.style.display = 'flex'; } modal.classList.add('active'); };
-window.closeEditProfile = () => document.getElementById('editProfileModal').classList.remove('active');
-const saveProfileBtn = document.getElementById('saveProfileBtn');
-if(saveProfileBtn) {
-    saveProfileBtn.onclick = async () => { const btn = document.getElementById('saveProfileBtn'); try { btn.innerText = "保存中..."; btn.disabled = true; let updates = {}; if (state.editProfileType === 'username') { const newName = document.getElementById('editProfileInput').value.trim(); if(!newName) throw new Error("不能為空"); updates.username = newName; } else { const file = document.getElementById('editProfileFileInput').files[0]; if(!file) throw new Error("請選擇圖片"); updates.avatar = await resizeImageToBase64(file, 200, 200); } const { data, error } = await supabaseClient.auth.updateUser({ data: updates }); if (error) throw error; showToast("修改成功！"); handleSession({ user: data.user }); closeEditProfile(); } catch (e) { showToast(e.message); } finally { btn.innerText = "保存"; btn.disabled = false; } };
+window.openEditProfile = (type) => { state.editProfileType = type; const modal = $('editProfileModal'); const title = $('editProfileTitle'); const txtInput = $('editProfileInput'); const fileGroup = $('editProfileFileGroup'); if (type === 'username') { title.innerText = "修改用户名"; txtInput.style.display = 'block'; fileGroup.style.display = 'none'; txtInput.value = state.user?.user_metadata?.username || ''; } else { title.innerText = "修改头像"; txtInput.style.display = 'none'; fileGroup.style.display = 'flex'; } modal.classList.add('active'); };
+window.closeEditProfile = () => $('editProfileModal').classList.remove('active');
+
+if($('saveProfileBtn')) {
+    $('saveProfileBtn').onclick = async () => { const btn = $('saveProfileBtn'); try { btn.innerText = "保存中..."; btn.disabled = true; let updates = {}; if (state.editProfileType === 'username') { const newName = $('editProfileInput').value.trim(); if(!newName) throw new Error("不能为空"); updates.username = newName; } else { const file = $('editProfileFileInput').files[0]; if(!file) throw new Error("请选择图片"); updates.avatar = await resizeImageToBase64(file, 200, 200); } const { data, error } = await supabaseClient.auth.updateUser({ data: updates }); if (error) throw error; showToast("修改成功！"); handleSession({ user: data.user }); closeEditProfile(); } catch (e) { showToast(e.message); } finally { btn.innerText = "保存"; btn.disabled = false; } };
 }
 
 window.onload = async () => {
     await initDB();
     applySavedTheme();
     const savedAuth = localStorage.getItem('studio_pro_auth_state');
-    if (savedAuth === 'guest') { const guestLink = document.getElementById('guestLoginLink'); if(guestLink) guestLink.click(); return; }
-    // Supabase 會自動還原已登入的 session；onAuthStateChange 會接手後續導頁。
+    if (savedAuth === 'guest') { const guestLink = $('guestLoginLink'); if(guestLink) guestLink.click(); return; }
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (!session) { if(dom.authScreen) dom.authScreen.classList.remove('hidden'); }
 };
