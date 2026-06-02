@@ -3,7 +3,19 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>Studio Listening Pro</title>
+    <title>Studio Listening Pro · 沉浸式英語聽力訓練</title>
+    <meta name="description" content="Studio Listening Pro：以影片為核心的沉浸式英語聽力訓練平台，支援逐字高亮、雙語/盲聽模式、挖空練習、跟讀評測、單詞本與學習數據儀表板。" />
+    <meta name="theme-color" content="#F5F5F7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#050505" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Studio Pro" />
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Studio Listening Pro · 沉浸式英語聽力訓練" />
+    <meta property="og:description" content="影片驅動的英語聽力訓練：逐字高亮、盲聽、挖空、跟讀評測與學習數據分析。" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23007AFF'%3E%3Cpath d='M12 2l-5.5 9h11z'/%3E%3Ccircle cx='17.5' cy='17.5' r='4.5'/%3E%3Cpath d='M3 13.5h8v8H3z'/%3E%3C/svg%3E" />
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -636,25 +648,25 @@
         <div class="transcript-flow mode-0" id="transcript"></div>
 
         <div class="player-dock">
-            <button class="dock-btn" id="prevSentenceBtn" title="上一句">
-                <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+            <button class="dock-btn" id="prevSentenceBtn" title="上一句" aria-label="上一句">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
             </button>
-            <button class="dock-btn play-pause" id="playPauseBtn" title="播放/暫停">
-                <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                <svg id="pauseIcon" viewBox="0 0 24 24" style="display: none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+            <button class="dock-btn play-pause" id="playPauseBtn" title="播放/暫停" aria-label="播放或暫停">
+                <svg id="playIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                <svg id="pauseIcon" viewBox="0 0 24 24" style="display: none;" aria-hidden="true"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
             </button>
-            <button class="dock-btn" id="nextSentenceBtn" title="下一句">
-                <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-            </button>
-            
-            <div class="divider"></div>
-            
-            <button class="dock-btn" id="loopGlobalBtn" title="單句循環">
-                <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/><text x="12" y="16" font-size="8" text-anchor="middle" fill="currentColor" font-weight="bold">1</text></svg>
+            <button class="dock-btn" id="nextSentenceBtn" title="下一句" aria-label="下一句">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
             </button>
             
             <div class="divider"></div>
-            <button class="speed-btn-txt" id="speedToggleBtn">1.0x</button>
+            
+            <button class="dock-btn" id="loopGlobalBtn" title="單句循環" aria-label="單句循環">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/><text x="12" y="16" font-size="8" text-anchor="middle" fill="currentColor" font-weight="bold">1</text></svg>
+            </button>
+            
+            <div class="divider"></div>
+            <button class="speed-btn-txt" id="speedToggleBtn" title="播放速度" aria-label="播放速度">1.0x</button>
         </div>
     </div>
 </div>
@@ -700,6 +712,28 @@ const dom = {
 // ==========================================
 // Utils & DB Initialization (IndexedDB)
 // ==========================================
+// 安全性：所有將被插入 innerHTML 的「使用者 / 後端 / 第三方」資料都必須先轉義，避免 XSS。
+function escapeHtml(value) {
+    if (value === null || value === undefined) return '';
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+// 用於 src/url 屬性：先轉義引號，並阻擋 javascript: 等危險協議。
+function safeUrl(value) {
+    const url = String(value || '').trim();
+    if (/^\s*(javascript|data|vbscript):/i.test(url)) return '';
+    return escapeHtml(url);
+}
+// 字幕專用：僅轉義 & < > （保留單引號），避免破壞縮寫詞(don't)的斷詞與高亮比對。
+function escapeText(value) {
+    if (value === null || value === undefined) return '';
+    return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 function showToast(message) {
     const container = document.getElementById('toastContainer');
     if(!container) return;
@@ -765,7 +799,23 @@ function resizeImageToBase64(file, maxWidth, maxHeight) {
 // ==========================================
 const SUPABASE_URL = "https://revbsrjaeoldhhifibdx.supabase.co"; 
 const SUPABASE_ANON_KEY = "sb_publishable_fo8RtO0BL9fBr1uPH8cu1Q_wy5bj5GI"; 
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// 容錯：若 Supabase SDK（CDN）未能載入，提供安全降級，避免整個應用白屏。
+let supabaseClient;
+if (window.supabase && typeof window.supabase.createClient === 'function') {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} else {
+    console.error('Supabase SDK 載入失敗，啟用離線降級模式。');
+    const offlineResp = async () => ({ data: null, error: new Error('離線模式：無法連線至伺服器') });
+    const chain = { select: () => chain, eq: () => chain, order: () => chain, maybeSingle: offlineResp, update: () => chain, upsert: offlineResp, then: (r) => Promise.resolve({ data: [], error: null }).then(r) };
+    supabaseClient = {
+        auth: {
+            getSession: async () => ({ data: { session: null } }),
+            onAuthStateChange: () => ({ data: { subscription: { unsubscribe(){} } } }),
+            signInWithPassword: offlineResp, signUp: offlineResp, signOut: async () => ({}), updateUser: offlineResp
+        },
+        from: () => chain
+    };
+}
 
 const CEFR_DICT = { "accelerate": "B2", "adequate": "B2", "abrupt": "C1", "absurd": "C1", "advocate": "C1", "aesthetic": "C1", "accomplish": "B1", "accumulate": "B2", "asylum": "C2", "authentic": "C1", "apparent": "B2", "arbitrary": "C1", "benevolent": "C2", "ubiquitous": "C2" };
 
@@ -781,8 +831,15 @@ let state = {
 // ==========================================
 // 1. 認證系統 (Supabase Auth)
 // ==========================================
-const savedEmail = localStorage.getItem('studio_saved_email'); const savedPassword = localStorage.getItem('studio_saved_password');
-if (savedEmail) { document.getElementById('authEmail').value = savedEmail; if (savedPassword) { document.getElementById('authPassword').value = savedPassword; } document.getElementById('authRemember').checked = true; }
+// 安全性：絕不在 localStorage 儲存密碼。Supabase 已自動安全保存登入 session，
+// 重新整理頁面時會由 getSession() 還原登入狀態。這裡僅記住信箱方便輸入。
+const savedEmail = localStorage.getItem('studio_saved_email');
+if (savedEmail) {
+    const emailEl = document.getElementById('authEmail');
+    if (emailEl) emailEl.value = savedEmail;
+    const rememberEl = document.getElementById('authRemember');
+    if (rememberEl) rememberEl.checked = true;
+}
 
 document.getElementById('authToggleLink').onclick = (e) => {
     e.preventDefault(); state.isLoginMode = !state.isLoginMode;
@@ -802,7 +859,7 @@ function handleSession(session) {
         state.user = session.user;
         dom.authScreen.classList.add('hidden'); dom.homeScreen.classList.remove('hidden');
         const meta = session.user.user_metadata || {}; const username = meta.username || session.user.email.split('@')[0]; const avatar = meta.avatar;
-        dom.profileUsernameDisplay.innerHTML = `${username} <span class="edit-btn" onclick="openEditProfile('username')">✏️</span>`;
+        dom.profileUsernameDisplay.innerHTML = `${escapeHtml(username)} <span class="edit-btn" onclick="openEditProfile('username')">✏️</span>`;
         dom.profileEmailDisplay.innerText = session.user.email;
         if (avatar) { dom.profileAvatarImg.src = avatar; dom.profileAvatarImg.style.display = 'block'; dom.profileAvatarText.style.display = 'none'; } 
         else { dom.profileAvatarImg.style.display = 'none'; dom.profileAvatarText.style.display = 'flex'; dom.profileAvatarText.innerText = username.charAt(0).toUpperCase(); }
@@ -822,7 +879,7 @@ document.getElementById('authForm').onsubmit = async (e) => {
     try {
         if (state.isLoginMode) {
             const { error } = await supabaseClient.auth.signInWithPassword({ email, password }); if (error) throw error;
-            if (document.getElementById('authRemember').checked) { localStorage.setItem('studio_saved_email', email); localStorage.setItem('studio_saved_password', password); } else { localStorage.removeItem('studio_saved_email'); localStorage.removeItem('studio_saved_password'); }
+            if (document.getElementById('authRemember').checked) { localStorage.setItem('studio_saved_email', email); } else { localStorage.removeItem('studio_saved_email'); }
         } else {
             const ic = document.getElementById('authInviteCode').value.trim(); const { data, error: ce } = await supabaseClient.from('invite_codes').select('*').eq('code', ic).maybeSingle();
             if (ce || !data || data.is_used) throw new Error('邀請碼無效或已被使用。');
@@ -844,7 +901,7 @@ document.getElementById('guestLoginLink').onclick = () => {
 };
 
 document.getElementById('btnSettingLogout').onclick = async () => {
-    localStorage.removeItem('studio_pro_auth_state'); localStorage.removeItem('studio_saved_email'); localStorage.removeItem('studio_saved_password');
+    localStorage.removeItem('studio_pro_auth_state'); localStorage.removeItem('studio_saved_email');
     await supabaseClient.auth.signOut();
     state.user = null; dom.homeScreen.classList.add('hidden'); dom.authScreen.classList.remove('hidden');
 };
@@ -911,19 +968,19 @@ window.toggleFavorite = async (e, id) => {
 };
 
 const renderVideoCard = (v) => `
-    <div class="video-card" onclick="openVideo('${v.id}')">
-        <div class="favorite-btn ${v.favorite ? 'active' : ''}" onclick="toggleFavorite(event, '${v.id}')"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
+    <div class="video-card" onclick="openVideo('${escapeHtml(v.id)}')">
+        <div class="favorite-btn ${v.favorite ? 'active' : ''}" onclick="toggleFavorite(event, '${escapeHtml(v.id)}')" role="button" aria-label="收藏"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
         <div class="card-top">
-            <img src="${v.coverUrl}" class="card-img" />
-            <div class="card-preview-strip"><div class="preview-slice" style="background-image:url('${v.coverUrl}')"></div><div class="preview-slice" style="background-image:url('https://images.unsplash.com/photo-1481481600673-c6c8423f4f0c?auto=format&fit=crop&w=300&q=80')"></div><div class="preview-slice" style="background-image:url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=300&q=80')"></div></div>
-            <div class="card-duration">${v.duration}</div>
+            <img src="${safeUrl(v.coverUrl)}" class="card-img" alt="${escapeHtml(v.title || '')}" loading="lazy" />
+            <div class="card-preview-strip"><div class="preview-slice" style="background-image:url('${safeUrl(v.coverUrl)}')"></div><div class="preview-slice" style="background-image:url('https://images.unsplash.com/photo-1481481600673-c6c8423f4f0c?auto=format&fit=crop&w=300&q=80')"></div><div class="preview-slice" style="background-image:url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=300&q=80')"></div></div>
+            <div class="card-duration">${escapeHtml(v.duration)}</div>
         </div>
         <div class="card-middle">
-            <div style="display:flex; flex-direction:column; gap:4px;"><div class="card-ep">${v.episode}</div><div class="card-title">${v.title}</div></div>
+            <div style="display:flex; flex-direction:column; gap:4px;"><div class="card-ep">${escapeHtml(v.episode)}</div><div class="card-title">${escapeHtml(v.title)}</div></div>
             <div style="display:flex; gap:2px;">${getStarsHtml(v.rating)}</div>
         </div>
-        <div class="card-bottom"><div class="card-tags">${(v.tags || []).map(t => `<span class="card-tag">${t}</span>`).join('')}</div></div>
-        ${v.progress > 0 ? `<div class="card-progress" style="width:${v.progress}%"></div>` : ''}
+        <div class="card-bottom"><div class="card-tags">${(v.tags || []).map(t => `<span class="card-tag">${escapeHtml(t)}</span>`).join('')}</div></div>
+        ${v.progress > 0 ? `<div class="card-progress" style="width:${Math.min(100, Number(v.progress) || 0)}%"></div>` : ''}
     </div>
 `;
 
@@ -982,10 +1039,10 @@ if (dom.profileTabs) {
 
 async function renderVocab() {
     const words = await dbGetAll('vocab'); words.sort((a,b) => b.addedAt - a.addedAt);
-    const html = words.map(w => `<div class="global-word-card"><div style="display:flex; justify-content:space-between;"><div><h3 style="font-size:18px; margin-bottom:4px;">${w.word}</h3><div style="font-size:13px; color:var(--text-sub); font-family:monospace;">${w.phonetic||''}</div></div><div style="color:var(--red); font-size:13px; cursor:pointer;" onclick="deleteWord('${w.word}')">移除</div></div><div style="margin-top:12px; font-size:18px; font-weight:700;">${w.zh||''}</div><div style="margin-top:6px; font-size:14px;">${w.definition||''}</div></div>`).join('') || '<div style="color:var(--text-sub); padding: 16px;">單詞本目前空空如也</div>';
+    const html = words.map(w => `<div class="global-word-card"><div style="display:flex; justify-content:space-between;"><div><h3 style="font-size:18px; margin-bottom:4px;">${escapeHtml(w.word)}</h3><div style="font-size:13px; color:var(--text-sub); font-family:monospace;">${escapeHtml(w.phonetic||'')}</div></div><div style="color:var(--red); font-size:13px; cursor:pointer;" onclick="deleteWord('${escapeHtml(w.word)}')">移除</div></div><div style="margin-top:12px; font-size:18px; font-weight:700;">${escapeHtml(w.zh||'')}</div><div style="margin-top:6px; font-size:14px; white-space:pre-line;">${escapeHtml(w.definition||'')}</div></div>`).join('') || '<div style="color:var(--text-sub); padding: 16px;">單詞本目前空空如也</div>';
     if(dom.globalVocabList) dom.globalVocabList.innerHTML = html;
     
-    if(dom.vocabList) dom.vocabList.innerHTML = words.map(w => `<div class="word-item"><div class="word-head"><span class="word-text">${w.word}</span><span class="word-del" onclick="deleteWord('${w.word}')">移除</span></div><div style="font-size:13px; color:var(--text-sub);">${w.zh || w.definition.split('\n')[0] || ''}</div></div>`).join('');
+    if(dom.vocabList) dom.vocabList.innerHTML = words.map(w => `<div class="word-item"><div class="word-head"><span class="word-text">${escapeHtml(w.word)}</span><span class="word-del" onclick="deleteWord('${escapeHtml(w.word)}')">移除</span></div><div style="font-size:13px; color:var(--text-sub);">${escapeHtml(w.zh || (w.definition||'').split('\n')[0] || '')}</div></div>`).join('');
     
     const countGlobal = document.getElementById('globalVocabCount'); if(countGlobal) countGlobal.innerText = words.length; 
     const countLocal = document.getElementById('vocabCount'); if(countLocal) countLocal.innerText = words.length;
@@ -995,42 +1052,55 @@ window.deleteWord = async (word) => { await dbDelete('vocab', word); await rende
 
 // Dashboard Rendering
 async function renderDashboard() {
-    const today = new Date().toISOString().split('T')[0];
-    const stat = await dbGet('stats', today) || { mins: 0, words: 0 };
-    if(document.getElementById('statTodayMin')) document.getElementById('statTodayMin').innerText = stat.mins;
-    if(document.getElementById('statNewWords')) document.getElementById('statNewWords').innerText = stat.words;
-    
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    // 效能優化：一次性讀取全部 stats，建立日期索引，取代原本 365+ 次序列查詢。
+    const allStats = await dbGetAll('stats');
+    const statMap = {};
+    allStats.forEach(s => { if (s && s.date) statMap[s.date] = s; });
+
+    const todayStat = statMap[todayStr] || { mins: 0, words: 0 };
+    if(document.getElementById('statTodayMin')) document.getElementById('statTodayMin').innerText = todayStat.mins || 0;
+    if(document.getElementById('statNewWords')) document.getElementById('statNewWords').innerText = todayStat.words || 0;
+
     const allVocab = await dbGetAll('vocab');
     if(document.getElementById('statTotalWords')) document.getElementById('statTotalWords').innerText = allVocab.length;
 
+    // 連續學習天數
     let streak = 0;
     for(let i=0; i<365; i++) {
         const d = new Date(); d.setDate(d.getDate() - i);
-        const s = await dbGet('stats', d.toISOString().split('T')[0]);
+        const s = statMap[d.toISOString().split('T')[0]];
         if(s && s.mins > 0) streak++; else if(i>0) break;
     }
     if(document.getElementById('statStreak')) document.getElementById('statStreak').innerText = streak;
 
+    // 學習熱力圖：使用 DocumentFragment 一次性插入，避免 365 次 reflow。
     if(dom.heatmap) {
-        dom.heatmap.innerHTML = '';
+        const frag = document.createDocumentFragment();
         for(let i=0; i<365; i++) {
             const d = new Date(); d.setDate(d.getDate() - (364-i));
             const dateStr = d.toISOString().split('T')[0];
-            const s = await dbGet('stats', dateStr);
+            const s = statMap[dateStr];
             let heatCls = '';
             if(s && s.mins) {
                 if(s.mins > 60) heatCls = 'heat-4'; else if(s.mins > 30) heatCls = 'heat-3'; else if(s.mins > 10) heatCls = 'heat-2'; else heatCls = 'heat-1';
             }
-            dom.heatmap.innerHTML += `<div class="heatmap-cell ${heatCls}" title="${dateStr}: ${s?s.mins:0} 分鐘"></div>`;
+            const cell = document.createElement('div');
+            cell.className = `heatmap-cell ${heatCls}`.trim();
+            cell.title = `${dateStr}: ${s?s.mins:0} 分鐘`;
+            frag.appendChild(cell);
         }
+        dom.heatmap.innerHTML = '';
+        dom.heatmap.appendChild(frag);
     }
 
     const errs = await dbGetAll('clozeErr');
     errs.sort((a,b)=>b.count - a.count);
     if(dom.hardList) dom.hardList.innerHTML = errs.slice(0,5).map(e => `
         <div class="hard-word-item">
-            <span style="font-size:16px; font-weight:bold;">${e.word}</span>
-            <span class="err-count">錯誤 ${e.count} 次</span>
+            <span style="font-size:16px; font-weight:bold;">${escapeHtml(e.word)}</span>
+            <span class="err-count">錯誤 ${Number(e.count)||0} 次</span>
         </div>
     `).join('') || '<div style="color:var(--text-sub);">暫無錯題記錄，去開啟挖空模式練習吧。</div>';
 }
@@ -1081,7 +1151,9 @@ if(btnLaunchLocal) {
 // ----------------------------------------------------------------
 function buildTranscriptData() {
     state.subtitles.forEach(sub => {
-        const text = sub.en || "";
+        // 安全性：字幕原文可能來自第三方檔案或後端，渲染前先轉義，杜絕字幕 XSS。
+        const rawText = sub.en || "";
+        const text = escapeText(rawText);
         let wordGlobalIndex = 0;
         sub.wordMap = [];
 
@@ -1137,7 +1209,7 @@ function updateVirtualDOM() {
     let html = '';
     for(let i = startIdx; i <= endIdx; i++) {
         const sub = state.subtitles[i];
-        html += `<div class="lyric-line" id="lyr-${i}" data-index="${i}"><div class="lyric-time">${formatTime(sub.start)}</div><div class="lyric-content"><div class="lyric-en">${sub.renderHtml}</div><div class="lyric-zh">${sub.zh||''}</div></div></div>`;
+        html += `<div class="lyric-line" id="lyr-${i}" data-index="${i}"><div class="lyric-time">${formatTime(sub.start)}</div><div class="lyric-content"><div class="lyric-en">${sub.renderHtml}</div><div class="lyric-zh">${escapeText(sub.zh||'')}</div></div></div>`;
     }
     
     const topSpace = startIdx * 60; const bottomSpace = (state.subtitles.length - 1 - endIdx) * 60;
@@ -1192,7 +1264,7 @@ async function showWordTooltip(rawWord) {
     try {
         const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`); if (!res.ok) throw new Error(); const data = await res.json();
         const phonetic = data[0].phonetic || ''; let defs = []; let example = '';
-        data[0].meanings.forEach(m => { m.definitions.forEach(d => { if (d.example && !example) example = d.example; defs.push(`<strong>${m.partOfSpeech}</strong>: ${d.definition}`); }); });
+        data[0].meanings.forEach(m => { m.definitions.forEach(d => { if (d.example && !example) example = d.example; defs.push(`<strong>${escapeHtml(m.partOfSpeech)}</strong>: ${escapeHtml(d.definition)}`); }); });
         document.getElementById('tooltipPhonetic').innerText = phonetic; document.getElementById('tooltipDef').innerHTML = defs.slice(0, 2).join('<br><br>');
         if (example) { document.getElementById('tooltipExSection').style.display = 'block'; document.getElementById('tooltipExample').innerText = `"${example}"`; }
         state.currentWordData.phonetic = phonetic; state.currentWordData.definition = defs.slice(0, 2).join('\n');
@@ -1318,7 +1390,25 @@ if(sidebarNav) {
     sidebarNav.addEventListener('click', e => { const item = e.target.closest('.nav-item'); if(!item || item.id==='btnThemeToggle') return; document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active')); item.classList.add('active'); document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('active')); state.currentTab = item.dataset.tab; const view = document.getElementById(`view-${state.currentTab}`); if(view) view.classList.add('active'); renderCurrentView(); });
 }
 
-const themeToggle = document.getElementById('btnThemeToggle'); if(themeToggle) themeToggle.onclick = () => document.body.classList.toggle('dark-theme');
+// 主題系統：持久化 + 跟隨系統偏好 + 同步瀏覽器主題色
+function updateThemeColorMeta() {
+    const isDark = document.body.classList.contains('dark-theme');
+    document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.setAttribute('content', isDark ? '#050505' : '#F5F5F7'));
+}
+function applySavedTheme() {
+    const saved = localStorage.getItem('studio_theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (saved === 'dark' || (saved === null && prefersDark)) document.body.classList.add('dark-theme');
+    else document.body.classList.remove('dark-theme');
+    updateThemeColorMeta();
+}
+function toggleTheme() {
+    const isDark = document.body.classList.toggle('dark-theme');
+    localStorage.setItem('studio_theme', isDark ? 'dark' : 'light');
+    updateThemeColorMeta();
+}
+const themeToggle = document.getElementById('btnThemeToggle'); if(themeToggle) themeToggle.onclick = toggleTheme;
+const settingTheme = document.getElementById('btnSettingTheme'); if(settingTheme) settingTheme.onclick = toggleTheme;
 
 const modeControl = document.getElementById('modeControl');
 if(modeControl) {
@@ -1347,9 +1437,12 @@ window.openVideo = async (id) => {
         if(joinError || !joinData || joinData.length === 0) { const { data } = await supabaseClient.from('subtitles').select('*').eq('video_id', id).order('start', { ascending: true }); finalSubtitles = data || []; } else { finalSubtitles = joinData || []; }
         if (finalSubtitles.length > 0) { state.subtitles = finalSubtitles; } else { throw new Error("找不到字幕"); }
     } catch (err) {
-        showToast("字幕加載失敗，切換至測試資料");
-        state.subtitles = [ { start: 0.5, end: 3.0, en: "Welcome to this advanced english lesson.", zh: "歡迎來到這節高級英語課。" }, { start: 3.5, end: 6.0, en: "It is absolutely vital that you accelerate your learning.", zh: "加速你的學習是絕對至關重要的。" } ];
-        for(let i=3; i<500; i++) state.subtitles.push({ start: i*4, end: i*4+3.5, en: `This is a generated placeholder sentence number ${i} for testing virtual DOM rendering performance.`, zh: `這是第 ${i} 句用於測試虛擬列表渲染效能的生成佔位符。` });
+        showToast("字幕加載失敗，已切換至示範字幕");
+        state.subtitles = [
+            { start: 0.5, end: 3.0, en: "Welcome to this advanced English lesson.", zh: "歡迎來到這節高級英語課。" },
+            { start: 3.5, end: 6.0, en: "It is absolutely vital that you accelerate your learning.", zh: "加速你的學習是絕對至關重要的。" },
+            { start: 6.5, end: 9.5, en: "Click any word to see its definition and save it to your vocabulary.", zh: "點擊任一單字即可查看釋義並加入單詞本。" }
+        ];
     }
     buildTranscriptData(); state.currentActiveIndex = -1; state.renderRange = [-1,-1]; if(dom.transcript) dom.transcript.innerHTML = ''; if(dom.homeScreen) dom.homeScreen.classList.add('hidden'); if(dom.workspace) dom.workspace.classList.add('active');
     const prog = await dbGet('videos', id); if(prog && prog.progTime && dom.player) dom.player.currentTime = prog.progTime; if(dom.player) dom.player.play();
@@ -1386,11 +1479,12 @@ if(saveProfileBtn) {
 
 window.onload = async () => {
     await initDB();
+    applySavedTheme();
     const savedAuth = localStorage.getItem('studio_pro_auth_state');
     if (savedAuth === 'guest') { const guestLink = document.getElementById('guestLoginLink'); if(guestLink) guestLink.click(); return; }
+    // Supabase 會自動還原已登入的 session；onAuthStateChange 會接手後續導頁。
     const { data: { session } } = await supabaseClient.auth.getSession();
-    if (!session && savedEmail && savedPassword && document.getElementById('authRemember').checked) { const authSubmitBtn = document.getElementById('authSubmitBtn'); if(authSubmitBtn) authSubmitBtn.click(); }
-    else if (!session) { if(dom.authScreen) dom.authScreen.classList.remove('hidden'); }
+    if (!session) { if(dom.authScreen) dom.authScreen.classList.remove('hidden'); }
 };
 </script>
 </body>
