@@ -1,67 +1,1058 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Studio Listening Pro</title>
+    <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg: #F5F5F7;
-            --surface: rgba(255, 255, 255, 0.45);
-            --glass-border: rgba(255, 255, 255, 0.6);
-            --glass-blur: blur(28px);
-            --text-main: #1D1D1F;
-            --text-sub: #86868B;
-            --border: rgba(0, 0, 0, 0.05);
-            --blue: #007AFF;
-            --green: #34C759;
-            --orange: #FF9500;
-            --red: #FF3B30;
-            --purple: #AF52DE;
+            --bg: #F5F5F7; --surface: rgba(255, 255, 255, 0.45); --glass-border: rgba(255, 255, 255, 0.6); --glass-blur: blur(28px);
+            --text-main: #1D1D1F; --text-sub: #86868B; --border: rgba(0, 0, 0, 0.05);
+            --blue: #007AFF; --green: #34C759; --orange: #FF9500; --red: #FF3B30; --purple: #AF52DE;
             --hover-bg: rgba(255, 255, 255, 0.5);
-            
-            --liquid-bg: rgba(255, 255, 255, 0.65);
-            --liquid-border: rgba(255, 255, 255, 0.9);
-            --liquid-shadow: 0 16px 40px rgba(0, 0, 0, 0.08), 
-                             inset 0 1px 1px rgba(255, 255, 255, 0.8),
-                             inset 0 -1px 1px rgba(0, 0, 0, 0.02);
-                             
+            --liquid-bg: rgba(255, 255, 255, 0.65); --liquid-border: rgba(255, 255, 255, 0.9);
+            --liquid-shadow: 0 16px 40px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.8), inset 0 -1px 1px rgba(0, 0, 0, 0.02);
             --shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
-            --safe-top: env(safe-area-inset-top, 0px);
-            --safe-bottom: env(safe-area-inset-bottom, 20px);
+            --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 20px);
+            --cefr-b1: #34C759; --cefr-b2: #FFCC00; --cefr-c1: #FF9500; --cefr-c2: #FF3B30;
         }
 
         .dark-theme {
-            --bg: #050505;
-            --surface: rgba(22, 22, 24, 0.55);
-            --liquid-bg: rgba(24, 24, 28, 0.72);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --text-main: #ffffff;
-            --text-sub: #a1a1aa;
-            --border: rgba(255, 255, 255, 0.08);
-            --blue: #0A84FF;
-            --green: #30D158;
-            --orange: #FF9F0A;
-            --red: #FF453A;
-            --purple: #BF5AF2;
+            --bg: #050505; --surface: rgba(22, 22, 24, 0.55); --liquid-bg: rgba(24, 24, 28, 0.72); --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff; --text-sub: #a1a1aa; --border: rgba(255, 255, 255, 0.08);
+            --blue: #0A84FF; --green: #30D158; --orange: #FF9F0A; --red: #FF453A; --purple: #BF5AF2;
             --hover-bg: rgba(255, 255, 255, 0.1);
-            
-            --liquid-border: rgba(255, 255, 255, 0.15);
-            --liquid-shadow: 0 20px 60px rgba(0, 0, 0, 0.55), 
-                             inset 0 1px 1px rgba(255, 255, 255, 0.15),
-                             inset 0 -1px 1px rgba(0, 0, 0, 0.2);
-                             
+            --liquid-border: rgba(255, 255, 255, 0.15); --liquid-shadow: 0 20px 60px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.15), inset 0 -1px 1px rgba(0, 0, 0, 0.2);
             --shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
         html { background-color: var(--bg); transition: background-color 0.4s ease; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif; background-color: var(--bg); color: var(--text-main); height: 100dvh; width: 100vw; overflow: hidden; transition: 0.4s ease; -webkit-font-smoothing: antialiased; display: flex; align-items: center; justify-content: center; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
-            background-color: var(--bg); color: var(--text-main);
+        .mesh-bg { position: fixed; top: -10vh; left: -10vw; width: 120vw; height: 120vh; z-index: -2; background-color: #fdfbfb; background-image: radial-gradient(at 0% 0%, rgba(255, 228, 214, 0.8) 0px, transparent 50%), radial-gradient(at 100% 0%, rgba(226, 234, 255, 0.8) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(255, 241, 219, 0.8) 0px, transparent 50%), radial-gradient(at 0% 100%, rgba(253, 233, 244, 0.8) 0px, transparent 50%); transition: 0.8s ease; }
+        .dark-theme .mesh-bg { background-color: #0d0f12; background-image: radial-gradient(at 0% 0%, rgba(40, 30, 20, 0.6) 0px, transparent 50%), radial-gradient(at 100% 0%, rgba(20, 30, 50, 0.6) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(30, 20, 30, 0.6) 0px, transparent 50%), radial-gradient(at 0% 100%, rgba(20, 30, 30, 0.6) 0px, transparent 50%); }
+        
+        .bubbles-container { position: fixed; inset:0; z-index: -1; overflow: hidden; pointer-events: none; }
+        .bubble { position: absolute; bottom: -100px; background: var(--surface); backdrop-filter: var(--glass-blur); border: 1px solid var(--glass-border); box-shadow: var(--shadow); border-radius: 50px; padding: 12px 28px; color: var(--text-sub); font-size: 14px; font-weight: 500; animation: float-up linear infinite; opacity: 0; }
+        @keyframes float-up { 0% { transform: translateY(0) rotate(-5deg) scale(0.9); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-120vh) rotate(15deg) scale(1.1); opacity: 0; } }
+
+        /* Auth Screen */
+        .auth-screen { position: fixed; inset: 0; z-index: 100000; background: var(--bg); display: flex; align-items: center; justify-content: center; transition: 0.4s ease; }
+        .auth-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .auth-card { background: var(--liquid-bg); border: 1px solid var(--liquid-border); box-shadow: var(--liquid-shadow); border-radius: 32px; padding: 40px; width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 20px; backdrop-filter: blur(40px); }
+        .auth-title { font-size: 28px; font-weight: 800; text-align: center; color: var(--text-main); margin-bottom: 10px; }
+        .auth-form { display: flex; flex-direction: column; gap: 20px; width: 100%; }
+        .auth-input { width: 100%; height: 50px; border: 1px solid var(--glass-border); border-radius: 16px; padding: 0 20px; font-size: 16px; font-weight: 500; background: var(--surface); color: var(--text-main); outline: none; transition: 0.3s; }
+        .auth-input:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15); transform: translateY(-2px); }
+        .auth-error-msg { color: var(--red); font-size: 13px; font-weight: 600; display: none; white-space: pre-wrap; }
+        .auth-btn { background: var(--blue); color: #fff; border: none; padding: 16px; border-radius: 16px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3); }
+        .auth-btn:hover { background: #0066cc; transform: translateY(-2px); }
+        .auth-toggle { text-align: center; font-size: 14px; color: var(--text-sub); }
+        .auth-toggle a { color: var(--blue); text-decoration: none; font-weight: 600; cursor: pointer;}
+        .auth-file-group { display: flex; align-items: center; justify-content: space-between; border: 1px dashed var(--glass-border); border-radius: 16px; padding: 12px 20px; background: var(--surface); color: var(--text-sub); font-size: 14px; }
+
+        /* Home Layout */
+        .home-screen { position: absolute; inset: 0; display: flex; flex-direction: row; z-index: 100; transition: 0.5s ease; overflow: hidden; }
+        .home-screen.hidden { opacity: 0; visibility: hidden; transform: scale(0.98); }
+        .app-sidebar { width: 260px; flex-shrink: 0; background: var(--surface); backdrop-filter: var(--glass-blur); border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; padding: calc(40px + var(--safe-top)) 20px 40px 20px; z-index: 10; }
+        .app-brand { display: flex; align-items: center; gap: 12px; font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 40px; padding: 0 12px; }
+        .app-brand svg { width: 28px; height: 28px; fill: var(--blue); }
+        .app-nav { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+        .nav-item { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 16px; font-size: 15px; font-weight: 600; color: var(--text-sub); cursor: pointer; transition: 0.3s; }
+        .nav-item svg { width: 20px; height: 20px; fill: currentColor; transition: 0.3s; }
+        .nav-item:hover { background: rgba(0,0,0,0.04); color: var(--text-main); transform: translateX(4px); }
+        .dark-theme .nav-item:hover { background: rgba(255,255,255,0.08); }
+        .nav-item.active { background: rgba(0, 122, 255, 0.1); color: var(--blue); transform: translateX(4px); }
+        .dark-theme .nav-item.active { background: rgba(10, 132, 255, 0.15); }
+        .nav-item.active svg { transform: scale(1.1); }
+        .count-badge { background: rgba(0, 122, 255, 0.1); color: var(--blue); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 99px; margin-left: auto; display: inline-flex; }
+
+        .home-main { flex: 1; overflow-y: auto; padding: calc(60px + var(--safe-top)) 40px 60px 40px; display: flex; flex-direction: column; align-items: center; scroll-behavior: smooth;}
+        .home-main::-webkit-scrollbar { width: 8px; }
+        .home-main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        .home-content-wrapper { max-width: 1200px; width: 100%; display: flex; flex-direction: column; gap: 32px; }
+        .app-view { display: none; flex-direction: column; width: 100%; gap: 24px; animation: fadeIn 0.4s ease; }
+        .app-view.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        .view-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .header-left { display: flex; flex-direction: row; align-items: center; gap: 24px; flex: 1; }
+        .view-title { font-size: 40px; font-weight: 800; letter-spacing: -1.5px; line-height: 1; flex-shrink: 0; }
+        
+        .search-box { width: 100%; flex: 1; position: relative; }
+        .search-box input { width: 100%; height: 50px; border: 1px solid var(--glass-border); border-radius: 18px; padding: 0 20px 0 48px; font-size: 16px; background: var(--surface); color: var(--text-main); outline: none; box-shadow: var(--shadow); transition: 0.3s; }
+        .search-box input:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15); transform: translateY(-1px); }
+        .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; fill: var(--text-sub); }
+
+        /* Skeletons & Cards */
+        .skeleton { background: linear-gradient(90deg, rgba(130, 130, 130, 0.1) 25%, rgba(130, 130, 130, 0.2) 50%, rgba(130, 130, 130, 0.1) 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite; border-radius: 24px; }
+        @keyframes skeletonLoading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 32px; width: 100%; }
+        .video-card { background: var(--surface); border: 1px solid var(--glass-border); border-radius: 24px; backdrop-filter: var(--glass-blur); overflow: hidden; cursor: pointer; transition: 0.4s; box-shadow: var(--shadow); position: relative; display: flex; flex-direction: column; }
+        .video-card:hover { transform: translateY(-8px); box-shadow: 0 24px 48px rgba(0,0,0,0.12); border-color: var(--blue); }
+        .card-top { position: relative; aspect-ratio: 16/9; background: #e0e0e0; border-top-left-radius: 23px; border-top-right-radius: 23px; overflow: hidden; }
+        .card-top img { width: 100%; height: 100%; object-fit: cover; }
+        .card-preview-strip { position: absolute; inset: 0; display: flex; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+        .video-card:hover .card-preview-strip { opacity: 1; }
+        .video-card:hover .card-top img { opacity: 0.2; }
+        .preview-slice { flex: 1; background-size: cover; background-position: center; border-right: 2px solid rgba(255,255,255,0.2); }
+        .card-duration { position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,0.7); color: #fff; font-size: 12px; font-weight: 700; padding: 4px 8px; border-radius: 8px; }
+        .card-middle { padding: 20px; flex: 1; }
+        .card-ep { font-size: 26px; font-weight: 800; color: var(--text-main); line-height: 1.1; margin-bottom: 4px; }
+        .card-title { font-size: 14px; font-weight: 500; color: var(--text-sub); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .card-progress { position: absolute; bottom: 0; left: 0; height: 4px; background: var(--green); border-bottom-left-radius: 24px; transition: 0.3s;}
+
+        .yt-import-bar { display: flex; gap: 12px; width: 100%; padding-bottom: 16px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+        .yt-input { flex: 1; height: 44px; border-radius: 14px; border: 1px solid var(--glass-border); padding: 0 16px; background: var(--surface); color: var(--text-main); outline:none; transition:0.3s; font-size: 14px;}
+        .yt-input:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.1); }
+        .yt-btn { background: var(--red); color: white; border: none; border-radius: 14px; padding: 0 20px; font-weight: 700; cursor: pointer; transition: 0.3s; font-size: 14px;}
+        .yt-btn:hover { background: #d32f2f; transform: translateY(-2px); }
+
+        /* Profile & Heatmap */
+        .profile-header-card { background: var(--surface); border: 1px solid var(--glass-border); border-radius: 24px; backdrop-filter: var(--glass-blur); padding: 32px; display: flex; align-items: center; gap: 24px; box-shadow: var(--shadow); flex-wrap: wrap; }
+        .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), #5E5CE6); display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; font-weight: bold; }
+        .profile-info { flex: 1; }
+        .profile-username { font-size: 24px; font-weight: 800; color: var(--text-main); }
+        .profile-email { font-size: 15px; color: var(--text-sub); }
+        
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; width: 100%; margin-top: 24px; }
+        .stat-card { background: var(--surface); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; text-align: center; box-shadow: var(--shadow); }
+        .stat-value { font-size: 32px; font-weight: 800; color: var(--blue); }
+        .stat-label { font-size: 12px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; }
+
+        .heatmap-container { width: 100%; overflow-x: auto; background: var(--surface); padding: 24px; border-radius: 20px; border: 1px solid var(--glass-border); margin-top: 24px; }
+        .heatmap { display: grid; grid-template-rows: repeat(7, 1fr); grid-auto-flow: column; gap: 4px; }
+        .heatmap-cell { width: 14px; height: 14px; border-radius: 3px; background: var(--hover-bg); transition: 0.2s; cursor: pointer; }
+        .heatmap-cell:hover { transform: scale(1.2); }
+        .heat-1 { background: #c6e48b; } .heat-2 { background: #7bc96f; } .heat-3 { background: #239a3b; } .heat-4 { background: #196127; }
+        .dark-theme .heat-1 { background: #0e4429; } .dark-theme .heat-2 { background: #006d32; } .dark-theme .heat-3 { background: #26a641; } .dark-theme .heat-4 { background: #39d353; }
+
+        .hard-words-list { display: flex; flex-direction: column; gap: 8px; margin-top: 24px;}
+        .hard-word-item { display: flex; justify-content: space-between; padding: 14px 20px; background: var(--surface); border: 1px solid var(--glass-border); border-radius: 16px; align-items: center; }
+        .err-count { background: rgba(255, 59, 48, 0.1); color: var(--red); padding: 4px 10px; border-radius: 8px; font-size: 13px; font-weight: bold; }
+
+        /* Workspace */
+        .workspace { position: fixed; inset: 0; display: flex; padding: 32px; gap: 32px; opacity: 0; visibility: hidden; z-index: 200; background: var(--bg); transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); transform: translateY(20px); }
+        .workspace.active { opacity: 1; visibility: visible; transform: translateY(0); }
+        .sidebar { width: 45%; max-width: 720px; display: flex; flex-direction: column; gap: 32px; }
+        .video-container { border-radius: 24px; overflow: hidden; background: #000; box-shadow: var(--shadow); position: relative;}
+        video { width: 100%; display: block; outline: none; }
+        
+        .vocab-container { flex: 1; background: var(--surface); border-radius: 24px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow); }
+        .vocab-header { padding: 16px 20px; font-size: 15px; font-weight: 600; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+        .vocab-list { flex: 1; overflow-y: auto; padding: 12px; }
+        .word-item { padding: 12px 16px; border-radius: 12px; transition: 0.2s; border-bottom: 1px solid var(--border); }
+        .word-item:hover { background: var(--hover-bg); }
+
+        .main-content { flex: 1; background: var(--surface); border-radius: 24px; border: 1px solid var(--glass-border); box-shadow: var(--shadow); display: flex; flex-direction: column; overflow: hidden; position: relative;}
+        .top-toolbar { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .segmented-control { display: flex; background: rgba(0,0,0,0.06); padding: 4px; border-radius: 12px; }
+        .dark-theme .segmented-control { background: rgba(255,255,255,0.1); }
+        .segment-btn { padding: 6px 16px; font-size: 13px; font-weight: 600; color: var(--text-sub); border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        .segment-btn.active { background: var(--bg); color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+        /* Transcript & Virtual Rendering */
+        .transcript-flow { flex: 1; overflow-y: auto; padding: 20px 40px 120px; position: relative; }
+        .transcript-flow::-webkit-scrollbar { display: none; }
+        .lyric-line { padding: 12px 16px; margin-bottom: 24px; border-radius: 16px; opacity: 0.4; transition: 0.3s; display: flex; gap: 16px; cursor: pointer; }
+        .lyric-line.active { opacity: 1; background: var(--hover-bg); transform: scale(1.02); }
+        .lyric-time { font-family: monospace; font-size: 12px; color: var(--text-sub); opacity: 0.6; margin-top: 6px; flex-shrink: 0; }
+        .lyric-content { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+        .lyric-en { font-size: 22px; font-weight: 700; line-height: 1.4; letter-spacing: -0.3px; transition: 0.3s; }
+        
+        /* 點擊與高亮 */
+        .en-word { border-radius: 4px; transition: 0.2s; border-bottom: 2px solid transparent; cursor: pointer; display: inline-block; }
+        .en-word:hover { background: rgba(0, 122, 255, 0.1); }
+        .en-word.word-active { background: rgba(0, 122, 255, 0.15); color: var(--blue); padding: 0 2px; }
+        .dark-theme .en-word.word-active { background: rgba(10, 132, 255, 0.25); color: #4DA6FF; }
+        
+        /* CEFR Levels */
+        .lvl-b1 { border-bottom-color: var(--cefr-b1); } .lvl-b1:hover { color: var(--cefr-b1); }
+        .lvl-b2 { border-bottom-color: var(--cefr-b2); } .lvl-b2:hover { color: var(--cefr-b2); }
+        .lvl-c1 { border-bottom-color: var(--cefr-c1); } .lvl-c1:hover { color: var(--cefr-c1); }
+        .lvl-c2 { border-bottom-color: var(--cefr-c2); } .lvl-c2:hover { color: var(--cefr-c2); }
+
+        .lyric-zh { font-size: 15px; font-weight: 500; color: var(--text-sub); line-height: 1.5; }
+        .transcript-flow.mode-1 .lyric-zh { display: none; }
+        .transcript-flow.mode-2 .lyric-zh { display: none; }
+        .transcript-flow.mode-2 .lyric-en { filter: blur(6px); opacity: 0.6; pointer-events: none; }
+        .transcript-flow.mode-2 .lyric-line.active .lyric-en, .transcript-flow.mode-2 .lyric-line:hover .lyric-en { opacity: 1; filter: blur(0); pointer-events: auto; }
+
+        .cloze-input { background: rgba(0, 0, 0, 0.05); border: none; border-bottom: 2px solid var(--text-sub); border-radius: 6px; padding: 0 6px; font-size: inherit; font-family: inherit; font-weight: 700; color: var(--text-main); text-align: center; outline: none; transition: 0.3s; margin: 0 4px; }
+        .dark-theme .cloze-input { background: rgba(255, 255, 255, 0.1); }
+        .cloze-input:focus { border-bottom-color: var(--blue); background: rgba(0, 122, 255, 0.1); }
+
+        /* Speech Rating UI */
+        .speech-rating-badge { position: absolute; right: 12px; top: 12px; background: rgba(0,0,0,0.6); color: white; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 14px; backdrop-filter: blur(10px); display: none; align-items: center; gap: 8px; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.3);}
+        .speech-rating-badge.show { display: flex; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { 0% { transform: scale(0.5); opacity:0;} 100% { transform: scale(1); opacity:1;} }
+
+        /* Tooltip */
+        .tooltip { position: fixed; width: 320px; padding: 20px; border-radius: 20px; background: var(--liquid-bg); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%); border: 1px solid var(--liquid-border); box-shadow: var(--liquid-shadow); display: none; z-index: 10001; transform: translateY(15px); opacity: 0; transition: all 0.3s ease; pointer-events: none;}
+        .tooltip.show { transform: translateY(0); opacity: 1; display: block; pointer-events: auto;}
+        .tt-word { font-size: 22px; font-weight: 700; margin-bottom: 2px; color: var(--text-main); }
+        .tt-phonetic { font-size: 13px; font-family: monospace; color: var(--text-sub); margin-bottom: 12px; }
+        .tt-section { margin-bottom: 12px; }
+        .tt-sec-title { font-size: 12px; font-weight: 700; color: var(--blue); margin-bottom: 4px; }
+        .tt-def { font-size: 14px; line-height: 1.5; color: var(--text-main); }
+        .tt-btn { width: 100%; background: var(--blue); color: #fff; border: none; padding: 12px; border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s; margin-top: 8px;}
+        .tt-btn:hover { background: #0066cc; transform: translateY(-1px); }
+
+        /* Player Dock */
+        .player-dock { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--liquid-bg); backdrop-filter: blur(50px); border: 1px solid var(--liquid-border); box-shadow: var(--liquid-shadow); border-radius: 99px; padding: 8px 12px; display: flex; gap: 8px; align-items: center; z-index: 50;}
+        .dock-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: transparent; color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;}
+        .dock-btn:hover { background: var(--hover-bg); }
+        .dock-btn.play-pause { background: var(--text-main); color: var(--bg); }
+        .dock-btn svg { width: 20px; height: 20px; fill: currentColor; }
+        
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 24px; border-radius: 99px; font-size: 14px; font-weight: 600; z-index: 999999; animation: toastIn 0.3s; }
+        @keyframes toastIn { from { opacity: 0; transform: translate(-50%, -20px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+        .local-upload-area { background: var(--surface); border: 2px dashed var(--glass-border); border-radius: 32px; padding: 60px 40px; text-align: center; margin-top: 24px;}
+        .upload-buttons { display: flex; gap: 16px; justify-content: center; margin-top: 24px;}
+        .upload-btn { padding: 16px 24px; border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer; background: rgba(0,0,0,0.05); color: var(--text-main); border: 1px solid transparent; transition: 0.3s; position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: 8px;}
+        .upload-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+        .upload-btn.ready { background: rgba(52, 199, 89, 0.1); color: var(--green); border-color: rgba(52, 199, 89, 0.3); }
+
+        @media (max-width: 1024px) {
+            .workspace { flex-direction: column; padding: 0; gap:0;}
+            .sidebar { width: 100%; max-width: none; }
+            .video-container { border-radius: 0; }
+            .main-content { border-radius: 0; border: none; box-shadow: none; }
+            .app-sidebar { display: none; }
+            .home-main { padding: calc(20px + var(--safe-top)) 16px 120px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="mesh-bg"></div>
+
+<!-- Auth Screen -->
+<div class="auth-screen" id="authScreen">
+    <div class="auth-card">
+        <div class="auth-title" id="authTitle">歡迎回來</div>
+        <form id="authForm" class="auth-form">
+            <input type="email" id="authEmail" class="auth-input" placeholder="信箱" required />
+            <input type="password" id="authPassword" class="auth-input" placeholder="密碼" required />
+            <div id="authErrorMsg" class="auth-error-msg"></div>
+            <button type="submit" class="auth-btn" id="authSubmitBtn">登入</button>
+        </form>
+        <div class="auth-toggle">
+            還沒有帳號？ <a id="authToggleLink">立即註冊</a><br>
+            <a id="guestLoginLink" style="margin-top:12px; display:inline-block; color:var(--text-sub);">訪客免登入體驗</a>
+        </div>
+    </div>
+</div>
+
+<!-- App Home -->
+<div class="home-screen hidden" id="homeScreen">
+    <aside class="app-sidebar">
+        <div class="app-brand">
+            <svg viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11z"/><circle cx="17.5" cy="17.5" r="4.5"/><path d="M3 13.5h8v8H3z"/></svg>
+            <span>Studio Pro</span>
+        </div>
+        <nav class="app-nav" id="sidebarNav">
+            <div class="nav-item active" data-tab="library"><svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg> 影音庫</div>
+            <div class="nav-item" data-tab="vocabulary"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> 單詞本</div>
+            <div class="nav-item" data-tab="local"><svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg> 本地檔案</div>
+            <div class="nav-item" data-tab="profile"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> 數據中心</div>
+        </nav>
+    </aside>
+
+    <main class="home-main">
+        <div class="home-content-wrapper">
+            <!-- Library View -->
+            <div id="view-library" class="app-view active">
+                <div class="view-header">
+                    <div class="header-left">
+                        <div class="view-title">探索與學習</div>
+                    </div>
+                </div>
+                
+                <div class="yt-import-bar">
+                    <input type="text" id="ytInput" class="yt-input" placeholder="輸入 YouTube URL 一鍵生成學習艙 (含字幕&翻譯)...">
+                    <button class="yt-btn" onclick="importYouTube()">智能解析</button>
+                </div>
+
+                <div id="libraryContentArea" class="video-grid">
+                    <!-- Skeletons will be injected here -->
+                </div>
+            </div>
+
+            <!-- Vocabulary View -->
+            <div id="view-vocabulary" class="app-view">
+                <div class="view-header">
+                    <div class="view-title">單詞本</div>
+                    <button class="auth-btn" id="exportCsvBtn" style="padding: 10px 20px; font-size: 14px;">匯出 CSV</button>
+                </div>
+                <div class="vocab-list" id="globalVocabList" style="background:var(--surface); border-radius:24px; padding:24px; min-height:400px; box-shadow:var(--shadow);"></div>
+            </div>
+
+            <!-- Local Files View -->
+            <div id="view-local" class="app-view">
+                <div class="view-header"><div class="view-title">本地檔案</div></div>
+                <div class="local-upload-area">
+                    <h2 style="margin-bottom:12px;">構建沉浸環境</h2>
+                    <p style="color:var(--text-sub);">選擇一部 MP4 影片與對應的 SRT/VTT 字幕，自動生成互動式學習艙。</p>
+                    <div class="upload-buttons">
+                        <label class="upload-btn" id="btnLocalVideoView">
+                            <span id="txtLocalVideoView">選擇影片 (MP4)</span>
+                            <input type="file" id="localVideoInput" accept="video/mp4,video/webm">
+                        </label>
+                        <label class="upload-btn" id="btnLocalSubView">
+                            <span id="txtLocalSubView">選擇字幕 (SRT/VTT)</span>
+                            <input type="file" id="localSubInput" accept=".srt,.vtt,.json">
+                        </label>
+                    </div>
+                    <button class="auth-btn" id="btnLaunchLocal" style="margin-top: 24px; opacity: 0.5; pointer-events: none;">進入學習艙</button>
+                </div>
+            </div>
+
+            <!-- Profile View -->
+            <div id="view-profile" class="app-view">
+                <div class="profile-header-card">
+                    <div class="profile-avatar">U</div>
+                    <div class="profile-info">
+                        <div class="profile-username" id="profileName">User</div>
+                        <div class="profile-email" id="profileEmail">user@example.com</div>
+                    </div>
+                    <div style="display:flex; gap:12px;">
+                        <button class="auth-btn" style="background:var(--hover-bg); color:var(--text-main); box-shadow:none; padding:10px 16px;" id="btnThemeToggle">切換主題</button>
+                        <button class="auth-btn" style="background:rgba(255,59,48,0.1); color:var(--red); box-shadow:none; padding:10px 16px;" id="btnLogout">登出</button>
+                    </div>
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-card"><div class="stat-value" id="statMins">0</div><div class="stat-label">今日學習(分)</div></div>
+                    <div class="stat-card"><div class="stat-value" id="statWords">0</div><div class="stat-label">新學單詞</div></div>
+                    <div class="stat-card"><div class="stat-value" id="statStreak">0</div><div class="stat-label">連續學習(天)</div></div>
+                    <div class="stat-card"><div class="stat-value" id="statTotal">0</div><div class="stat-label">單詞本總數</div></div>
+                </div>
+
+                <h3 style="margin-top: 32px; margin-bottom: 16px;">學習熱力圖 (年度)</h3>
+                <div class="heatmap-container"><div class="heatmap" id="heatmapGrid"></div></div>
+
+                <h3 style="margin-top: 32px; margin-bottom: 16px;">今日錯題榜 (挖空模式)</h3>
+                <div class="hard-words-list" id="hardWordsList"></div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Workspace -->
+<div class="workspace" id="workspace">
+    <div class="sidebar">
+        <div class="video-container" id="videoContainer">
+            <video id="player" playsinline></video>
+            <div class="speech-rating-badge" id="speechRatingBadge">🎙️ 評分中...</div>
+        </div>
+        <div class="vocab-container" style="flex:1;">
+            <div class="vocab-header">本節生詞 <span id="localVocabCount" style="color:var(--text-sub);">0</span></div>
+            <div class="vocab-list" id="localVocabList"></div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="top-toolbar">
+            <button class="segment-btn" style="background:var(--hover-bg);" onclick="exitWorkspace()">⬅ 返回</button>
+            <div class="segmented-control" id="modeControl">
+                <div class="segment-btn active" data-mode="0">雙語</div>
+                <div class="segment-btn" data-mode="1">純英</div>
+                <div class="segment-btn" data-mode="2">盲聽</div>
+            </div>
+            <div class="segmented-control">
+                <div class="segment-btn" id="toggleClozeBtn">挖空檢測</div>
+                <div class="segment-btn" id="toggleShadowBtn">AI 發音評測</div>
+            </div>
+        </div>
+        
+        <div class="transcript-flow mode-0" id="transcript"></div>
+
+        <div class="player-dock">
+            <button class="dock-btn" onclick="skip(-5)" title="後退 5s"><svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg></button>
+            <button class="dock-btn play-pause" id="playPauseBtn"><svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg id="pauseIcon" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
+            <button class="dock-btn" onclick="skip(5)" title="前進 5s"><svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg></button>
+            
+            <div style="width:1px; height:20px; background:var(--border); margin:0 8px;"></div>
+            
+            <button class="dock-btn" id="loopSentenceBtn" title="單句循環"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4zm-4-2V9h-1l-2 1v1h1.5v4H13z"/></svg></button>
+            <button class="segment-btn" style="background:transparent; padding:0 8px;" id="speedToggleBtn">1.0x</button>
+        </div>
+    </div>
+</div>
+
+<!-- 資訊彈出面板 (Tooltip) -->
+<div class="tooltip" id="tooltip">
+    <div class="tt-word" id="tooltipWord"></div>
+    <div class="tt-phonetic" id="tooltipPhonetic"></div>
+    <div class="tt-section" id="tooltipZhSection" style="display:none;">
+        <div class="tt-sec-title" style="color:var(--green);">中文釋義</div>
+        <div class="tt-zh-def" id="tooltipZhDef" style="font-size:18px; font-weight:700; color:var(--text-main); margin-top:4px; letter-spacing:0.5px;"></div>
+    </div>
+    <div class="tt-section" id="tooltipDefSection">
+        <div class="tt-sec-title">英英釋義 (Definition)</div>
+        <div class="tt-def" id="tooltipDef"></div>
+    </div>
+    <div class="tt-section" id="tooltipExSection" style="display:none;">
+        <div class="tt-sec-title">例句 (Example)</div>
+        <div class="tt-example" id="tooltipExample"></div>
+    </div>
+    <button class="tt-btn" id="saveWordBtn">加入單詞本</button>
+</div>
+
+<script>
+// ==========================================
+// 統一儲存系統 (IndexedDB)
+// ==========================================
+const DB_NAME = 'StudioPro_UnifiedDB';
+const DB_VER = 1;
+let db;
+
+function initDB() {
+    return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VER);
+        req.onupgradeneeded = (e) => {
+            const d = e.target.result;
+            if(!d.objectStoreNames.contains('videos')) d.createObjectStore('videos', { keyPath: 'id' });
+            if(!d.objectStoreNames.contains('vocab')) {
+                const vs = d.createObjectStore('vocab', { keyPath: 'word' });
+                vs.createIndex('addedAt', 'addedAt', { unique: false });
+            }
+            if(!d.objectStoreNames.contains('stats')) d.createObjectStore('stats', { keyPath: 'date' });
+            if(!d.objectStoreNames.contains('clozeErr')) d.createObjectStore('clozeErr', { keyPath: 'word' });
+        };
+        req.onsuccess = (e) => { db = e.target.result; resolve(); };
+        req.onerror = () => reject(req.error);
+    });
+}
+
+function dbPut(storeName, data) { return new Promise(resolve => { const tx = db.transaction(storeName, 'readwrite'); tx.objectStore(storeName).put(data); tx.oncomplete = () => resolve(true); }); }
+function dbGet(storeName, key) { return new Promise(resolve => { const tx = db.transaction(storeName, 'readonly'); const r = tx.objectStore(storeName).get(key); r.onsuccess = () => resolve(r.result); }); }
+function dbGetAll(storeName) { return new Promise(resolve => { const tx = db.transaction(storeName, 'readonly'); const r = tx.objectStore(storeName).getAll(); r.onsuccess = () => resolve(r.result); }); }
+function dbDelete(storeName, key) { return new Promise(resolve => { const tx = db.transaction(storeName, 'readwrite'); tx.objectStore(storeName).delete(key); tx.oncomplete = () => resolve(true); }); }
+
+// ==========================================
+// CEFR AI 詞彙分級字典 (簡單展示用)
+// ==========================================
+const CEFR_DICT = {
+    "accelerate": "B2", "adequate": "B2", "abrupt": "C1", "absurd": "C1", "advocate": "C1", 
+    "aesthetic": "C1", "accomplish": "B1", "accumulate": "B2", "asylum": "C2", "authentic": "C1",
+    "apparent": "B2", "arbitrary": "C1", "benevolent": "C2", "ubiquitous": "C2"
+};
+
+// ==========================================
+// 全局狀態與 DOM
+// ==========================================
+const dom = {
+    authScreen: document.getElementById('authScreen'), homeScreen: document.getElementById('homeScreen'), workspace: document.getElementById('workspace'),
+    library: document.getElementById('libraryContentArea'), transcript: document.getElementById('transcript'), player: document.getElementById('player'),
+    playBtn: document.getElementById('playPauseBtn'), heatmap: document.getElementById('heatmapGrid'), hardList: document.getElementById('hardWordsList'),
+    tooltip: document.getElementById('tooltip'), globalVocabList: document.getElementById('globalVocabList'), localVocabList: document.getElementById('localVocabList')
+};
+
+let state = {
+    user: null, videos: [], currentVideoId: null, subtitles: [], 
+    activeIdx: -1, renderRange: [-1, -1],
+    mode: 0, isCloze: false, isShadow: false, isLooping: false,
+    currentWordData: null, localReady: { v: false, s: false }, localVideoFile: null
+};
+
+function showToast(msg) {
+    const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg;
+    document.body.appendChild(t); setTimeout(() => t.remove(), 2000);
+}
+
+// ==========================================
+// 1. 認證系統 (Supabase Mock / Guest)
+// ==========================================
+document.getElementById('guestLoginLink').onclick = () => {
+    state.user = { email: 'guest@studiopro.com', user_metadata: { username: 'Guest' } };
+    dom.authScreen.classList.add('hidden'); dom.homeScreen.classList.remove('hidden');
+    document.getElementById('profileName').innerText = '訪客';
+    document.getElementById('profileEmail').innerText = 'guest@studiopro.com';
+    initApp();
+};
+
+document.getElementById('authForm').onsubmit = (e) => {
+    e.preventDefault();
+    state.user = { email: document.getElementById('authEmail').value, user_metadata: { username: 'Pro User' } };
+    dom.authScreen.classList.add('hidden'); dom.homeScreen.classList.remove('hidden');
+    document.getElementById('profileName').innerText = 'Pro User';
+    document.getElementById('profileEmail').innerText = state.user.email;
+    initApp();
+};
+
+document.getElementById('btnLogout').onclick = () => {
+    state.user = null; dom.homeScreen.classList.add('hidden'); dom.authScreen.classList.remove('hidden');
+};
+
+// ==========================================
+// 2. 應用程式初始化與影音庫加載
+// ==========================================
+async function initApp() {
+    renderSkeletons();
+    setTimeout(async () => {
+        // Mock Video Data
+        state.videos = [
+            { id: 'v1', title: 'Steve Jobs Stanford Commencement Address 2005', duration: '14:33', cover: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=600&q=80', prog: await dbGet('videos','v1').then(v=>v?.prog||0) },
+            { id: 'v2', title: 'TED: Do schools kill creativity?', duration: '19:24', cover: 'https://images.unsplash.com/photo-1475669698648-2f144fcaaeb1?auto=format&fit=crop&w=600&q=80', prog: await dbGet('videos','v2').then(v=>v?.prog||0) },
+            { id: 'v3', title: 'The Universe in a Nutshell', duration: '42:10', cover: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=600&q=80', prog: 0 }
+        ];
+        
+        dom.library.innerHTML = state.videos.map(v => `
+            <div class="video-card" onclick="openVideo('${v.id}')">
+                <div class="card-top">
+                    <img src="${v.cover}" class="card-img" />
+                    <div class="card-preview-strip">
+                        <div class="preview-slice" style="background-image:url('${v.cover}')"></div>
+                        <div class="preview-slice" style="background-image:url('https://images.unsplash.com/photo-1481481600673-c6c8423f4f0c?auto=format&fit=crop&w=300&q=80')"></div>
+                        <div class="preview-slice" style="background-image:url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=300&q=80')"></div>
+                    </div>
+                    <div class="card-duration">${v.duration}</div>
+                </div>
+                <div class="card-middle"><div class="card-title">${v.title}</div></div>
+                ${v.prog > 0 ? `<div class="card-progress" style="width:${v.prog}%"></div>` : ''}
+            </div>
+        `).join('');
+    }, 800);
+    
+    renderVocab();
+    renderDashboard();
+}
+
+function renderSkeletons() {
+    dom.library.innerHTML = Array(6).fill().map(() => `<div class="video-card skeleton" style="height: 280px; border:none; box-shadow:none;"></div>`).join('');
+}
+
+// ==========================================
+// 3. 數據中心 (儀表板, 熱力圖, 單詞本)
+// ==========================================
+async function renderDashboard() {
+    // 統計數據
+    const today = new Date().toISOString().split('T')[0];
+    const stat = await dbGet('stats', today) || { mins: 0, words: 0 };
+    document.getElementById('statMins').innerText = stat.mins;
+    document.getElementById('statWords').innerText = stat.words;
+    
+    const allVocab = await dbGetAll('vocab');
+    document.getElementById('statTotal').innerText = allVocab.length;
+
+    // 連續天數計算 (簡易版)
+    let streak = 0;
+    for(let i=0; i<365; i++) {
+        const d = new Date(); d.setDate(d.getDate() - i);
+        const s = await dbGet('stats', d.toISOString().split('T')[0]);
+        if(s && s.mins > 0) streak++; else if(i>0) break;
+    }
+    document.getElementById('statStreak').innerText = streak;
+
+    // 熱力圖
+    dom.heatmap.innerHTML = '';
+    for(let i=0; i<365; i++) {
+        const d = new Date(); d.setDate(d.getDate() - (364-i));
+        const dateStr = d.toISOString().split('T')[0];
+        const s = await dbGet('stats', dateStr);
+        let heatCls = '';
+        if(s && s.mins) {
+            if(s.mins > 60) heatCls = 'heat-4'; else if(s.mins > 30) heatCls = 'heat-3'; else if(s.mins > 10) heatCls = 'heat-2'; else heatCls = 'heat-1';
+        }
+        dom.heatmap.innerHTML += `<div class="heatmap-cell ${heatCls}" title="${dateStr}: ${s?s.mins:0} min"></div>`;
+    }
+
+    // 錯題榜
+    const errs = await dbGetAll('clozeErr');
+    errs.sort((a,b)=>b.count - a.count);
+    dom.hardList.innerHTML = errs.slice(0,5).map(e => `
+        <div class="hard-word-item">
+            <span style="font-size:16px; font-weight:bold;">${e.word}</span>
+            <span class="err-count">錯誤 ${e.count} 次</span>
+        </div>
+    `).join('') || '<div style="color:var(--text-sub);">暫無錯題記錄，去開啟挖空模式練習吧。</div>';
+}
+
+async function renderVocab() {
+    const words = await dbGetAll('vocab');
+    words.sort((a,b) => b.addedAt - a.addedAt);
+    
+    const html = words.map(w => `
+        <div class="word-item" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <div style="font-size:16px; font-weight:bold; color:var(--text-main);">${w.word} <span style="font-size:12px; font-weight:normal; color:var(--text-sub);">${w.phonetic||''}</span></div>
+                <div style="font-size:14px; color:var(--text-sub); margin-top:4px;">${w.zh || w.definition.split('\n')[0] || ''}</div>
+            </div>
+            <button class="auth-btn" style="padding:6px 12px; font-size:12px; background:rgba(255,59,48,0.1); color:var(--red); box-shadow:none;" onclick="deleteWord('${w.word}')">移除</button>
+        </div>
+    `).join('') || '<div style="color:var(--text-sub);">單詞本目前空空如也</div>';
+    
+    dom.globalVocabList.innerHTML = html;
+    dom.localVocabList.innerHTML = html;
+    document.getElementById('localVocabCount').innerText = words.length;
+}
+
+window.deleteWord = async (word) => { await dbDelete('vocab', word); renderVocab(); renderDashboard(); };
+
+// ==========================================
+// 4. 本地檔案上傳邏輯
+// ==========================================
+function checkLocalReady() { 
+    const btn = document.getElementById('btnLaunchLocal');
+    if (state.localReady.v && state.localReady.s) { btn.style.opacity = '1'; btn.style.pointerEvents = 'auto'; } 
+}
+
+document.getElementById('localVideoInput').onchange = (e) => {
+    const f = e.target.files[0]; if(!f) return;
+    state.localVideoFile = URL.createObjectURL(f);
+    document.getElementById('btnLocalVideoView').classList.add('ready');
+    document.getElementById('txtLocalVideoView').innerText = f.name;
+    state.localReady.v = true; checkLocalReady();
+};
+
+document.getElementById('localSubInput').onchange = (e) => {
+    const f = e.target.files[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+        if(f.name.endsWith('.json')) state.subtitles = JSON.parse(r.result);
+        else { 
+            const data = f.name.endsWith('.vtt') ? r.result.replace(/^WEBVTT.*\n*/, '') : r.result; 
+            const regex = /(\d{2}:\d{2}:\d{2}[,.]\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}[,.]\d{3})[\s\S]*?\n([\s\S]*?)(?=\n{2,}|\n\d+\n|$)/g; 
+            state.subtitles = []; let m; 
+            const ts = t => { const p=t.replace(',','.').split(':'); return (+p[0]*3600)+(+p[1]*60)+parseFloat(p[2]); }; 
+            while((m=regex.exec(data)) !== null) if(m[3].trim()) state.subtitles.push({start:ts(m[1]), end:ts(m[2]), en:m[3].replace(/<[^>]+>/g,'').replace(/\n/g,' ').trim(), zh:""}); 
+        }
+        document.getElementById('btnLocalSubView').classList.add('ready');
+        document.getElementById('txtLocalSubView').innerText = f.name;
+        state.localReady.s = true; checkLocalReady();
+    }; r.readAsText(f);
+};
+
+document.getElementById('btnLaunchLocal').onclick = () => {
+    state.currentVideoId = 'local';
+    dom.player.src = state.localVideoFile;
+    buildTranscriptData();
+    state.activeIdx = -1; state.renderRange = [-1,-1];
+    dom.homeScreen.classList.add('hidden'); dom.workspace.classList.add('active');
+    dom.player.play();
+};
+
+// ==========================================
+// 5. 虛擬列表與單詞高亮引擎 (僅渲染前20後20句)
+// ==========================================
+function buildTranscriptData() {
+    state.subtitles.forEach(sub => {
+        const words = sub.en.split(' ');
+        let html = '';
+        const duration = sub.end - sub.start;
+        const wordTime = duration / Math.max(1, words.length); 
+        
+        sub.wordMap = [];
+        words.forEach((w, i) => {
+            const cleanW = w.replace(/[^a-zA-Z]/g, '').toLowerCase();
+            const lvl = CEFR_DICT[cleanW];
+            let cls = 'en-word';
+            if(lvl) cls += ` lvl-${lvl.toLowerCase()}`;
+            if(state.isCloze && cleanW.length > 5 && Math.random() > 0.7) { 
+                html += `<input class="cloze-input" data-ans="${cleanW}" style="width:${cleanW.length*12+10}px;" /> `;
+            } else {
+                html += `<span class="${cls}" data-widx="${i}">${w}</span> `;
+            }
+            sub.wordMap.push({ start: sub.start + i*wordTime, end: sub.start + (i+1)*wordTime });
+        });
+        sub.renderHtml = html;
+    });
+}
+
+const LINE_HEIGHT_ESTIMATE = 60; // 預估每行高度
+
+function updateVirtualDOM() {
+    if(state.subtitles.length === 0) return;
+    
+    // 計算虛擬範圍：當前句的前20句與後20句
+    let active = state.activeIdx; if(active < 0) active = 0;
+    const startIdx = Math.max(0, active - 20);
+    const endIdx = Math.min(state.subtitles.length - 1, active + 20);
+    
+    // 如果範圍沒變，不重新渲染以節省效能
+    if(state.renderRange[0] === startIdx && state.renderRange[1] === endIdx && dom.transcript.children.length > 0) return;
+    
+    state.renderRange = [startIdx, endIdx];
+    
+    let html = '';
+    for(let i = startIdx; i <= endIdx; i++) {
+        const sub = state.subtitles[i];
+        html += `
+            <div class="lyric-line" id="lyr-${i}" data-index="${i}">
+                <div class="lyric-time">${formatTime(sub.start)}</div>
+                <div class="lyric-content">
+                    <div class="lyric-en">${sub.renderHtml}</div>
+                    <div class="lyric-zh">${sub.zh}</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // 使用 padding 來支撐高度，確保滾動條不變形
+    const topSpace = startIdx * LINE_HEIGHT_ESTIMATE; 
+    const bottomSpace = (state.subtitles.length - 1 - endIdx) * LINE_HEIGHT_ESTIMATE;
+    
+    dom.transcript.innerHTML = `<div style="height:${topSpace}px"></div>${html}<div style="height:${bottomSpace}px"></div>`;
+    bindClozeEvents();
+}
+
+function updateWordHighlight(now) {
+    if(state.activeIdx < 0 || state.activeIdx >= state.subtitles.length) return;
+    const lineNode = document.getElementById(`lyr-${state.activeIdx}`);
+    if(!lineNode) return;
+    
+    const sub = state.subtitles[state.activeIdx];
+    let wIdx = -1;
+    for(let i=0; i<sub.wordMap.length; i++) {
+        if(now >= sub.wordMap[i].start && now <= sub.wordMap[i].end) { wIdx = i; break; }
+    }
+    
+    lineNode.querySelectorAll('.en-word').forEach(el => el.classList.remove('word-active'));
+    if(wIdx !== -1) {
+        const target = lineNode.querySelector(`[data-widx="${wIdx}"]`);
+        if(target) target.classList.add('word-active');
+    }
+}
+
+// ==========================================
+// 6. 點擊事件代理：單詞翻譯 與 句子跳轉
+// ==========================================
+dom.transcript.addEventListener('click', (e) => {
+    if (e.target.closest('.cloze-input')) return;
+
+    // 1. 點擊了單詞 -> 顯示 Tooltip
+    const wordEl = e.target.closest('.en-word');
+    if (wordEl) {
+        e.stopPropagation(); 
+        showWordTooltip(wordEl);
+        return;
+    }
+
+    // 2. 點擊了空白處或整行 -> 影片跳轉
+    const lineEl = e.target.closest('.lyric-line');
+    if (lineEl) {
+        const idx = parseInt(lineEl.getAttribute('data-index'));
+        if (!isNaN(idx)) {
+            dom.player.currentTime = state.subtitles[idx].start;
+            dom.player.play();
+        }
+    }
+});
+
+document.addEventListener('click', (e) => {
+    if (dom.tooltip.classList.contains('show') && !dom.tooltip.contains(e.target) && !e.target.closest('.en-word')) {
+        dom.tooltip.classList.remove('show');
+    }
+});
+
+// ==========================================
+// 7. Tooltip 查詢功能 (Dictionary + Google Translate)
+// ==========================================
+async function showWordTooltip(targetEl) {
+    const word = targetEl.innerText.replace(/[^a-zA-Z\']/g, '').toLowerCase();
+    if (!word) return;
+
+    const rect = targetEl.getBoundingClientRect();
+    let topPos = rect.top - 220;
+    let leftPos = rect.left + rect.width / 2 - 160;
+    
+    if (topPos < 20) topPos = rect.bottom + 10;
+    if (leftPos < 10) leftPos = 10;
+    if (leftPos + 320 > window.innerWidth) leftPos = window.innerWidth - 330;
+    
+    dom.tooltip.style.left = `${leftPos}px`;
+    dom.tooltip.style.top = `${topPos}px`;
+    dom.tooltip.classList.add('show');
+    
+    await populateTooltip(word);
+}
+
+async function populateTooltip(word) {
+    document.getElementById('tooltipWord').innerText = word;
+    document.getElementById('tooltipPhonetic').innerText = '分析中...';
+    document.getElementById('tooltipDef').innerHTML = '';
+    document.getElementById('tooltipExSection').style.display = 'none';
+    document.getElementById('tooltipZhSection').style.display = 'none';
+    
+    state.currentWordData = { word: word, addedAt: Date.now() };
+
+    try {
+        const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        
+        const phonetic = data[0].phonetic || '';
+        let defs = []; let example = '';
+        data[0].meanings.forEach(m => {
+            m.definitions.forEach(d => {
+                if (d.example && !example) example = d.example;
+                defs.push(`<strong>${m.partOfSpeech}</strong>: ${d.definition}`);
+            });
+        });
+        
+        document.getElementById('tooltipPhonetic').innerText = phonetic;
+        document.getElementById('tooltipDef').innerHTML = defs.slice(0, 2).join('<br><br>');
+        if (example) {
+            document.getElementById('tooltipExSection').style.display = 'block';
+            document.getElementById('tooltipExample').innerText = `"${example}"`;
+        }
+        state.currentWordData.phonetic = phonetic;
+        state.currentWordData.definition = defs.slice(0, 2).join('\n');
+    } catch (e) {
+        document.getElementById('tooltipPhonetic').innerHTML = '<span style="color:var(--text-sub)">未能取得英英釋義</span>';
+    }
+
+    // Google Translate
+    try {
+        const tlRes = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-TW&dt=t&q=${encodeURIComponent(word)}`);
+        if (tlRes.ok) {
+            const tlData = await tlRes.json();
+            const zh = tlData?.[0]?.map(item => item?.[0]).join('').trim();
+            if (zh) {
+                document.getElementById('tooltipZhDef').innerText = zh;
+                document.getElementById('tooltipZhSection').style.display = 'block';
+                state.currentWordData.zh = zh;
+            }
+        }
+    } catch(e) {}
+}
+
+document.getElementById('saveWordBtn').onclick = async () => {
+    if (!state.currentWordData || !state.currentWordData.word) return;
+    await dbPut('vocab', state.currentWordData);
+    
+    const today = new Date().toISOString().split('T')[0];
+    const stat = await dbGet('stats', today) || { mins: 0, words: 0 };
+    stat.words++; await dbPut('stats', stat);
+
+    showToast(`✅ "${state.currentWordData.word}" 已加入單詞本！`);
+    dom.tooltip.classList.remove('show');
+    renderVocab();
+};
+
+// ==========================================
+// 8. 挖空測驗校驗
+// ==========================================
+function bindClozeEvents() {
+    document.querySelectorAll('.cloze-input').forEach(inp => {
+        inp.onchange = async (e) => {
+            const val = e.target.value.toLowerCase().trim();
+            const ans = e.target.dataset.ans;
+            if(val === ans) {
+                e.target.style.background = 'rgba(52, 199, 89, 0.2)'; e.target.style.color = 'var(--green)'; e.target.disabled = true;
+            } else {
+                e.target.style.borderBottom = '2px solid var(--red)'; e.target.value = '';
+                let err = await dbGet('clozeErr', ans) || { word: ans, count: 0 };
+                err.count++; await dbPut('clozeErr', err);
+            }
+        };
+    });
+}
+
+// ==========================================
+// 9. Web Speech API 智能評分
+// ==========================================
+let recognizer;
+if ('webkitSpeechRecognition' in window) {
+    recognizer = new webkitSpeechRecognition();
+    recognizer.continuous = false; recognizer.interimResults = false; recognizer.lang = 'en-US';
+}
+
+async function handleShadowRating(sentenceText) {
+    if(!recognizer) return showToast('您的瀏覽器不支援語音識別');
+    const badge = document.getElementById('speechRatingBadge');
+    badge.innerHTML = "🎙️ 正在聆聽..."; badge.classList.add('show');
+    
+    recognizer.onresult = (e) => {
+        const spoken = e.results[0][0].transcript.toLowerCase();
+        const origin = sentenceText.replace(/[^a-zA-Z ]/g, '').toLowerCase().split(' ');
+        const spokenArr = spoken.split(' ');
+        
+        let match = 0;
+        origin.forEach(w => { if(w && spokenArr.includes(w)) match++; });
+        let score = Math.min(100, Math.round((match / Math.max(1, origin.length)) * 100));
+        if(origin.length===0) score=0;
+        
+        let color = score > 80 ? 'var(--green)' : (score > 60 ? 'var(--orange)' : 'var(--red)');
+        badge.innerHTML = `<span style="color:${color}">●</span> ${score} 分`;
+        setTimeout(() => { badge.classList.remove('show'); if(state.isShadow) dom.player.play(); }, 2000);
+    };
+    recognizer.onerror = () => { badge.innerHTML = "⚠️ 未聽到聲音"; setTimeout(()=>badge.classList.remove('show'), 1500); };
+    recognizer.start();
+}
+
+// ==========================================
+// 10. 播放器進度追蹤與控制
+// ==========================================
+dom.player.addEventListener('timeupdate', () => {
+    const now = dom.player.currentTime;
+    
+    let newIdx = state.activeIdx;
+    if(state.subtitles.length) {
+        let l = 0, r = state.subtitles.length - 1;
+        while(l <= r) { 
+            const m = Math.floor((l+r)/2); 
+            if(now >= state.subtitles[m].start && now <= state.subtitles[m].end) { newIdx = m; break; } 
+            if(now < state.subtitles[m].start) r = m - 1; else l = m + 1; 
+        }
+    }
+
+    // 單句循環判斷
+    if(state.isLooping && state.activeIdx !== -1) {
+        if(now >= state.subtitles[state.activeIdx].end) {
+            dom.player.currentTime = state.subtitles[state.activeIdx].start;
+            return;
+        }
+    }
+
+    if(newIdx !== state.activeIdx && newIdx !== -1) {
+        if(state.activeIdx !== -1) {
+            const oldNode = document.getElementById(`lyr-${state.activeIdx}`);
+            if(oldNode) oldNode.classList.remove('active');
+            
+            if(state.isShadow && !state.isLooping) {
+                dom.player.pause();
+                handleShadowRating(state.subtitles[state.activeIdx].en);
+            }
+        }
+        state.activeIdx = newIdx;
+        updateVirtualDOM();
+        
+        const newNode = document.getElementById(`lyr-${state.activeIdx}`);
+        if(newNode) {
+            newNode.classList.add('active');
+            // 平滑滾動到中央
+            dom.transcript.scrollTo({ top: newNode.offsetTop - dom.transcript.clientHeight/2, behavior: 'smooth' });
+        }
+    }
+
+    updateWordHighlight(now);
+});
+
+// 記錄學習時長
+setInterval(async () => {
+    if(!dom.player.paused && dom.workspace.classList.contains('active')) {
+        const today = new Date().toISOString().split('T')[0];
+        let stat = await dbGet('stats', today) || { date: today, mins: 0, words: 0 };
+        stat.mins = Math.round((stat.mins + 5/60)*10)/10;
+        await dbPut('stats', stat);
+    }
+}, 5000);
+
+dom.player.addEventListener('play', () => { dom.playBtn.classList.add('playing'); document.getElementById('playIcon').style.display='none'; document.getElementById('pauseIcon').style.display='block'; });
+dom.player.addEventListener('pause', () => { dom.playBtn.classList.remove('playing'); document.getElementById('playIcon').style.display='block'; document.getElementById('pauseIcon').style.display='none'; });
+
+dom.playBtn.onclick = () => dom.player.paused ? dom.player.play() : dom.player.pause();
+window.skip = (s) => dom.player.currentTime += s;
+document.getElementById('loopSentenceBtn').onclick = (e) => {
+    state.isLooping = !state.isLooping;
+    e.target.closest('button').style.color = state.isLooping ? 'var(--blue)' : 'var(--text-main)';
+    showToast(state.isLooping ? '開啟單句循環' : '關閉循環');
+};
+document.getElementById('speedToggleBtn').onclick = (e) => {
+    const rates = [0.5, 0.75, 1, 1.25, 1.5, 2];
+    let curr = dom.player.playbackRate;
+    let next = rates[(rates.indexOf(curr) + 1) % rates.length];
+    dom.player.playbackRate = next;
+    e.target.innerText = next.toFixed(1) + 'x';
+};
+
+// ==========================================
+// 11. UI 導覽切換與主題控制
+// ==========================================
+document.getElementById('sidebarNav').addEventListener('click', e => {
+    const item = e.target.closest('.nav-item');
+    if(!item || item.id==='btnThemeToggle') return;
+    document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active')); item.classList.add('active');
+    document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('active'));
+    document.getElementById(`view-${item.dataset.tab}`).classList.add('active');
+    if(item.dataset.tab === 'profile') renderDashboard();
+});
+
+document.getElementById('btnThemeToggle').onclick = () => document.body.classList.toggle('dark-theme');
+
+document.getElementById('modeControl').addEventListener('click', e => {
+    const btn = e.target.closest('.segment-btn'); if(!btn) return;
+    document.querySelectorAll('#modeControl .segment-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
+    dom.transcript.className = `transcript-flow mode-${btn.dataset.mode}`;
+});
+
+document.getElementById('toggleClozeBtn').onclick = (e) => { state.isCloze = !state.isCloze; e.target.classList.toggle('active', state.isCloze); buildTranscriptData(); state.renderRange=[-1,-1]; updateVirtualDOM(); };
+document.getElementById('toggleShadowBtn').onclick = (e) => { state.isShadow = !state.isShadow; e.target.classList.toggle('active', state.isShadow); showToast(state.isShadow ? 'AI 評測已開啟，請在句尾跟讀' : '已關閉'); };
+
+window.importYouTube = () => {
+    const input = document.getElementById('ytInput');
+    if(!input.value) return showToast('請輸入連結');
+    showToast('正在解析 YouTube 字幕並調用 AI 翻譯...');
+    setTimeout(() => { input.value = ''; showToast('導入成功！(展示用途)'); initApp(); }, 2000);
+};
+
+window.openVideo = async (id) => {
+    state.currentVideoId = id;
+    dom.player.src = 'https://www.w3schools.com/html/mov_bbb.mp4'; 
+    state.subtitles = [
+        { start: 0.5, end: 3.0, en: "Welcome to this advanced english lesson.", zh: "歡迎來到這節高級英語課。" },
+        { start: 3.5, end: 6.0, en: "It is absolutely vital that you accelerate your learning.", zh: "加速你的學習是絕對至關重要的。" },
+        { start: 6.5, end: 10.0, en: "Do not let an abrupt failure destroy your authentic self.", zh: "不要讓突然的失敗摧毀你真實的自我。" }
+    ];
+    for(let i=3; i<500; i++) {
+        state.subtitles.push({ start: i*4, end: i*4+3.5, en: `This is a generated placeholder sentence number ${i} for testing virtual DOM rendering performance.`, zh: `這是第 ${i} 句用於測試虛擬列表渲染性能的生成佔位符。` });
+    }
+    
+    buildTranscriptData();
+    state.activeIdx = -1; state.renderRange = [-1,-1];
+    dom.transcript.innerHTML = '';
+    
+    dom.homeScreen.classList.add('hidden'); dom.workspace.classList.add('active');
+    
+    const prog = await dbGet('videos', id);
+    if(prog && prog.progTime) dom.player.currentTime = prog.progTime;
+    dom.player.play();
+};
+
+window.exitWorkspace = async () => {
+    dom.player.pause();
+    if(state.currentVideoId && state.currentVideoId !== 'local' && dom.player.duration) {
+        const pct = (dom.player.currentTime / dom.player.duration) * 100;
+        await dbPut('videos', { id: state.currentVideoId, prog: pct, progTime: dom.player.currentTime });
+    }
+    dom.workspace.classList.remove('active'); dom.homeScreen.classList.remove('hidden');
+    initApp(); 
+};
+
+function formatTime(s) { const m=Math.floor(s/60); const ss=Math.floor(s%60); return `${m<10?'0':''}${m}:${ss<10?'0':''}${ss}`; }
+
+// 鍵盤快捷鍵
+document.addEventListener('keydown', (e) => {
+    if (!dom.workspace.classList.contains('active') || e.target.tagName === 'INPUT') return;
+    switch (e.code) { 
+        case 'Space': e.preventDefault(); dom.player.paused ? dom.player.play() : dom.player.pause(); break; 
+        case 'ArrowLeft': e.preventDefault(); skip(-5); break; 
+        case 'ArrowRight': e.preventDefault(); skip(5); break; 
+    }
+});
+
+// CSV 匯出
+document.getElementById('exportCsvBtn').onclick = async () => {
+    const words = await dbGetAll('vocab');
+    if (!words.length) return showToast("沒有單詞可匯出");
+    let csv = "\uFEFFWord,Phonetic,Chinese,Definition\n";
+    words.forEach(w => csv += `"${w.word}","${w.phonetic||''}","${(w.zh||'').replace(/"/g,'""')}","${(w.definition||'').replace(/"/g,'""').replace(/\n/g,' ')}"\n`);
+    const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'}));
+    link.download = 'vocabulary.csv'; link.click();
+};
+
+window.onload = initDB;
+</script>
+</body>
+</html>            background-color: var(--bg); color: var(--text-main);
             height: 100dvh; width: 100vw; overflow: hidden;
             transition: background-color 0.4s ease, color 0.4s ease;
             -webkit-font-smoothing: antialiased;
