@@ -1277,23 +1277,52 @@ async function showWordTooltip(rawWord) {
         state.currentWordData.phonetic = phonetic; state.currentWordData.definition = defs.slice(0, 2).join('\n');
     } catch (e) { $('tooltipPhonetic').innerHTML = '<span style="color:var(--text-sub)">未能取得英英释义</span>'; }
 
-    // 2. 双接口中文翻译保障机制
+    // 2. 三重中文翻译保障机制 (彻底解决跨域与限流)
     try {
         let zh = '';
-        try {
-            // 首选：Google 翻译 (可能会遭遇跨域拦截)
-            const tlRes = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=${encodeURIComponent(word)}`);
-            if (tlRes.ok) { const tlData = await tlRes.json(); zh = tlData?.[0]?.map(item => item?.[0]).join('').trim(); }
-            else throw new Error('GTX API Blocked');
-        } catch (err) {
-            // 备用：MyMemory 翻译 API (跨域友好)
-            const fbRes = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|zh-CN`);
-            if (fbRes.ok) { const fbData = await fbRes.json(); zh = fbData?.responseData?.translatedText || ''; }
+        const q = encodeURIComponent(word);
+        
+        // 设定请求超时机制，避免接口卡死
+        const fetchWithTimeout = (url, timeout = 4000) => Promise.race([
+            fetch(url), new Promise((_, rej) => setTimeout(() => rej(new Error('Timeout')), timeout))
+        ]);
+
+        const gtxUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=zh-CN&dt=t&q=${q}`;
+        
+        const apiQueue = [
+            // API 1: 透過 AllOrigins 代理绕过 CORS 拦截 (针对严格的 iframe 环境)
+            async () => {
+                const res = await fetchWithTimeout(`https://api.allorigins.win/raw?url=${encodeURIComponent(gtxUrl)}`);
+                const data = await res.json(); return data?.[0]?.map(i => i?.[0]).join('').trim();
+            },
+            // API 2: Google 翻译直连
+            async () => {
+                const res = await fetchWithTimeout(gtxUrl);
+                const data = await res.json(); return data?.[0]?.map(i => i?.[0]).join('').trim();
+            },
+            // API 3: MyMemory 备用介面
+            async () => {
+                const res = await fetchWithTimeout(`https://api.mymemory.translated.net/get?q=${q}&langpair=en|zh-CN`);
+                const data = await res.json(); const t = data?.responseData?.translatedText; return t?.includes('WARNING') ? '' : t;
+            }
+        ];
+
+        // 依序尝试 API，只要成功就跳出循环
+        for (const apiFn of apiQueue) {
+            try { 
+                zh = await apiFn(); 
+                if (zh && zh.toLowerCase() !== word.toLowerCase()) break; 
+            } catch (err) { /* 忽略错误，继续尝试下一个 API */ }
         }
         
-        if (zh) { $('tooltipZhDef').innerText = zh; state.currentWordData.zh = zh; }
-        else $('tooltipZhDef').innerHTML = '<span style="color:var(--text-sub); font-size:14px; font-weight:normal;">接口限流，请稍后再试</span>';
-    } catch(e) { $('tooltipZhDef').innerHTML = '<span style="color:var(--text-sub); font-size:14px; font-weight:normal;">网络错误</span>'; }
+        // 成功获取且不是返回原英文单词本身
+        if (zh && zh.toLowerCase() !== word.toLowerCase()) { 
+            $('tooltipZhDef').innerText = zh; 
+            state.currentWordData.zh = zh; 
+        } else { 
+            $('tooltipZhDef').innerHTML = '<span style="color:var(--orange); font-size:14px; font-weight:normal;">当前网络或公开接口受限，已自动降级为纯英释义</span>'; 
+        }
+    } catch(e) { $('tooltipZhDef').innerHTML = '<span style="color:var(--text-sub); font-size:14px; font-weight:normal;">网络请求失败</span>'; }
 }
 
 if($('saveWordBtn')) {
